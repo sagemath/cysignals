@@ -32,6 +32,11 @@ AUTHORS:
 #include <string.h>
 #include <limits.h>
 #include <sys/time.h>
+#include <Python.h>
+#include <sys/types.h>
+#include <stdlib.h>
+#include <unistd.h>
+
 /* glibc has a backtrace() command since version 2.1 */
 #ifdef __GLIBC__
 #if (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 1)

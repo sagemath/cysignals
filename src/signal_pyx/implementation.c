@@ -32,8 +32,9 @@ AUTHORS:
 #include <string.h>
 #include <limits.h>
 #include <sys/time.h>
-#include <Python.h>
 #include <sys/types.h>
+#include <sys/wait.h>
+#include <Python.h>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -227,6 +228,8 @@ static void sage_signal_handler(int sig)
     }
 }
 
+
+extern int sig_raise_exception(int sig, const char* msg);
 
 /* This calls sig_raise_exception() to actually raise the exception. */
 static void do_raise_exception(int sig)

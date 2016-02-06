@@ -6,7 +6,7 @@ import glob
 
 import gdb
 from Cython.Debugger import libpython, libcython
-from Cython.Debugger.libcython import cy, CythonCommand, CyGDBError
+from Cython.Debugger.libcython import cy, CythonCommand
 
 try:
     if not color:
@@ -23,8 +23,6 @@ def cython_debug_files():
                            'cython_debug_info_*')
     return glob.glob(pattern)
 
-
-
 print('\n\n')
 print('Cython backtrace')
 print('----------------')
@@ -34,7 +32,6 @@ try:
 
     for f in cython_debug_files():
         cy.import_.invoke(f, None)
-
 
     class SageBacktrace(CythonCommand):
         name = 'cy fullbt'
@@ -54,11 +51,11 @@ try:
                 func_args = []
             elif self.is_cython_function(frame):
                 cyfunc = self.get_cython_function(frame)
-                f = lambda arg: self.cy.cy_cvalue.invoke(arg, frame=frame)
+                f = lambda arg: self.cy.cy_cvalue.invoke(arg, frame=frame)  # noqa
 
                 func_name = cyfunc.name
                 func_cname = cyfunc.cname
-                func_args = [] # [(arg, f(arg)) for arg in cyfunc.arguments]
+                func_args = []  # [(arg, f(arg)) for arg in cyfunc.arguments]
             else:
                 func_name = frame.name()
                 func_cname = func_name
@@ -84,10 +81,8 @@ try:
             except gdb.GdbError:
                 pass
 
-
         def invoke(self, args, from_tty):
             self.newest_first_order(args, from_tty)
-
 
         def newest_first_order(self, args, from_tty):
             frame = gdb.newest_frame()
@@ -98,10 +93,9 @@ try:
                 index += 1
                 frame = frame.older()
 
-
         def newest_last_order(self, args, from_tty):
             frame = gdb.newest_frame()
-            n_frames = 0;
+            n_frames = 0
             while frame.older():
                 frame = frame.older()
                 n_frames += 1
@@ -111,7 +105,6 @@ try:
                 self.print_stackframe(frame, index)
                 index += 1
                 frame = frame.newer()
-
 
     trace = SageBacktrace.register()
     trace.invoke(None, None)

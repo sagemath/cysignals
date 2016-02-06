@@ -1,2 +1,3 @@
 # signal.pyx
-Sage's interrupt.pyx reborn as a stand-alone package
+
+[![Build Status](https://travis-ci.org/malb/signal.pyx.svg?branch=master)](https://travis-ci.org/malb/signal.pyx)

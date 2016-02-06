@@ -1,5 +1,5 @@
 /*
-Interrupt and signal handling for Sage
+Interrupt and signal handling for Cython
 
 AUTHORS:
 

@@ -42,9 +42,11 @@ AUTHORS:
 #ifdef __linux__
 #include <sys/prctl.h>
 #endif
+#ifdef HAVE_PARI
 #include <pari/pari.h>
-#include "interrupt/struct_signals.h"
-#include "interrupt/interrupt.h"
+#endif
+#include "struct_signals.h"
+#include "interrupt.h"
 
 
 /* Interrupt debug level.  This only works if ENABLE_DEBUG_INTERRUPT
@@ -111,7 +113,11 @@ static void sage_interrupt_handler(int sig)
 
     if (_signals.sig_on_count > 0)
     {
-        if (!_signals.block_sigint && !PARI_SIGINT_block)
+#ifdef HAVE_PARI
+      if (!_signals.block_sigint && !PARI_SIGINT_block)
+#else
+      if (!_signals.block_sigint)
+#endif
         {
             /* Raise an exception so Python can see it */
             do_raise_exception(sig);
@@ -135,7 +141,9 @@ static void sage_interrupt_handler(int sig)
     if (_signals.interrupt_received != SIGHUP && _signals.interrupt_received != SIGTERM)
     {
         _signals.interrupt_received = sig;
+#ifdef HAVE_PARI
         PARI_SIGINT_pending = sig;
+#endif
     }
 }
 
@@ -245,7 +253,9 @@ static void _sig_on_interrupt_received()
     do_raise_exception(_signals.interrupt_received);
     _signals.sig_on_count = 0;
     _signals.interrupt_received = 0;
+#ifdef HAVE_PARI
     PARI_SIGINT_pending = 0;
+#endif
 
     sigprocmask(SIG_SETMASK, &oldset, NULL);
 }
@@ -255,10 +265,14 @@ static void _sig_on_interrupt_received()
 static void _sig_on_recover()
 {
     _signals.block_sigint = 0;
+#ifdef HAVE_PARI
     PARI_SIGINT_block = 0;
+#endif
     _signals.sig_on_count = 0;
     _signals.interrupt_received = 0;
+#ifdef HAVE_PARI
     PARI_SIGINT_pending = 0;
+#endif
 
     /* Reset signal mask */
     sigprocmask(SIG_SETMASK, &default_sigmask, NULL);
@@ -431,4 +445,4 @@ static void sigdie(int sig, const char* s)
 /* Finally include the macros and inline functions for use in
  * interrupt.pyx. These require some of the above functions, therefore
  * this include must come at the end of this file. */
-#include "interrupt/macros.h"
+#include "macros.h"

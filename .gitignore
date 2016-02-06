@@ -60,3 +60,6 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+/src/interrupt.c
+/src/interrupt.h
+/src/interrupt_api.h

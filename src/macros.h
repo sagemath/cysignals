@@ -53,7 +53,7 @@ AUTHORS:
 
 #include <setjmp.h>
 #include <signal.h>
-#include "interrupt/struct_signals.h"
+#include "struct_signals.h"
 
 #ifdef __cplusplus
 extern "C" {

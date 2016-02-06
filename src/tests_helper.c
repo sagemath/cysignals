@@ -11,8 +11,8 @@
 #include <signal.h>
 #include <sys/select.h>
 #include <sys/wait.h>
-#include "interrupt/struct_signals.h"
-#include "interrupt/interrupt_api.h"
+#include "struct_signals.h"
+#include "interrupt_api.h"
 
 
 /* Wait ``ms`` milliseconds */

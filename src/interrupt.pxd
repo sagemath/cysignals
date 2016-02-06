@@ -36,7 +36,7 @@ cdef inline void cython_check_exception() nogil except *:
 
 
 # Private stuff below, do not use directly
-cdef extern from "interrupt/struct_signals.h":
+cdef extern from "struct_signals.h":
     ctypedef struct sage_signals_t:
         int sig_on_count
         const char* s

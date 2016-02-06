@@ -4,7 +4,7 @@
 
 #include <setjmp.h>
 #include <signal.h>
-#include "interrupt/debug.h"
+#include "debug.h"
 
 
 /* Declare likely() and unlikely() as in Cython */

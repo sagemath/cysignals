@@ -22,7 +22,7 @@ from libc.signal cimport (SIGHUP, SIGINT, SIGABRT, SIGILL, SIGSEGV,
         SIGFPE, SIGBUS, SIGQUIT)
 from libc.stdlib cimport abort
 
-cdef extern from 'interrupt/tests_helper.c':
+cdef extern from 'tests_helper.c':
     void ms_sleep(long ms) nogil
     void signal_after_delay(int signum, long ms) nogil
     void signals_after_delay(int signum, long ms, long interval, int n) nogil
@@ -31,10 +31,9 @@ cdef extern from *:
     ctypedef int volatile_int "volatile int"
 
 
-include 'sage/ext/interrupt.pxi'
-include 'sage/ext/stdsage.pxi'
+include 'signal.pxi'
 from cpython cimport PyErr_SetString
-
+from libc.stdlib cimport malloc, free
 
 # Default delay in milliseconds before raising signals
 cdef long DEFAULT_DELAY = 200
@@ -50,7 +49,7 @@ cdef void infinite_loop() nogil:
 cdef void infinite_malloc_loop() nogil:
     cdef size_t s = 1
     while True:
-        sage_free(sage_malloc(s))
+        free(malloc(s))
         s *= 2
         if (s > 1000000): s = 1
 

@@ -60,6 +60,10 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
-/src/interrupt.c
-/src/interrupt.h
-/src/interrupt_api.h
+
+# Cython generated
+/src/signal_pyx/signal.c
+/src/signal_pyx/signal.h
+/src/signal_pyx/signal_pyx/tests.c
+/src/signal_pyx/tests.c
+/src/signal_pyx/signal_api.h

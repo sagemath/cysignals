@@ -46,7 +46,7 @@ AUTHORS:
 #include <pari/pari.h>
 #endif
 #include "struct_signals.h"
-#include "interrupt.h"
+#include "signal.h"
 
 
 /* Interrupt debug level.  This only works if ENABLE_DEBUG_INTERRUPT
@@ -83,7 +83,7 @@ static void print_backtrace(void);
  * system.
  * See http://trac.sagemath.org/sage_trac/ticket/12873
  */
-static inline void reset_CPU()
+static inline void reset_CPU(void)
 {
 #if defined(__i386__) || defined(__x86_64__)
     /* Clear FPU tag word */
@@ -244,7 +244,7 @@ static void do_raise_exception(int sig)
 
 /* This will be called during _sig_on_postjmp() when an interrupt was
  * received *before* the call to sig_on(). */
-static void _sig_on_interrupt_received()
+static void _sig_on_interrupt_received(void)
 {
     /* Momentarily block signals to avoid race conditions */
     sigset_t oldset;
@@ -262,7 +262,7 @@ static void _sig_on_interrupt_received()
 
 /* Cleanup after siglongjmp() (reset signal mask to the default, set
  * sig_on_count to zero) */
-static void _sig_on_recover()
+static void _sig_on_recover(void)
 {
     _signals.block_sigint = 0;
 #ifdef HAVE_PARI
@@ -294,7 +294,7 @@ static void _sig_off_warning(const char* file, int line)
 }
 
 
-static void setup_sage_signal_handler()
+static void setup_sage_signal_handler(void)
 {
     /* Reset the _signals structure */
     memset(&_signals, 0, sizeof(_signals));
@@ -340,7 +340,7 @@ static void setup_sage_signal_handler()
 }
 
 
-static void print_sep()
+static void print_sep(void)
 {
     fprintf(stderr,
         "------------------------------------------------------------------------\n");
@@ -360,7 +360,7 @@ static void print_backtrace()
 }
 
 /* Print a backtrace using gdb */
-static void print_enhanced_backtrace()
+static void print_enhanced_backtrace(void)
 {
     /* Bypass Linux Yama restrictions on ptrace() to allow debugging */
     /* See https://www.kernel.org/doc/Documentation/security/Yama.txt */

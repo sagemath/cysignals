@@ -52,7 +52,7 @@ AUTHORS:
 #include <pari/pari.h>
 #endif
 #include "struct_signals.h"
-#include "signal.h"
+#include "signals.h"
 
 
 /* Interrupt debug level.  This only works if ENABLE_DEBUG_INTERRUPT
@@ -79,7 +79,7 @@ static void print_backtrace(void);
 
 
 /* Do whatever is needed to reset the CPU to a sane state after
- * handling a signal.  In particular on x86 CPUs, we need to clear
+ * handling a signals.  In particular on x86 CPUs, we need to clear
  * the FPU (this is needed after MMX instructions have been used or
  * if an interrupt occurs during an FPU computation).
  * Linux and OS X 10.6 do this as part of their signals implementation,
@@ -112,7 +112,7 @@ static void sage_interrupt_handler(int sig)
         if (_signals.debug_level >= 3) print_backtrace();
         fflush(stderr);
         /* Store time of this signal, unless there is already a
-         * pending signal. */
+         * pending signals. */
         if (!_signals.interrupt_received) gettimeofday(&sigtime, NULL);
     }
 #endif
@@ -239,7 +239,7 @@ static void do_raise_exception(int sig)
     if (_signals.debug_level >= 2) {
         gettimeofday(&raisetime, NULL);
         long delta_ms = (raisetime.tv_sec - sigtime.tv_sec)*1000L + ((long)raisetime.tv_usec - (long)sigtime.tv_usec)/1000;
-        fprintf(stderr, "do_raise_exception(sig=%i)\nPyErr_Occurred() = %p\nRaising Python exception %li ms after signal...\n",
+        fprintf(stderr, "do_raise_exception(sig=%i)\nPyErr_Occurred() = %p\nRaising Python exception %li ms after signals...\n",
             sig, PyErr_Occurred(), delta_ms);
         fflush(stderr);
     }
@@ -397,19 +397,19 @@ static void print_enhanced_backtrace(void)
         char pid_str[32];
         char* argv[5];
 
-        snprintf(path, sizeof(path), "%s/bin/sage-CSI", getenv("SAGE_LOCAL"));
+        snprintf(path, sizeof(path), "signals-CSI");
         snprintf(pid_str, sizeof(pid_str), "%i", parent_pid);
 
-        argv[0] = "sage-CSI";
+        argv[0] = "signals-CSI";
         argv[1] = "--no-color";
         argv[2] = "--pid";
         argv[3] = pid_str;
         argv[4] = NULL;
-        execv(path, argv);
-        perror("Failed to execute sage-CSI");
+        execvp(path, argv);
+        perror("Failed to execute signals-CSI");
         exit(2);
     }
-    /* Wait for sage-CSI to finish */
+    /* Wait for signals-CSI to finish */
     waitpid(pid, NULL, 0);
 
     print_sep();

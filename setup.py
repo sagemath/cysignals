@@ -15,7 +15,7 @@ else:
     libraries = []
 
 extensions = [
-    Extension("signal", ["src/signal_pyx/signal.pyx"], libraries=libraries),
+    Extension("signals", ["src/signal_pyx/signals.pyx"], libraries=libraries),
     Extension("tests", ["src/signal_pyx/tests.pyx"], libraries=libraries)
 ]
 
@@ -25,8 +25,9 @@ setup(
     ext_package='signal_pyx',
     ext_modules=cythonize(extensions, include_path=["src"]),
     packages=["signal_pyx"],
-    package_dir={"signal_pyx": "src/signal_pyx"},
-    package_data= {"signal_pyx": ["signal.pxi"]},
+    package_dir={"": "src"},
+    package_data= {"signal_pyx": ["signals.pxi"]},
+    scripts=["src/scripts/signals-CSI", "src/scripts/signals-CSI-helper.py"],
     license='GNU General Public License, version 2 or later',
     long_description=open('README.md').read(),
 )

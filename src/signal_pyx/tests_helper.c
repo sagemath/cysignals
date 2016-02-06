@@ -12,7 +12,7 @@
 #include <sys/select.h>
 #include <sys/wait.h>
 #include "struct_signals.h"
-#include "signal_api.h"
+#include "signals_api.h"
 
 
 /* Wait ``ms`` milliseconds */

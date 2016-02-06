@@ -1,7 +1,7 @@
 r"""
 Interrupt and signal handling
 
-See ``src/sage/ext/interrupt/tests.pyx`` for extensive tests.
+See ``tests.pyx`` for extensive tests.
 
 AUTHORS:
 
@@ -44,7 +44,7 @@ class AlarmInterrupt(KeyboardInterrupt):
         AlarmInterrupt
         sage: from sage.ext.interrupt import do_raise_exception
         sage: import signal
-        sage: do_raise_exception(signal.SIGALRM)
+        sage: do_raise_exception(signals.SIGALRM)
         Traceback (most recent call last):
         ...
         AlarmInterrupt
@@ -60,7 +60,7 @@ class SignalError(BaseException):
 
         sage: from sage.ext.interrupt import do_raise_exception
         sage: import signal
-        sage: do_raise_exception(signal.SIGSEGV)
+        sage: do_raise_exception(signals.SIGSEGV)
         Traceback (most recent call last):
         ...
         SignalError: Segmentation fault
@@ -117,11 +117,11 @@ def do_raise_exception(sig, msg=None):
 
         sage: from sage.ext.interrupt import do_raise_exception
         sage: import signal
-        sage: do_raise_exception(signal.SIGFPE)
+        sage: do_raise_exception(signals.SIGFPE)
         Traceback (most recent call last):
         ...
         FloatingPointError: Floating point exception
-        sage: do_raise_exception(signal.SIGBUS, "CUSTOM MESSAGE")
+        sage: do_raise_exception(signals.SIGBUS, "CUSTOM MESSAGE")
         Traceback (most recent call last):
         ...
         SignalError: CUSTOM MESSAGE
@@ -132,11 +132,11 @@ def do_raise_exception(sig, msg=None):
 
     For interrupts, the message is ignored, see :trac:`17949`::
 
-        sage: do_raise_exception(signal.SIGINT, "ignored")
+        sage: do_raise_exception(signals.SIGINT, "ignored")
         Traceback (most recent call last):
         ...
         KeyboardInterrupt
-        sage: do_raise_exception(signal.SIGALRM, "ignored")
+        sage: do_raise_exception(signals.SIGALRM, "ignored")
         Traceback (most recent call last):
         ...
         AlarmInterrupt
@@ -167,7 +167,7 @@ def init_interrupts():
     # now). This handler issues a sig_check() which finally raises the
     # KeyboardInterrupt exception.
     import signal
-    old = signal.signal(signal.SIGINT, sage_python_check_interrupt)
+    old = signal.signal(signal.SIGINT, python_check_interrupt)
 
     setup_sage_signal_handler()
 
@@ -192,7 +192,7 @@ def sig_on_reset():
     return s
 
 
-def sage_python_check_interrupt(sig, frame):
+def python_check_interrupt(sig, frame):
     """
     Python-level interrupt handler for interrupts raised in Python
     code. This simply delegates to the interrupt handling code in

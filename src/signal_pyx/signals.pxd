@@ -1,12 +1,10 @@
-# distutils: depends = INTERRUPT_DEPENDS
-#
 # NOTE: these functions are actually defined in "macros.h".
 # However, we intentionally do not mention that file here, because
 # every .pyx file using interrupt functions *must* also call
 # import_sage__ext__interrupt__interrupt() which is done automatically
-# if interrupt.pxi is included.
+# if signals.pxi is included.
 #
-# A failure to include interrupt.pxi will therefore lead to a compiler
+# A failure to include signals.pxi will therefore lead to a compiler
 # error (since sig_on() will not be defined) or an ImportError due to a
 # missing symbol but hopefully not an obscure segmentation fault.
 #

@@ -31,7 +31,7 @@ cdef extern from *:
     ctypedef int volatile_int "volatile int"
 
 
-include 'signal.pxi'
+include 'signals.pxi'
 from cpython cimport PyErr_SetString
 from libc.stdlib cimport malloc, free
 
@@ -55,7 +55,7 @@ cdef void infinite_malloc_loop() nogil:
 
 # Dereference a NULL pointer on purpose. This signals a SIGSEGV on most
 # systems, but on older Mac OS X and possibly other systems, this
-# signals a SIGBUS instead. In any case, this should give some signal.
+# signals a SIGBUS instead. In any case, this should give some signals.
 cdef void dereference_null_pointer() nogil:
     cdef long* ptr = <long*>(0)
     ptr[0] += 1
@@ -71,12 +71,14 @@ class return_exception:
 
     EXAMPLES::
 
-        sage: from sage.ext.interrupt.tests import return_exception
-        sage: @return_exception
-        ....: def raise_interrupt():
-        ....:     raise KeyboardInterrupt("just testing")
-        sage: raise_interrupt()
+        >>> from signal_pyx.tests import return_exception
+        >>> @return_exception
+        ... def raise_interrupt():
+        ...     raise KeyboardInterrupt("just testing")
+        ...
+        >>> raise_interrupt()
         KeyboardInterrupt('just testing',)
+
     """
     def __init__ (self, func):
         self.func = func
@@ -94,7 +96,7 @@ def interrupt_after_delay(ms_delay = 500):
     INPUT:
 
     - ``ms_delay`` -- (default: 500) a nonnegative integer indicating
-      how many milliseconds to wait before raising the interrupt signal.
+      how many milliseconds to wait before raising the interrupt signals.
 
     EXAMPLES:
 
@@ -102,13 +104,16 @@ def interrupt_after_delay(ms_delay = 500):
     demonstrate here how to test that the ``factor`` function can be
     interrupted::
 
-        sage: import sage.ext.interrupt.tests
-        sage: try:
-        ....:     sage.ext.interrupt.tests.interrupt_after_delay()
-        ....:     factor(10^1000 + 3)
-        ....: except KeyboardInterrupt:
-        ....:     print "Caught KeyboardInterrupt"
+        >>> import signal_pyx.tests
+        >>> try:
+        ...     signal_pyx.tests.interrupt_after_delay()
+        ...     while True:
+        ...         pass
+        ... except KeyboardInterrupt:
+        ...     print "Caught KeyboardInterrupt"
+        ...
         Caught KeyboardInterrupt
+
     """
     signal_after_delay(SIGINT, ms_delay)
 
@@ -122,8 +127,9 @@ def test_sig_off():
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_sig_off()
+        >>> from signal_pyx.tests import *
+        >>> test_sig_off()
+
     """
     with nogil:
         sig_on()
@@ -134,9 +140,10 @@ def test_sig_on(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_sig_on()
+        >>> from signal_pyx.tests import *
+        >>> test_sig_on()
         KeyboardInterrupt()
+
     """
     with nogil:
         signal_after_delay(SIGINT, delay)
@@ -147,11 +154,12 @@ def test_sig_str(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_sig_str()
+        >>> from signal_pyx.tests import *
+        >>> test_sig_str()
         Traceback (most recent call last):
         ...
         RuntimeError: Everything ok!
+
     """
     with nogil:
         sig_str("Everything ok!")
@@ -167,9 +175,10 @@ def test_sig_on_cython(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_sig_on_cython()
+        >>> from signal_pyx.tests import *
+        >>> test_sig_on_cython()
         KeyboardInterrupt()
+
     """
     signal_after_delay(SIGINT, delay)
     c_test_sig_on_cython()
@@ -183,9 +192,10 @@ def test_sig_on_cython_except(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_sig_on_cython_except()
+        >>> from signal_pyx.tests import *
+        >>> test_sig_on_cython_except()
         KeyboardInterrupt()
+
     """
     with nogil:
         signal_after_delay(SIGINT, delay)
@@ -200,9 +210,10 @@ def test_sig_on_cython_except_all(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_sig_on_cython_except_all()
+        >>> from signal_pyx.tests import *
+        >>> test_sig_on_cython_except_all()
         KeyboardInterrupt()
+
     """
     with nogil:
         signal_after_delay(SIGINT, delay)
@@ -213,9 +224,10 @@ def test_sig_check(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_sig_check()
+        >>> from signal_pyx.tests import *
+        >>> test_sig_check()
         KeyboardInterrupt()
+
     """
     signal_after_delay(SIGINT, delay)
     while True:
@@ -227,9 +239,10 @@ def test_sig_check_inside_sig_on(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_sig_check_inside_sig_on()
+        >>> from signal_pyx.tests import *
+        >>> test_sig_check_inside_sig_on()
         KeyboardInterrupt()
+
     """
     with nogil:
         signal_after_delay(SIGINT, delay)
@@ -245,9 +258,10 @@ def test_sig_retry():
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_sig_retry()
+        >>> from signal_pyx.tests import *
+        >>> test_sig_retry()
         10
+
     """
     cdef volatile_int v = 0
 
@@ -264,9 +278,10 @@ def test_sig_retry_and_signal(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_sig_retry_and_signal()
+        >>> from signal_pyx.tests import *
+        >>> test_sig_retry_and_signal()
         KeyboardInterrupt()
+
     """
     cdef volatile_int v = 0
 
@@ -283,9 +298,10 @@ def test_sig_error():
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_sig_error()
+        >>> from signal_pyx.tests import *
+        >>> test_sig_error()
         ValueError('some error',)
+
     """
     sig_on()
     PyErr_SetString(ValueError, "some error")
@@ -299,19 +315,20 @@ def test_sig_on_no_except(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_sig_on_no_except()
+        >>> from signal_pyx.tests import *
+        >>> test_sig_on_no_except()
         42
+
     """
     if not sig_on_no_except():
         # We should never get here, because this sig_on_no_except()
-        # will not catch a signal.
+        # will not catch a signals.
         print "Unexpected zero returned from sig_on_no_except()"
     sig_off()
 
     signal_after_delay(SIGINT, delay)
     if not sig_on_no_except():
-        # We get here when we caught a signal.  An exception
+        # We get here when we caught a signals.  An exception
         # has been raised, but Cython doesn't realize it yet.
         try:
             # Make Cython realize that there is an exception.
@@ -327,15 +344,16 @@ def test_sig_str_no_except(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_sig_str_no_except()
+        >>> from signal_pyx.tests import *
+        >>> test_sig_str_no_except()
         Traceback (most recent call last):
         ...
         RuntimeError: Everything ok!
+
     """
     if not sig_on_no_except():
         # We should never get here, because this sig_on_no_except()
-        # will not catch a signal.
+        # will not catch a signals.
         print "Unexpected zero returned from sig_on_no_except()"
     sig_off()
 
@@ -350,9 +368,10 @@ def test_sig_check_no_except(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_sig_check_no_except()
+        >>> from signal_pyx.tests import *
+        >>> test_sig_check_no_except()
         KeyboardInterrupt()
+
     """
     with nogil:
         signal_after_delay(SIGINT, delay)
@@ -369,11 +388,12 @@ def test_signal_segv(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_signal_segv()
+        >>> from signal_pyx.tests import *
+        >>> test_signal_segv()
         Traceback (most recent call last):
         ...
         SignalError: Segmentation fault
+
     """
     with nogil:
         sig_on()
@@ -384,11 +404,12 @@ def test_signal_fpe(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_signal_fpe()
+        >>> from signal_pyx.tests import *
+        >>> test_signal_fpe()
         Traceback (most recent call last):
         ...
         FloatingPointError: Floating point exception
+
     """
     with nogil:
         sig_on()
@@ -399,11 +420,12 @@ def test_signal_ill(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_signal_ill()
+        >>> from signal_pyx.tests import *
+        >>> test_signal_ill()
         Traceback (most recent call last):
         ...
         SignalError: Illegal instruction
+
     """
     with nogil:
         sig_on()
@@ -414,11 +436,12 @@ def test_signal_abrt(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_signal_abrt()
+        >>> from signal_pyx.tests import *
+        >>> test_signal_abrt()
         Traceback (most recent call last):
         ...
         RuntimeError: Aborted
+
     """
     with nogil:
         sig_on()
@@ -429,11 +452,12 @@ def test_signal_bus(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_signal_bus()
+        >>> from signal_pyx.tests import *
+        >>> test_signal_bus()
         Traceback (most recent call last):
         ...
         SignalError: Bus error
+
     """
     with nogil:
         sig_on()
@@ -447,10 +471,15 @@ def test_signal_quit(long delay = DEFAULT_DELAY):
     We run Sage in a subprocess and make it raise a SIGQUIT under
     ``sig_on()``.  This should cause Sage to exit::
 
-        sage: from subprocess import *
-        sage: cmd = 'from sage.ext.interrupt.tests import *; test_signal_quit()'
-        sage: print Popen(['sage', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1]  # long time
-        ---...---
+        >>> from subprocess import *
+        >>> cmd = 'from signal_pyx.tests import *; test_signal_quit()'
+        >>> print Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1]  # doctest: +ELLIPSIS
+        ------------------------------------------------------------------------
+        ...
+        ------------------------------------------------------------------------
+        ------------------------------------------------------------------------
+        <BLANKLINE>
+
     """
     # The sig_on() shouldn't make a difference for SIGQUIT
     with nogil:
@@ -469,11 +498,12 @@ def test_dereference_null_pointer():
     This test should result in either a Segmentation Fault or a Bus
     Error. ::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_dereference_null_pointer()
+        >>> from signal_pyx.tests import *
+        >>> test_dereference_null_pointer() # doctest: +ELLIPSIS
         Traceback (most recent call last):
         ...
         SignalError: ...
+
     """
     with nogil:
         sig_on()
@@ -486,15 +516,20 @@ def unguarded_dereference_null_pointer():
     We run Sage in a subprocess and dereference a NULL pointer without
     using ``sig_on()``. This will crash Sage::
 
-        sage: from subprocess import *
-        sage: cmd = 'from sage.ext.interrupt.tests import *; unguarded_dereference_null_pointer()'
-        sage: print Popen(['sage', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1]  # long time
-        ---...---
+        >>> from subprocess import *
+        >>> cmd = 'from signal_pyx.tests import *; unguarded_dereference_null_pointer()'
+        >>> print Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1]  # doctest: +ELLIPSIS
+        ------------------------------------------------------------------------
+        ...
+        ------------------------------------------------------------------------
+        ------------------------------------------------------------------------
         Unhandled SIG...
         This probably occurred because a *compiled* component of Sage has a bug
         in it and is not properly wrapped with sig_on(), sig_off().
         Sage will now terminate.
         ------------------------------------------------------------------------
+        <BLANKLINE>
+
     """
     with nogil:
         dereference_null_pointer()
@@ -503,11 +538,12 @@ def test_abort():
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_abort()
+        >>> from signal_pyx.tests import *
+        >>> test_abort()
         Traceback (most recent call last):
         ...
         RuntimeError: Aborted
+
     """
     with nogil:
         sig_on()
@@ -519,15 +555,20 @@ def unguarded_abort():
 
     We run Sage in a subprocess and make it call abort()::
 
-        sage: from subprocess import *
-        sage: cmd = 'from sage.ext.interrupt.tests import *; unguarded_abort()'
-        sage: print Popen(['sage', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1]  # long time
-        ---...---
+        >>> from subprocess import *
+        >>> cmd = 'from signal_pyx.tests import *; unguarded_abort()'
+        >>> print Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1]  # doctest: +ELLIPSIS
+        ------------------------------------------------------------------------
+        ...
+        ------------------------------------------------------------------------
+        ------------------------------------------------------------------------
         Unhandled SIGABRT: An abort() occurred in Sage.
         This probably occurred because a *compiled* component of Sage has a bug
         in it and is not properly wrapped with sig_on(), sig_off().
         Sage will now terminate.
         ------------------------------------------------------------------------
+        <BLANKLINE>
+
     """
     with nogil:
         abort()
@@ -538,15 +579,20 @@ def test_bad_str(long delay = DEFAULT_DELAY):
 
     We run Sage in a subprocess and induce an error during the signal handler::
 
-        sage: from subprocess import *
-        sage: cmd = 'from sage.ext.interrupt.tests import *; test_bad_str()'
-        sage: print Popen(['sage', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1]  # long time
-        ---...---
+        >>> from subprocess import *
+        >>> cmd = 'from signal_pyx.tests import *; test_bad_str()'
+        >>> print Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1]  # doctest: +ELLIPSIS
+        ------------------------------------------------------------------------
+        ...
+        ------------------------------------------------------------------------
+        ------------------------------------------------------------------------
         An error occured during signal handling.
         This probably occurred because a *compiled* component of Sage has a bug
         in it and is not properly wrapped with sig_on(), sig_off().
         Sage will now terminate.
         ------------------------------------------------------------------------
+        <BLANKLINE>
+
     """
     cdef char* s = <char*>(16)
     with nogil:
@@ -563,9 +609,10 @@ def test_sig_on_cython_after_delay(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_sig_on_cython_after_delay()
+        >>> from signal_pyx.tests import *
+        >>> test_sig_on_cython_after_delay()
         KeyboardInterrupt()
+
     """
     with nogil:
         signal_after_delay(SIGINT, delay)
@@ -577,8 +624,9 @@ def test_sig_on_inside_try(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_sig_on_inside_try()
+        >>> from signal_pyx.tests import *
+        >>> test_sig_on_inside_try()
+
     """
     try:
         with nogil:
@@ -595,9 +643,10 @@ def test_interrupt_bomb(int n = 100, int p = 10):
 
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_interrupt_bomb()  # long time (1200 + 5*p + 10*n milliseconds)
+        >>> from signal_pyx.tests import *
+        >>> test_interrupt_bomb()  # doctest: +ELLIPSIS
         Received ... interrupts
+
     """
     cdef int i
 
@@ -630,11 +679,12 @@ def test_try_finally_signal(long delay = DEFAULT_DELAY):
 
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_try_finally_signal()
+        >>> from signal_pyx.tests import *
+        >>> test_try_finally_signal()
         Traceback (most recent call last):
         ...
         RuntimeError: Aborted
+
     """
     sig_on()
     try:
@@ -650,11 +700,12 @@ def test_try_finally_raise():
 
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_try_finally_raise()
+        >>> from signal_pyx.tests import *
+        >>> test_try_finally_raise()
         Traceback (most recent call last):
         ...
         RuntimeError: Everything ok!
+
     """
     sig_on()
     try:
@@ -669,9 +720,10 @@ def test_try_finally_return():
 
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_try_finally_return()
+        >>> from signal_pyx.tests import *
+        >>> test_try_finally_return()
         'Everything ok!'
+
     """
     sig_on()
     try:
@@ -687,9 +739,10 @@ def test_sig_block(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_sig_block()
+        >>> from signal_pyx.tests import *
+        >>> test_sig_block()
         42
+
     """
     cdef volatile_int v = 0
 
@@ -712,9 +765,10 @@ def test_sig_block_outside_sig_on(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_sig_block_outside_sig_on()
+        >>> from signal_pyx.tests import *
+        >>> test_sig_block_outside_sig_on()
         'Success'
+
     """
     with nogil:
         signal_after_delay(SIGINT, delay)
@@ -739,9 +793,10 @@ def test_signal_during_malloc(long delay = DEFAULT_DELAY):
 
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: for i in range(4):  # Several times to reduce chances of false positive
+        >>> from signal_pyx.tests import *
+        >>> for i in range(4):  # Several times to reduce chances of false positive
         ...       test_signal_during_malloc()
+
     """
     try:
         with nogil:
@@ -761,8 +816,9 @@ def sig_on_bench():
 
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: sig_on_bench()
+        >>> from signal_pyx.tests import *
+        >>> sig_on_bench()
+
     """
     cdef int i
     with nogil:
@@ -776,8 +832,9 @@ def sig_check_bench():
 
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: sig_check_bench()
+        >>> from signal_pyx.tests import *
+        >>> sig_check_bench()
+
     """
     cdef int i
     with nogil:
@@ -796,9 +853,10 @@ def test_sighup(long delay = DEFAULT_DELAY):
 
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_sighup()
+        >>> from signal_pyx.tests import *
+        >>> test_sighup()
         SystemExit()
+
     """
     with nogil:
         signal_after_delay(SIGHUP, delay)
@@ -813,9 +871,10 @@ def test_sigterm_and_sigint(long delay = DEFAULT_DELAY):
 
     TESTS::
 
-        sage: from sage.ext.interrupt.tests import *
-        sage: test_sigterm_and_sigint()
+        >>> from signal_pyx.tests import *
+        >>> test_sigterm_and_sigint()
         SystemExit()
+
     """
     with nogil:
         sig_on()
@@ -828,42 +887,3 @@ def test_sigterm_and_sigint(long delay = DEFAULT_DELAY):
         ms_sleep(delay)
         sig_unblock()
         sig_off()
-
-def test_graceful_exit():
-    r"""
-    TESTS:
-
-    Start a Sage subprocess, spawn a child PARI/GP process and kill the
-    Sage process.  The PARI/GP process should exit by itself. ::
-
-        sage: from subprocess import *
-        sage: from signal import *
-        sage: P = Popen(['sage-ipython'], stdin=PIPE, stdout=PIPE, stderr=PIPE)  # long time
-        sage: P.stdin.write('from sage.ext.interrupt.tests import *\n')  # long time
-        sage: P.stdin.write('test_graceful_exit()\n')  # long time
-
-    Now read from the child until we read ``"GO"``.  This ensures that
-    the child Sage process has properly started before we terminate it::
-
-        sage: while "GO" not in P.stdout.readline(): pass  # long time
-        sage: os.kill(P.pid, SIGHUP)  # long time
-        sage: print 'stdout =', P.stdout.read()  # long time
-        stdout = ...Exiting PARI/GP interpreter...
-        sage: P.wait()  # long time
-        0
-    """
-    # This code is executed in the subprocess
-    import os, sys
-    from sage.interfaces.gp import gp
-
-    # Keep PARI/GP busy
-    gp(0)  # Ensure PARI/GP is started
-    gp._expect.sendline("factor(2^1000-3);")
-
-    # Print something to synchronize with the parent
-    print("GO")
-    sys.stdout.flush()
-
-    # Wait to be killed...
-    sig_on()
-    infinite_loop()

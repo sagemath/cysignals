@@ -17,6 +17,7 @@ before_script:
 
 script:
   - python -m doctest src/cysignals/*.pyx
+  - cd example && python setup.py install
 
 notifications:
   on_success: change

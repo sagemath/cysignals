@@ -16,7 +16,7 @@ clean:
 
 distclean: clean
 
-check:
+check: install
 	$(PYTHON) -m doctest src/cysignals/*.pyx
 
 test: check

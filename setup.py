@@ -30,5 +30,5 @@ setup(
     package_data= {"signal_pyx": ["signals.pxi"]},
     scripts=["src/scripts/signals-CSI", "src/scripts/signals-CSI-helper.py"],
     license='GNU General Public License, version 2 or later',
-    long_description=open('README.md').read(),
+    long_description=open('README.rst').read(),
 )

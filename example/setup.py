@@ -4,7 +4,7 @@ from distutils.core import setup
 from Cython.Build import cythonize
 import sys
 
-# Run Cython
+# Run Cython, search for .pxi files in all sys.path directories
 extensions=cythonize("cysignals_example.pyx", include_path=sys.path)
 
 # Run Distutils

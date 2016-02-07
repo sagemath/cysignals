@@ -6,6 +6,7 @@ from Cython.Build import cythonize
 
 import os
 import sys
+import sysconfig
 from glob import glob
 
 opj = os.path.join
@@ -33,9 +34,20 @@ extensions = [
     Extension("tests", ["src/cysignals/tests.pyx"], **kwds)
 ]
 
+
+# Add an __init__.pxd file setting the correct include path
+try:
+    os.makedirs(opj(cythonize_dir, "src", "cysignals"))
+except OSError:
+    pass
+install_dir = opj(sysconfig.get_path("platlib"), "cysignals")
+with open(opj(cythonize_dir, "src", "cysignals", "__init__.pxd"), "wt") as f:
+    f.write("# distutils: include_dirs = {0}\n".format(install_dir))
+
+
 # Run Cython
 extensions=cythonize(extensions, build_dir=cythonize_dir,
-                     include_path=["src"])
+                     include_path=["src", opj(cythonize_dir, "src")])
 
 
 # Run Distutils
@@ -79,7 +91,7 @@ setup(
     package_dir={"cysignals": opj("src", "cysignals"),
                  "cysignals-cython": opj(cythonize_dir, "src", "cysignals")},
     package_data={"cysignals": ["*.pxi", "*.pxd", "*.h"],
-                  "cysignals-cython": ["*.h"]},
+                  "cysignals-cython": ["__init__.pxd", "*.h"]},
     scripts=glob(opj("src", "scripts", "*")),
     cmdclass=dict(build_py=build_py_cython),
     license='GNU General Public License, version 2 or later',

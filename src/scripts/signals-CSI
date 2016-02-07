@@ -8,9 +8,9 @@ description = """
     without any user interaction. The target process is frozen while
     this script runs and resumes when it is finished."""
 
-# A backtrace is saved in the directory $SAGE_CRASH_LOGS, which is
-# $DOT_SAGE/crash_logs by default.  Any backtraces older than
-# $SAGE_CRASH_DAYS (default: 7 if SAGE_CRASH_LOGS unset, -1 if
+# A backtrace is saved in the directory $SIGNALS_CRASH_LOGS, which is
+# signals_crash_logs by default.  Any backtraces older than
+# $SIGNALS_CRASH_DAYS (default: 7 if SIGNALS_CRASH_LOGS unset, -1 if
 # set) are automatically deleted, but with a negative value they are
 # never deleted.
 
@@ -122,7 +122,7 @@ def save_backtrace(output):
     try:
         bt_dir = os.environ['SIGNALS_CRASH_LOGS']
         # Don't delete all files in this directory, in case the user
-        # set SAGE_CRASH_LOGS to a stupic value.
+        # set SIGNALS_CRASH_LOGS to a stupic value.
         bt_days = -1
     except KeyError:
         bt_dir = 'signals_crash_logs'
@@ -186,7 +186,7 @@ if __name__ == '__main__':
             break
 
     if fail:
-        print('Install the gdb spkg (sage -i gdb) for enhanced tracebacks.')
+        print('Install gdb for enhanced tracebacks.')
     else:
         filename = save_backtrace(trace)
         print('Saved trace to {0}'.format(filename))

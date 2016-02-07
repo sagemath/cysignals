@@ -39,7 +39,7 @@ in pure Python code (files with extension ``.py``). To use them, you **must**
 include the following in your ``.pyx`` file (it is not sufficient to do this in
 a ``.pxd`` file)::
 
-    include "sage/ext/interrupt.pxi"
+    include "cysignals/signals.pxi"
 
 .. NOTE::
 
@@ -280,7 +280,7 @@ otherwise)::
 
 .. code-block:: python
 
-    sage: abort_example()
+    >>>  abort_example()
     Traceback (most recent call last):
     ...
     RuntimeError: Aborted
@@ -335,7 +335,7 @@ Even within Cython, you cannot use the ``raise`` statement, because then the
 
 A typical error handler implemented in Cython would look as follows::
 
-    include "sage/ext/interrupt.pxi"
+    include "cysignals/signals.pxi"
     from cpython.exc cimport PyErr_SetString
 
     cdef void error_handler(char *msg):

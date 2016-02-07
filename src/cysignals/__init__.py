@@ -1,4 +1,3 @@
-# flake8: noqa
-from signals import *
+from .signals import AlarmInterrupt, SignalError, init_interrupts
 
 init_interrupts()

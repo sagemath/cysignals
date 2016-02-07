@@ -38,16 +38,20 @@ class AlarmInterrupt(KeyboardInterrupt):
 
     EXAMPLES::
 
-        sage: raise AlarmInterrupt
-        Traceback (most recent call last):
-        ...
+        >>> from cysignals import AlarmInterrupt
+        >>> from signal import alarm
+        >>> try:
+        ...     _ = alarm(1)
+        ...     while True:
+        ...         pass
+        ... except AlarmInterrupt:
+        ...     print("alarm!")
+        alarm!
+        >>> from cysignals.signals import sig_print_exception
+        >>> import signal
+        >>> sig_print_exception(signal.SIGALRM)
         AlarmInterrupt
-        sage: from sage.ext.interrupt import do_raise_exception
-        sage: import signal
-        sage: do_raise_exception(signals.SIGALRM)
-        Traceback (most recent call last):
-        ...
-        AlarmInterrupt
+
     """
     pass
 
@@ -58,12 +62,11 @@ class SignalError(BaseException):
 
     EXAMPLES::
 
-        sage: from sage.ext.interrupt import do_raise_exception
-        sage: import signal
-        sage: do_raise_exception(signals.SIGSEGV)
-        Traceback (most recent call last):
-        ...
+        >>> from cysignals.signals import sig_print_exception
+        >>> import signal
+        >>> sig_print_exception(signal.SIGSEGV)
         SignalError: Segmentation fault
+
     """
     pass
 
@@ -109,44 +112,44 @@ cdef public int sig_raise_exception "sig_raise_exception"(int sig, const char* m
 
     raise SystemError("unknown signal number %s"%sig)
 
-def do_raise_exception(sig, msg=None):
+
+def sig_print_exception(sig, msg=None):
     """
-    Python version of :func:`sig_raise_exception`, just for doctesting.
+    Python version of :func:`sig_raise_exception` which prints the
+    exception instead of raising it. This is just for doctesting.
 
     EXAMPLES::
 
-        sage: from sage.ext.interrupt import do_raise_exception
-        sage: import signal
-        sage: do_raise_exception(signals.SIGFPE)
-        Traceback (most recent call last):
-        ...
+        >>> from cysignals.signals import sig_print_exception
+        >>> import signal
+        >>> sig_print_exception(signal.SIGFPE)
         FloatingPointError: Floating point exception
-        sage: do_raise_exception(signals.SIGBUS, "CUSTOM MESSAGE")
-        Traceback (most recent call last):
-        ...
+        >>> sig_print_exception(signal.SIGBUS, "CUSTOM MESSAGE")
         SignalError: CUSTOM MESSAGE
-        sage: do_raise_exception(0)
-        Traceback (most recent call last):
-        ...
+        >>> sig_print_exception(0)
         SystemError: unknown signal number 0
 
     For interrupts, the message is ignored, see :trac:`17949`::
 
-        sage: do_raise_exception(signals.SIGINT, "ignored")
-        Traceback (most recent call last):
-        ...
+        >>> sig_print_exception(signal.SIGINT, "ignored")
         KeyboardInterrupt
-        sage: do_raise_exception(signals.SIGALRM, "ignored")
-        Traceback (most recent call last):
-        ...
+        >>> sig_print_exception(signal.SIGALRM, "ignored")
         AlarmInterrupt
+
     """
     cdef const char* m
     if msg is None:
         m = NULL
     else:
         m = msg
-    sig_raise_exception(sig, m)
+
+    try:
+        sig_raise_exception(sig, m)
+    except BaseException as e:
+        # Print exception to stdout without traceback
+        import sys, traceback
+        typ, val, tb = sys.exc_info()
+        traceback.print_exception(typ, val, None, file=sys.stdout)
 
 
 def init_interrupts():
@@ -181,11 +184,13 @@ def sig_on_reset():
 
     EXAMPLES::
 
-        sage: from sage.ext.interrupt import sig_on_reset
-        sage: cython('sig_on()'); sig_on_reset()
+        >>> from cysignals.signals import sig_on_reset
+        >>> from cysignals.tests import _sig_on
+        >>> _sig_on(); sig_on_reset()
         1
-        sage: sig_on_reset()
+        >>> sig_on_reset()
         0
+
     """
     cdef int s = _signals.sig_on_count
     _signals.sig_on_count = 0

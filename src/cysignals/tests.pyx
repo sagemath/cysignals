@@ -118,6 +118,14 @@ def interrupt_after_delay(ms_delay = 500):
     signal_after_delay(SIGINT, ms_delay)
 
 
+def _sig_on():
+    """
+    A single ``sig_on()`` for doctesting purposes. This can never work
+    for real code.
+    """
+    sig_on()
+
+
 ########################################################################
 # Test basic interrupt-handling macros.                                #
 # Since these are supposed to work without the GIL, we do all tests    #

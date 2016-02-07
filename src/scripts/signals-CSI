@@ -8,9 +8,9 @@ description = """
     without any user interaction. The target process is frozen while
     this script runs and resumes when it is finished."""
 
-# A backtrace is saved in the directory $SAGE_CRASH_LOGS, which is
-# $DOT_SAGE/crash_logs by default.  Any backtraces older than
-# $SAGE_CRASH_DAYS (default: 7 if SAGE_CRASH_LOGS unset, -1 if
+# A backtrace is saved in the directory $CYSIGNALS_CRASH_LOGS, which is
+# signals_crash_logs by default.  Any backtraces older than
+# $CYSIGNALS_CRASH_DAYS (default: 7 if CYSIGNALS_CRASH_LOGS unset, -1 if
 # set) are automatically deleted, but with a negative value they are
 # never deleted.
 
@@ -65,14 +65,16 @@ def run_gdb(pid, color):
     """
     Execute gdb.
     """
-    PIPE = subprocess.PIPE
+    # Preload the right Python library
+    libpython = os.path.join(sysconfig.get_config_var('exec_prefix'), 'lib',
+                             sysconfig.get_config_var('INSTSONAME'))
     env = dict(os.environ)
-    # libpython = os.path.join(env['SAGE_LOCAL'], 'lib',
-    #                          sysconfig.get_config_var('INSTSONAME'))
-    # if sys.platform == 'macosx':
-    #     env['DYLD_INSERT_LIBRARIES'] = libpython
-    # else:
-    #     env['LD_PRELOAD'] = libpython
+    if sys.platform == 'macosx':
+        env['DYLD_INSERT_LIBRARIES'] = libpython
+    else:
+        env['LD_PRELOAD'] = libpython
+
+    PIPE = subprocess.PIPE
     try:
         cmd = subprocess.Popen('gdb', stdin=PIPE, stdout=PIPE,
                                stderr=PIPE, env=env)
@@ -118,16 +120,19 @@ def prune_old_logs(directory, days):
 
 def save_backtrace(output):
     try:
-        bt_dir = os.environ['SIGNALS_CRASH_LOGS']
+        bt_dir = os.environ['CYSIGNALS_CRASH_LOGS']
         # Don't delete all files in this directory, in case the user
-        # set SAGE_CRASH_LOGS to a stupic value.
+        # set CYSIGNALS_CRASH_LOGS to a stupic value.
         bt_days = -1
     except KeyError:
         bt_dir = 'signals_crash_logs'
         bt_days = 7
 
+    if not bt_dir:
+        return None
+
     try:
-        bt_days = int(os.environ['SIGNALS_CRASH_DAYS'])
+        bt_days = int(os.environ['CYSIGNALS_CRASH_DAYS'])
     except KeyError:
         pass
 
@@ -184,10 +189,11 @@ if __name__ == '__main__':
             break
 
     if fail:
-        print('Install the gdb spkg (sage -i gdb) for enhanced tracebacks.')
+        print('Install gdb for enhanced tracebacks.')
     else:
         filename = save_backtrace(trace)
-        print('Saved trace to {0}'.format(filename))
+        if filename is not None:
+            print('Saved trace to {0}'.format(filename))
 
     if args.kill:
         os.kill(args.pid, signal.SIGKILL)

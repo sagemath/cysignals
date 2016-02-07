@@ -39,7 +39,7 @@ setup(
     ext_modules=extensions,
     packages=["cysignals"],
     package_dir={"": "src"},
-    package_data={"cysignals": ["signals.pxi"]},
+    package_data={"cysignals": ["*.h", "*.pxd", "*.pxi"]},
     scripts=glob("src/scripts/*"),
     license='GNU General Public License, version 2 or later',
     long_description=open('README.rst').read(),

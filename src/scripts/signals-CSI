@@ -128,6 +128,9 @@ def save_backtrace(output):
         bt_dir = 'signals_crash_logs'
         bt_days = 7
 
+    if not bt_dir:
+        return None
+
     try:
         bt_days = int(os.environ['SIGNALS_CRASH_DAYS'])
     except KeyError:
@@ -189,7 +192,8 @@ if __name__ == '__main__':
         print('Install gdb for enhanced tracebacks.')
     else:
         filename = save_backtrace(trace)
-        print('Saved trace to {0}'.format(filename))
+        if filename is not None:
+            print('Saved trace to {0}'.format(filename))
 
     if args.kill:
         os.kill(args.pid, signal.SIGKILL)

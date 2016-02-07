@@ -62,7 +62,7 @@ target/
 .ipynb_checkpoints
 
 # Cython generated
-/src/signal_pyx/signals.c
-/src/signal_pyx/signals.h
-/src/signal_pyx/signals_api.h
-/src/signal_pyx/tests.c
+/src/cysignals/signals.c
+/src/cysignals/signals.h
+/src/cysignals/signals_api.h
+/src/cysignals/tests.c

@@ -1,8 +1,8 @@
-from signal_pyx.signals cimport *
+from cysignals.signals cimport *
 
 cdef extern from 'pxi.h':
-    int import_signal_pyx__signals() except -1
+    int import_cysignals__signals() except -1
 
 # This *must* be done for every module using interrupt functions
 # otherwise you will get segmentation faults.
-import_signal_pyx__signals()
+import_cysignals__signals()

@@ -71,7 +71,7 @@ class return_exception:
 
     EXAMPLES::
 
-        >>> from signal_pyx.tests import return_exception
+        >>> from cysignals.tests import return_exception
         >>> @return_exception
         ... def raise_interrupt():
         ...     raise KeyboardInterrupt("just testing")
@@ -104,9 +104,9 @@ def interrupt_after_delay(ms_delay = 500):
     demonstrate here how to test that the ``factor`` function can be
     interrupted::
 
-        >>> import signal_pyx.tests
+        >>> import cysignals.tests
         >>> try:
-        ...     signal_pyx.tests.interrupt_after_delay()
+        ...     cysignals.tests.interrupt_after_delay()
         ...     while True:
         ...         pass
         ... except KeyboardInterrupt:
@@ -127,7 +127,7 @@ def test_sig_off():
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_sig_off()
 
     """
@@ -140,7 +140,7 @@ def test_sig_on(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_sig_on()
         KeyboardInterrupt()
 
@@ -154,7 +154,7 @@ def test_sig_str(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_sig_str()
         Traceback (most recent call last):
         ...
@@ -175,7 +175,7 @@ def test_sig_on_cython(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_sig_on_cython()
         KeyboardInterrupt()
 
@@ -192,7 +192,7 @@ def test_sig_on_cython_except(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_sig_on_cython_except()
         KeyboardInterrupt()
 
@@ -210,7 +210,7 @@ def test_sig_on_cython_except_all(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_sig_on_cython_except_all()
         KeyboardInterrupt()
 
@@ -224,7 +224,7 @@ def test_sig_check(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_sig_check()
         KeyboardInterrupt()
 
@@ -239,7 +239,7 @@ def test_sig_check_inside_sig_on(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_sig_check_inside_sig_on()
         KeyboardInterrupt()
 
@@ -258,7 +258,7 @@ def test_sig_retry():
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_sig_retry()
         10
 
@@ -278,7 +278,7 @@ def test_sig_retry_and_signal(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_sig_retry_and_signal()
         KeyboardInterrupt()
 
@@ -298,7 +298,7 @@ def test_sig_error():
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_sig_error()
         ValueError('some error',)
 
@@ -315,7 +315,7 @@ def test_sig_on_no_except(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_sig_on_no_except()
         42
 
@@ -344,7 +344,7 @@ def test_sig_str_no_except(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_sig_str_no_except()
         Traceback (most recent call last):
         ...
@@ -368,7 +368,7 @@ def test_sig_check_no_except(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_sig_check_no_except()
         KeyboardInterrupt()
 
@@ -388,7 +388,7 @@ def test_signal_segv(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_signal_segv()
         Traceback (most recent call last):
         ...
@@ -404,7 +404,7 @@ def test_signal_fpe(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_signal_fpe()
         Traceback (most recent call last):
         ...
@@ -420,7 +420,7 @@ def test_signal_ill(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_signal_ill()
         Traceback (most recent call last):
         ...
@@ -436,7 +436,7 @@ def test_signal_abrt(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_signal_abrt()
         Traceback (most recent call last):
         ...
@@ -452,7 +452,7 @@ def test_signal_bus(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_signal_bus()
         Traceback (most recent call last):
         ...
@@ -472,7 +472,7 @@ def test_signal_quit(long delay = DEFAULT_DELAY):
     ``sig_on()``.  This should cause Sage to exit::
 
         >>> from subprocess import *
-        >>> cmd = 'from signal_pyx.tests import *; test_signal_quit()'
+        >>> cmd = 'from cysignals.tests import *; test_signal_quit()'
         >>> print Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1]  # doctest: +ELLIPSIS
         ------------------------------------------------------------------------
         ...
@@ -498,7 +498,7 @@ def test_dereference_null_pointer():
     This test should result in either a Segmentation Fault or a Bus
     Error. ::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_dereference_null_pointer() # doctest: +ELLIPSIS
         Traceback (most recent call last):
         ...
@@ -517,7 +517,7 @@ def unguarded_dereference_null_pointer():
     using ``sig_on()``. This will crash Sage::
 
         >>> from subprocess import *
-        >>> cmd = 'from signal_pyx.tests import *; unguarded_dereference_null_pointer()'
+        >>> cmd = 'from cysignals.tests import *; unguarded_dereference_null_pointer()'
         >>> print Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1]  # doctest: +ELLIPSIS
         ------------------------------------------------------------------------
         ...
@@ -538,7 +538,7 @@ def test_abort():
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_abort()
         Traceback (most recent call last):
         ...
@@ -556,7 +556,7 @@ def unguarded_abort():
     We run Sage in a subprocess and make it call abort()::
 
         >>> from subprocess import *
-        >>> cmd = 'from signal_pyx.tests import *; unguarded_abort()'
+        >>> cmd = 'from cysignals.tests import *; unguarded_abort()'
         >>> print Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1]  # doctest: +ELLIPSIS
         ------------------------------------------------------------------------
         ...
@@ -580,7 +580,7 @@ def test_bad_str(long delay = DEFAULT_DELAY):
     We run Sage in a subprocess and induce an error during the signal handler::
 
         >>> from subprocess import *
-        >>> cmd = 'from signal_pyx.tests import *; test_bad_str()'
+        >>> cmd = 'from cysignals.tests import *; test_bad_str()'
         >>> print Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1]  # doctest: +ELLIPSIS
         ------------------------------------------------------------------------
         ...
@@ -609,7 +609,7 @@ def test_sig_on_cython_after_delay(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_sig_on_cython_after_delay()
         KeyboardInterrupt()
 
@@ -624,7 +624,7 @@ def test_sig_on_inside_try(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_sig_on_inside_try()
 
     """
@@ -643,7 +643,7 @@ def test_interrupt_bomb(int n = 100, int p = 10):
 
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_interrupt_bomb()  # doctest: +ELLIPSIS
         Received ... interrupts
 
@@ -679,7 +679,7 @@ def test_try_finally_signal(long delay = DEFAULT_DELAY):
 
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_try_finally_signal()
         Traceback (most recent call last):
         ...
@@ -700,7 +700,7 @@ def test_try_finally_raise():
 
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_try_finally_raise()
         Traceback (most recent call last):
         ...
@@ -720,7 +720,7 @@ def test_try_finally_return():
 
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_try_finally_return()
         'Everything ok!'
 
@@ -739,7 +739,7 @@ def test_sig_block(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_sig_block()
         42
 
@@ -765,7 +765,7 @@ def test_sig_block_outside_sig_on(long delay = DEFAULT_DELAY):
     """
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_sig_block_outside_sig_on()
         'Success'
 
@@ -793,7 +793,7 @@ def test_signal_during_malloc(long delay = DEFAULT_DELAY):
 
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> for i in range(4):  # Several times to reduce chances of false positive
         ...       test_signal_during_malloc()
 
@@ -816,7 +816,7 @@ def sig_on_bench():
 
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> sig_on_bench()
 
     """
@@ -832,7 +832,7 @@ def sig_check_bench():
 
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> sig_check_bench()
 
     """
@@ -853,7 +853,7 @@ def test_sighup(long delay = DEFAULT_DELAY):
 
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_sighup()
         SystemExit()
 
@@ -871,7 +871,7 @@ def test_sigterm_and_sigint(long delay = DEFAULT_DELAY):
 
     TESTS::
 
-        >>> from signal_pyx.tests import *
+        >>> from cysignals.tests import *
         >>> test_sigterm_and_sigint()
         SystemExit()
 

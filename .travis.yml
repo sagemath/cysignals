@@ -16,7 +16,7 @@ before_script:
   - "flake8 --max-line-length=120 --max-complexity=16 --ignore=E22,E241,E731 src"
 
 script:
-  - python -m doctest src/signal_pyx/*.pyx
+  - python -m doctest src/cysignals/*.pyx
 
 notifications:
   on_success: change

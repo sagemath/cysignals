@@ -5,6 +5,7 @@ from distutils.extension import Extension
 from Cython.Build import cythonize
 
 import os
+import sys
 from glob import glob
 
 have_pari = False
@@ -29,7 +30,7 @@ extensions = [
 
 # Run Cython
 extensions=cythonize(extensions, build_dir=cythonize_dir,
-        include_path=["src"])
+                     include_path=["src"])
 
 # Run Distutils
 setup(
@@ -40,6 +41,12 @@ setup(
     packages=["cysignals"],
     package_dir={"": "src"},
     package_data={"cysignals": ["signals.pxi"]},
+    data_files=[(os.path.join(sys.prefix, "include"), ["src/cysignals/struct_signals.h",
+                                                       "src/cysignals/debug.h",
+                                                       "src/cysignals/macros.h",
+                                                       "src/cysignals/pxi.h",
+                                                       "build/src/cysignals/signals_api.h",
+                                                       "build/src/cysignals/signals.h"])],
     scripts=glob("src/scripts/*"),
     license='GNU General Public License, version 2 or later',
     long_description=open('README.rst').read(),

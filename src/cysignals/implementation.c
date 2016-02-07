@@ -136,7 +136,7 @@ static void sage_interrupt_handler(int sig)
     else
     {
         /* Set the Python interrupt indicator, which will cause the
-         * Python-level interrupt handler in sage/ext/interrupt.pyx to
+         * Python-level interrupt handler in cysignals/signals.pyx to
          * be called. */
         PyErr_SetInterrupt();
     }
@@ -209,19 +209,19 @@ static void sage_signal_handler(int sig)
                 sigdie(sig, NULL);
                 break;  /* This will not be reached */
             case SIGILL:
-                sigdie(sig, "Unhandled SIGILL: An illegal instruction occurred in Sage.");
+                sigdie(sig, "Unhandled SIGILL: An illegal instruction occurred.");
                 break;  /* This will not be reached */
             case SIGABRT:
-                sigdie(sig, "Unhandled SIGABRT: An abort() occurred in Sage.");
+                sigdie(sig, "Unhandled SIGABRT: An abort() occurred.");
                 break;  /* This will not be reached */
             case SIGFPE:
-                sigdie(sig, "Unhandled SIGFPE: An unhandled floating point exception occurred in Sage.");
+                sigdie(sig, "Unhandled SIGFPE: An unhandled floating point exception occurred.");
                 break;  /* This will not be reached */
             case SIGBUS:
-                sigdie(sig, "Unhandled SIGBUS: A bus error occurred in Sage.");
+                sigdie(sig, "Unhandled SIGBUS: A bus error occurred.");
                 break;  /* This will not be reached */
             case SIGSEGV:
-                sigdie(sig, "Unhandled SIGSEGV: A segmentation fault occurred in Sage.");
+                sigdie(sig, "Unhandled SIGSEGV: A segmentation fault occurred.");
                 break;  /* This will not be reached */
         };
         sigdie(sig, "Unknown signal received.\n");
@@ -451,6 +451,6 @@ static void sigdie(int sig, const char* s)
 
 
 /* Finally include the macros and inline functions for use in
- * interrupt.pyx. These require some of the above functions, therefore
+ * signals.pyx. These require some of the above functions, therefore
  * this include must come at the end of this file. */
 #include "macros.h"

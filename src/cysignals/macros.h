@@ -18,7 +18,7 @@ redirects stdin from /dev/null, to cause interactive sessions to exit.
 These are critical because they cannot be ignored.  If they happen
 outside of sig_on(), we can only exit Sage with the dreaded
 "unhandled SIG..." message.  Inside of sig_on(), they can be handled
-and raise various exceptions (see sage/ext/interrupt.pyx).  SIGQUIT
+and raise various exceptions (see cysignals/signals.pyx).  SIGQUIT
 will never be handled and always causes Sage to exit.
 
 

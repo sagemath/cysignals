@@ -8,6 +8,9 @@ import os
 import sys
 from glob import glob
 
+opj = os.path.join
+
+
 have_pari = False
 
 libraries = []
@@ -20,9 +23,9 @@ if have_pari:
 cythonize_dir = "build"
 
 kwds = dict(libraries=libraries,
-            include_dirs=[os.path.join("src", "cysignals"),
-                          os.path.join(cythonize_dir, "src", "cysignals")],
-            depends=glob(os.path.join("src", "cysignals", "*.h")),
+            include_dirs=[opj("src", "cysignals"),
+                          opj(cythonize_dir, "src", "cysignals")],
+            depends=glob(opj("src", "cysignals", "*.h")),
             extra_compile_args=extra_compile_args)
 
 extensions = [
@@ -34,22 +37,51 @@ extensions = [
 extensions=cythonize(extensions, build_dir=cythonize_dir,
                      include_path=["src"])
 
+
 # Run Distutils
+from distutils.command.build_py import build_py
+class build_py_cython(build_py):
+    """
+    Custom distutils build_py class. For every package FOO, we also
+    check package data for a "fake" FOO-cython package.
+    """
+    def get_data_files(self):
+        """Generate list of '(package,src_dir,build_dir,filenames)' tuples"""
+        data = []
+        if not self.packages:
+            return data
+        for package in self.packages:
+            for src_package in [package, package + "-cython"]:
+                # Locate package source directory
+                src_dir = self.get_package_dir(src_package)
+
+                # Compute package build directory
+                build_dir = os.path.join(*([self.build_lib] + package.split('.')))
+
+                # Length of path to strip from found files
+                plen = 0
+                if src_dir:
+                    plen = len(src_dir)+1
+
+                # Strip directory from globbed filenames
+                filenames = [
+                    file[plen:] for file in self.find_data_files(src_package, src_dir)
+                    ]
+                data.append((package, src_dir, build_dir, filenames))
+        return data
+
 setup(
     name="cysignals",
     version='0.1dev',
     ext_package='cysignals',
     ext_modules=extensions,
     packages=["cysignals"],
-    package_dir={"": "src"},
-    package_data={"cysignals": ["signals.pxi", "signals.pxd"]},
-    data_files=[(os.path.join(sys.prefix, "include"), ["src/cysignals/struct_signals.h",
-                                                       "src/cysignals/debug.h",
-                                                       "src/cysignals/macros.h",
-                                                       "src/cysignals/pxi.h",
-                                                       "build/src/cysignals/signals_api.h",
-                                                       "build/src/cysignals/signals.h"])],
-    scripts=glob("src/scripts/*"),
+    package_dir={"cysignals": opj("src", "cysignals"),
+                 "cysignals-cython": opj(cythonize_dir, "src", "cysignals")},
+    package_data={"cysignals": ["*.pxi", "*.pxd", "*.h"],
+                  "cysignals-cython": ["*.h"]},
+    scripts=glob(opj("src", "scripts", "*")),
+    cmdclass=dict(build_py=build_py_cython),
     license='GNU General Public License, version 2 or later',
     long_description=open('README.rst').read(),
 )

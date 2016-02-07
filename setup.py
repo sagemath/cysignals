@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from distutils.core import setup
+from distutils.core import setup, Distribution
 from distutils.command.build_py import build_py
 from distutils.extension import Extension
 from distutils.sysconfig import get_python_lib
@@ -35,13 +35,17 @@ extensions = [
 ]
 
 
+# Determine installation directory from distutils
+inst = Distribution().get_command_obj("install")
+inst.finalize_options()
+install_dir = opj(inst.install_platlib, "cysignals")
+
+
 # Add an __init__.pxd file setting the correct include path
 try:
     os.makedirs(opj(cythonize_dir, "src", "cysignals"))
 except OSError:
     pass
-
-install_dir = opj(get_python_lib(), "cysignals")
 with open(opj(cythonize_dir, "src", "cysignals", "__init__.pxd"), "wt") as f:
     f.write("# distutils: include_dirs = {0}\n".format(install_dir))
 

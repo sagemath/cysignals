@@ -40,7 +40,7 @@ setup(
     ext_modules=extensions,
     packages=["cysignals"],
     package_dir={"": "src"},
-    package_data={"cysignals": ["signals.pxi"]},
+    package_data={"cysignals": ["signals.pxi", "signals.pxd"]},
     data_files=[(os.path.join(sys.prefix, "include"), ["src/cysignals/struct_signals.h",
                                                        "src/cysignals/debug.h",
                                                        "src/cysignals/macros.h",

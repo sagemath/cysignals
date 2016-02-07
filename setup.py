@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from distutils.core import setup
+from distutils.command.build_py import build_py
 from distutils.extension import Extension
+from distutils.sysconfig import get_python_lib
 from Cython.Build import cythonize
 
 import os
-import sys
-import sysconfig
 from glob import glob
 
 opj = os.path.join
@@ -40,7 +40,8 @@ try:
     os.makedirs(opj(cythonize_dir, "src", "cysignals"))
 except OSError:
     pass
-install_dir = opj(sysconfig.get_path("platlib"), "cysignals")
+
+install_dir = opj(get_python_lib(), "cysignals")
 with open(opj(cythonize_dir, "src", "cysignals", "__init__.pxd"), "wt") as f:
     f.write("# distutils: include_dirs = {0}\n".format(install_dir))
 
@@ -51,7 +52,6 @@ extensions=cythonize(extensions, build_dir=cythonize_dir,
 
 
 # Run Distutils
-from distutils.command.build_py import build_py
 class build_py_cython(build_py):
     """
     Custom distutils build_py class. For every package FOO, we also

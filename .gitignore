@@ -57,3 +57,4 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+/example/cysignals_example.c

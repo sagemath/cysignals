@@ -18,6 +18,7 @@ distclean: clean
 
 check: install
 	$(PYTHON) -m doctest src/cysignals/*.pyx
+	cd example && python setup.py build
 
 test: check
 

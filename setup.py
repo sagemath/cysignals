@@ -19,7 +19,8 @@ cythonize_dir = "build"
 
 kwds = dict(libraries=libraries,
             include_dirs=[os.path.join("src", "cysignals"),
-                          os.path.join(cythonize_dir, "src", "cysignals")])
+                          os.path.join(cythonize_dir, "src", "cysignals")],
+            depends=glob(os.path.join("src", "cysignals", "*.h")))
 
 extensions = [
     Extension("signals", ["src/cysignals/signals.pyx"], **kwds),

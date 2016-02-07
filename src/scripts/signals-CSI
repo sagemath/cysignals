@@ -65,14 +65,16 @@ def run_gdb(pid, color):
     """
     Execute gdb.
     """
-    PIPE = subprocess.PIPE
+    # Preload the right Python library
+    libpython = os.path.join(sysconfig.get_config_var('exec_prefix'), 'lib',
+                             sysconfig.get_config_var('INSTSONAME'))
     env = dict(os.environ)
-    # libpython = os.path.join(env['SAGE_LOCAL'], 'lib',
-    #                          sysconfig.get_config_var('INSTSONAME'))
-    # if sys.platform == 'macosx':
-    #     env['DYLD_INSERT_LIBRARIES'] = libpython
-    # else:
-    #     env['LD_PRELOAD'] = libpython
+    if sys.platform == 'macosx':
+        env['DYLD_INSERT_LIBRARIES'] = libpython
+    else:
+        env['LD_PRELOAD'] = libpython
+
+    PIPE = subprocess.PIPE
     try:
         cmd = subprocess.Popen('gdb', stdin=PIPE, stdout=PIPE,
                                stderr=PIPE, env=env)

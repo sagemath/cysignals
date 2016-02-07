@@ -79,7 +79,7 @@ cdef public int sig_raise_exception "sig_raise_exception"(int sig, const char* m
 
     if sig == SIGHUP or sig == SIGTERM:
         # Redirect stdin from /dev/null to close interactive sessions
-        freopen("/dev/null", "r", stdin)
+        _ = freopen("/dev/null", "r", stdin)
         # This causes Python to exit
         raise SystemExit
     if sig == SIGINT:

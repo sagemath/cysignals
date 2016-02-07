@@ -178,10 +178,10 @@ the usual way::
             # (handle interrupt)
 
 Certain C libraries are written in a way that they will raise Python exceptions:
-`libGAP https://bitbucket.org/vbraun/libgap`_ and `NTL
-http://doc.sagemath.org/html/en/reference/libs/sage/libs/ntl/all.html`_ in `Sage
-http://sagemath.org`_ can raise ``RuntimeError`` and `PARI
-http://doc.sagemath.org/html/en/reference/libs/sage/libs/pari/pari_instance.html`_
+`libGAP <https://bitbucket.org/vbraun/libgap>`_ and `NTL
+<http://doc.sagemath.org/html/en/reference/libs/sage/libs/ntl/all.html>`_ in `Sage
+<http://sagemath.org>`_ can raise ``RuntimeError`` and `PARI
+<http://doc.sagemath.org/html/en/reference/libs/sage/libs/pari/pari_instance.html>`_
 can raise ``PariError``. These exceptions behave exactly like the
 ``KeyboardInterrupt`` in the example above and can be caught by putting the
 ``sig_on()`` inside a ``try``/``except`` block. See :ref:`sig-error` to see how

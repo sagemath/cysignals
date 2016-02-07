@@ -14,16 +14,27 @@ if have_pari:
 else:
     libraries = []
 
+cythonize_dir = "build"
+
+kwds = dict(libraries=libraries,
+            include_dirs=[os.path.join("src", "cysignals"),
+                          os.path.join(cythonize_dir, "src", "cysignals")])
+
 extensions = [
-    Extension("signals", ["src/cysignals/signals.pyx"], libraries=libraries),
-    Extension("tests", ["src/cysignals/tests.pyx"], libraries=libraries)
+    Extension("signals", ["src/cysignals/signals.pyx"], **kwds),
+    Extension("tests", ["src/cysignals/tests.pyx"], **kwds)
 ]
 
+# Run Cython
+extensions=cythonize(extensions, build_dir=cythonize_dir,
+        include_path=["src"])
+
+# Run Distutils
 setup(
     name="cysignals",
     version='0.1dev',
     ext_package='cysignals',
-    ext_modules=cythonize(extensions, include_path=["src"]),
+    ext_modules=extensions,
     packages=["cysignals"],
     package_dir={"": "src"},
     package_data={"cysignals": ["signals.pxi"]},

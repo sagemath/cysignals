@@ -3,9 +3,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions
-*.so
-
 # Distribution / packaging
 .Python
 env/
@@ -60,9 +57,3 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
-
-# Cython generated
-/src/cysignals/signals.c
-/src/cysignals/signals.h
-/src/cysignals/signals_api.h
-/src/cysignals/tests.c

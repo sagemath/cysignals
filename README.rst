@@ -1,5 +1,5 @@
-signal.pyx
-==========
+cysignals
+=========
 
 .. image:: https://travis-ci.org/malb/signal.pyx.svg?branch=master
     :target: https://travis-ci.org/malb/signal.pyx

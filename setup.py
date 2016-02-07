@@ -10,18 +10,20 @@ from glob import glob
 
 have_pari = False
 
+libraries = []
+extra_compile_args = []
+
 if have_pari:
-    libraries = ["pari",  "gmp"]
-    os.environ["CFLAGS"] += " -DHAVE_PARI "
-else:
-    libraries = []
+    libraries += ["pari",  "gmp"]
+    extra_compile_args += ["-DHAVE_PARI"]
 
 cythonize_dir = "build"
 
 kwds = dict(libraries=libraries,
             include_dirs=[os.path.join("src", "cysignals"),
                           os.path.join(cythonize_dir, "src", "cysignals")],
-            depends=glob(os.path.join("src", "cysignals", "*.h")))
+            depends=glob(os.path.join("src", "cysignals", "*.h")),
+            extra_compile_args=extra_compile_args)
 
 extensions = [
     Extension("signals", ["src/cysignals/signals.pyx"], **kwds),

@@ -1,8 +1,8 @@
 cysignals
 =========
 
-.. image:: https://travis-ci.org/malb/signal.pyx.svg?branch=master
-    :target: https://travis-ci.org/malb/signal.pyx
+.. image:: https://travis-ci.org/sagemath/cysignals.svg?branch=master
+    :target: https://travis-ci.org/sagemath/cysignals
 
 When writing Cython code for Sage, special care must be taken to ensure the code
 can be interrupted with ``CTRL-C``. Since Cython optimizes for speed, Cython

@@ -436,9 +436,9 @@ static void sigdie(int sig, const char* s)
     if (s) {
         fprintf(stderr,
             "%s\n"
-            "This probably occurred because a *compiled* component of Sage has a bug\n"
+            "This probably occurred because a *compiled* module has a bug\n"
             "in it and is not properly wrapped with sig_on(), sig_off().\n"
-            "Sage will now terminate.\n", s);
+            "Python will now terminate.\n", s);
         print_sep();
     }
 

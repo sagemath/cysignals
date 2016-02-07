@@ -97,19 +97,18 @@ class return_exception:
 
 def interrupt_after_delay(ms_delay = 500):
     """
-    Send an interrupt signal (``SIGINT``) to the Sage process
-    after a delay of ``ms_delay`` milliseconds.
+    Send an interrupt signal (``SIGINT``) to the process after a delay of
+    ``ms_delay`` milliseconds.
 
     INPUT:
 
-    - ``ms_delay`` -- (default: 500) a nonnegative integer indicating
-      how many milliseconds to wait before raising the interrupt signals.
+        - ``ms_delay`` -- (default: 500) a nonnegative integer indicating how
+          many milliseconds to wait before raising the interrupt signals.
 
     EXAMPLES:
 
-    This function is meant to test interrupt functionality.  We
-    demonstrate here how to test that the ``factor`` function can be
-    interrupted::
+    This function is meant to test interrupt functionality.  We demonstrate here
+    how to test that an infinite loop can be interrupted::
 
         >>> import cysignals.tests
         >>> try:
@@ -483,8 +482,8 @@ def test_signal_quit(long delay = DEFAULT_DELAY):
     """
     TESTS:
 
-    We run Sage in a subprocess and make it raise a SIGQUIT under
-    ``sig_on()``.  This should cause Sage to exit::
+    We run Python in a subprocess and make it raise a SIGQUIT under
+    ``sig_on()``.  This should cause Python to exit::
 
         >>> from subprocess import *
         >>> cmd = 'from cysignals.tests import *; test_signal_quit()'
@@ -528,8 +527,8 @@ def unguarded_dereference_null_pointer():
     """
     TESTS:
 
-    We run Sage in a subprocess and dereference a NULL pointer without
-    using ``sig_on()``. This will crash Sage::
+    We run Python in a subprocess and dereference a NULL pointer without
+    using ``sig_on()``. This will crash Python::
 
         >>> from subprocess import *
         >>> cmd = 'from cysignals.tests import *; unguarded_dereference_null_pointer()'
@@ -539,9 +538,9 @@ def unguarded_dereference_null_pointer():
         ------------------------------------------------------------------------
         ------------------------------------------------------------------------
         Unhandled SIG...
-        This probably occurred because a *compiled* component of Sage has a bug
+        This probably occurred because a *compiled* module has a bug
         in it and is not properly wrapped with sig_on(), sig_off().
-        Sage will now terminate.
+        Python will now terminate.
         ------------------------------------------------------------------------
         <BLANKLINE>
 
@@ -568,7 +567,7 @@ def unguarded_abort():
     """
     TESTS:
 
-    We run Sage in a subprocess and make it call abort()::
+    We run Python in a subprocess and make it call abort()::
 
         >>> from subprocess import *
         >>> cmd = 'from cysignals.tests import *; unguarded_abort()'
@@ -577,10 +576,10 @@ def unguarded_abort():
         ...
         ------------------------------------------------------------------------
         ------------------------------------------------------------------------
-        Unhandled SIGABRT: An abort() occurred in Sage.
-        This probably occurred because a *compiled* component of Sage has a bug
+        Unhandled SIGABRT: An abort() occurred.
+        This probably occurred because a *compiled* module has a bug
         in it and is not properly wrapped with sig_on(), sig_off().
-        Sage will now terminate.
+        Python will now terminate.
         ------------------------------------------------------------------------
         <BLANKLINE>
 
@@ -592,7 +591,7 @@ def test_bad_str(long delay = DEFAULT_DELAY):
     """
     TESTS:
 
-    We run Sage in a subprocess and induce an error during the signal handler::
+    We run Python in a subprocess and induce an error during the signal handler::
 
         >>> from subprocess import *
         >>> cmd = 'from cysignals.tests import *; test_bad_str()'
@@ -602,9 +601,9 @@ def test_bad_str(long delay = DEFAULT_DELAY):
         ------------------------------------------------------------------------
         ------------------------------------------------------------------------
         An error occured during signal handling.
-        This probably occurred because a *compiled* component of Sage has a bug
+        This probably occurred because a *compiled* module has a bug
         in it and is not properly wrapped with sig_on(), sig_off().
-        Sage will now terminate.
+        Python will now terminate.
         ------------------------------------------------------------------------
         <BLANKLINE>
 
@@ -863,8 +862,8 @@ def sig_check_bench():
 @return_exception
 def test_sighup(long delay = DEFAULT_DELAY):
     """
-    Test a basic SIGHUP signal, which would normally exit Sage by
-    raising ``SystemExit``.
+    Test a basic SIGHUP signal, which would normally exit the Python interpreter
+    by raising ``SystemExit``.
 
     TESTS::
 

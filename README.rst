@@ -4,16 +4,16 @@ cysignals
 .. image:: https://travis-ci.org/sagemath/cysignals.svg?branch=master
     :target: https://travis-ci.org/sagemath/cysignals
 
-When writing Cython code for Sage, special care must be taken to ensure the code
-can be interrupted with ``CTRL-C``. Since Cython optimizes for speed, Cython
-normally does not check for interrupts. For example, code like the following
-cannot be interrupted:
+When writing Cython code, special care must be taken to ensure the code can be
+interrupted with ``CTRL-C``. Since Cython optimizes for speed, Cython normally
+does not check for interrupts. For example, code like the following cannot be
+interrupted:
 
 .. skip
 
 ::
 
-    sage: cython('while True: pass')  # DON'T DO THIS
+    >>> cython('while True: pass')  # DON'T DO THIS
 
 While this is running, pressing ``CTRL-C`` has no effect. The only way out is to
 kill the Sage process. On certain systems, you can still quit Sage by typing
@@ -23,7 +23,7 @@ kill the Sage process. On certain systems, you can still quit Sage by typing
 
 .. highlight:: cython
 
-Sage provides two related mechanisms to deal with interrupts:
+This module provides two related mechanisms to deal with interrupts:
 
 * :ref:`Use sig_check() <section_sig_check>` if you are writing mixed
   Cython/Python code. Typically this is code with (nested) loops where every
@@ -35,11 +35,17 @@ Sage provides two related mechanisms to deal with interrupts:
 
 The functions ``sig_check()``, ``sig_on()`` and ``sig_off()`` can be put in all
 kinds of Cython functions: ``def``, ``cdef`` or ``cpdef``. You cannot put them
-in pure Python code (files with extension ``.py``). These functions are specific
-to Sage. To use them, you **must** include the following in your ``.pyx`` file
-(it is not sufficient to do this in a ``.pxd`` file)::
+in pure Python code (files with extension ``.py``). To use them, you **must**
+include the following in your ``.pyx`` file (it is not sufficient to do this in
+a ``.pxd`` file)::
 
     include "sage/ext/interrupt.pxi"
+
+.. NOTE::
+
+    Because of `cython/cython#483 <https://github.com/cython/cython/pull/483>`_
+    you might want to add ``include_path=sys.path`` to your `cythonize` call in
+    `setup.py`.
 
 .. NOTE::
 
@@ -65,7 +71,7 @@ interrupts, an example of this is the ``print`` statement. The following loop
 
 .. code-block:: python
 
-    sage: cython('while True: print "Hello"')
+    >>> cython('while True: print "Hello"')
 
 The typical use case for ``sig_check()`` is within tight loops doing complicated
 stuff (mixed Python and Cython code, potentially raising exceptions). It is
@@ -139,8 +145,7 @@ But the following is valid since you cannot call ``foo`` interactively::
         sig_on()
         return foo()
 
-For clarity however, it is best to avoid this. One good example where the above
-makes sense is the ``new_gen()`` function in :ref:`section-pari-library`.
+For clarity however, it is best to avoid this.
 
 A common mistake is to put ``sig_off()`` towards the end of a function (before
 the ``return``) when the function has multiple ``return`` statements. So make
@@ -149,21 +154,20 @@ sure there is a ``sig_off()`` before *every* ``return`` (and also before every
 
 .. WARNING::
 
-    The code inside ``sig_on()`` should be pure C or Cython code.
-    If you call any Python code or manipulate any Python object
-    (even something trivial like ``x = []``),
-    an interrupt can mess up Python's internal state.
-    When in doubt, try to use :ref:`sig_check() <section_sig_check>` instead.
+    The code inside ``sig_on()`` should be pure C or Cython code. If you call
+    any Python code or manipulate any Python object (even something trivial like
+    ``x = []``), an interrupt can mess up Python's internal state. When in
+    doubt, try to use :ref:`sig_check() <section_sig_check>` instead.
 
     Also, when an interrupt occurs inside ``sig_on()``, code execution
-    immediately stops without cleaning up.
-    For example, any memory allocated inside ``sig_on()`` is lost.
-    See :ref:`advanced-sig` for ways to deal with this.
+    immediately stops without cleaning up. For example, any memory allocated
+    inside ``sig_on()`` is lost. See :ref:`advanced-sig` for ways to deal with
+    this.
 
 When the user presses ``CTRL-C`` inside ``sig_on()``, execution will jump back
-to ``sig_on()`` (the first one if there is a stack) and ``sig_on()``
-will raise ``KeyboardInterrupt``.  As with ``sig_check()``, this
-exception can be handled in the usual way::
+to ``sig_on()`` (the first one if there is a stack) and ``sig_on()`` will raise
+``KeyboardInterrupt``. As with ``sig_check()``, this exception can be handled in
+the usual way::
 
     def catch_interrupts():
         try:
@@ -173,19 +177,21 @@ exception can be handled in the usual way::
         except KeyboardInterrupt:
             # (handle interrupt)
 
-Certain C libraries in Sage are written in a way that they will raise
-Python exceptions:
-libGAP and NTL can raise ``RuntimeError`` and PARI can raise ``PariError``.
-These exceptions behave exactly like the ``KeyboardInterrupt``
-in the example above and can be caught by putting the ``sig_on()``
-inside a ``try``/``except`` block.
-See :ref:`sig-error` to see how this is implmented.
+Certain C libraries are written in a way that they will raise Python exceptions:
+`libGAP https://bitbucket.org/vbraun/libgap`_ and `NTL
+http://doc.sagemath.org/html/en/reference/libs/sage/libs/ntl/all.html`_ in `Sage
+http://sagemath.org`_ can raise ``RuntimeError`` and `PARI
+http://doc.sagemath.org/html/en/reference/libs/sage/libs/pari/pari_instance.html`_
+can raise ``PariError``. These exceptions behave exactly like the
+``KeyboardInterrupt`` in the example above and can be caught by putting the
+``sig_on()`` inside a ``try``/``except`` block. See :ref:`sig-error` to see how
+this is implmented.
 
-It is possible to stack ``sig_on()`` and ``sig_off()``.
-If you do this, the effect is exactly the same as if only the outer
-``sig_on()``/``sig_off()`` was there.  The inner ones will just change
-a reference counter and otherwise do nothing.  Make sure that the number
-of ``sig_on()`` calls equal the number of ``sig_off()`` calls::
+It is possible to stack ``sig_on()`` and ``sig_off()``. If you do this, the
+effect is exactly the same as if only the outer ``sig_on()``/``sig_off()`` was
+there. The inner ones will just change a reference counter and otherwise do
+nothing. Make sure that the number of ``sig_on()`` calls equal the number of
+``sig_off()`` calls::
 
     def f1():
         sig_on()
@@ -248,9 +254,7 @@ can conditionally call ``sig_on()`` and ``sig_off()``::
             sig_off()
 
 This should only be needed if both the check (``n > 100`` in the example) and
-the code inside the ``sig_on()`` block take very little time. In Sage versions
-before 4.7, ``sig_on()`` was much slower, that's why there are more checks like
-this in old code.
+the code inside the ``sig_on()`` block take very little time.
 
 Other Signals
 -------------
@@ -283,8 +287,8 @@ otherwise)::
 
 This exception can be handled by a ``try``/``except`` block as explained above.
 A segmentation fault or ``abort()`` unguarded by ``sig_on()`` would simply
-terminate Sage. This applies only to ``sig_on()``, the function ``sig_check()``
-only deals with interrupts and alarms.
+terminate the Python Interpreter. This applies only to ``sig_on()``, the
+function ``sig_check()`` only deals with interrupts and alarms.
 
 Instead of ``sig_on()``, there is also a function ``sig_str(s)``, which takes a
 C string ``s`` as argument. It behaves the same as ``sig_on()``, except that the
@@ -303,7 +307,7 @@ Executing this gives:
 
 .. code-block:: python
 
-    sage: abort_example_with_sig_str()
+    >>> abort_example_with_sig_str()
     Traceback (most recent call last):
     ...
     RuntimeError: custom error message
@@ -321,11 +325,11 @@ report errors: an external error handling function needs to be set up which will
 be called by the C library if an error occurs.
 
 The function ``sig_error()`` can be used to deal with these errors. This
-function may only be called within a ``sig_on()`` block (otherwise Sage will
-crash hard) after raising a Python exception. You need to use the `Python/C API
-<http://docs.python.org/2/c-api/exceptions.html>`_ for this and call
-``sig_error()`` after calling some variant of :func:`PyErr_SetObject`. Even
-within Cython, you cannot use the ``raise`` statement, because then the
+function may only be called within a ``sig_on()`` block (otherwise the Python
+interpreter will crash hard) after raising a Python exception. You need to use
+the `Python/C API <http://docs.python.org/2/c-api/exceptions.html>`_ for this
+and call ``sig_error()`` after calling some variant of :func:`PyErr_SetObject`.
+Even within Cython, you cannot use the ``raise`` statement, because then the
 ``sig_error()`` will never be executed. The call to ``sig_error()`` will use the
 ``sig_on()`` machinery such that the exception will be seen by ``sig_on()``.
 
@@ -375,22 +379,21 @@ There is also a function ``sig_str_no_except(s)`` which is analogous to
 
 .. NOTE::
 
-    See the file :file:`SAGE_ROOT/src/sage/tests/interrupt.pyx` for more
-    examples of how to use the various ``sig_*()`` functions.
+    See the file :file:`cysignals/signals.pyx` for more examples of how to use
+    the various ``sig_*()`` functions.
 
 Testing Interrupts
 ------------------
 
 .. highlight:: python
 
-When writing :ref:`section-docstrings`, one sometimes wants to check that
-certain code can be interrupted in a clean way. The best way to do this is to
-use :func:`alarm`.
+When writing documentation, one sometimes wants to check that certain code can
+be interrupted in a clean way. The best way to do this is to use :func:`alarm`.
 
 The following is an example of a doctest demonstrating that the function
 :func:`factor()` can be interrupted::
 
-    sage: alarm(0.5); factor(10^1000 + 3)
+    >>> : alarm(0.5); factor(10^1000 + 3)
     Traceback (most recent call last):
     ...
     AlarmInterrupt

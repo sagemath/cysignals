@@ -1,6 +1,13 @@
 """
 Test interrupt and signal handling
 
+TESTS:
+
+We disable crash logs for this test run::
+
+    >>> import os
+    >>> os.environ["CYSIGNALS_CRASH_LOGS"] = ""
+
 AUTHORS:
 
  - Jeroen Demeyer (2010-09-29): initial version (:trac:`10030`)

@@ -5,6 +5,7 @@ from distutils.extension import Extension
 from Cython.Build import cythonize
 
 import os
+from glob import glob
 
 have_pari = False
 
@@ -38,7 +39,7 @@ setup(
     packages=["cysignals"],
     package_dir={"": "src"},
     package_data={"cysignals": ["signals.pxi"]},
-    scripts=["src/scripts/signals-CSI", "src/scripts/signals-CSI-helper.py"],
+    scripts=glob("src/scripts/*"),
     license='GNU General Public License, version 2 or later',
     long_description=open('README.rst').read(),
 )

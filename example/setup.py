@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 
 from distutils.core import setup
-from distutils.extension import Extension
 from Cython.Build import cythonize
-
+import sys
 
 # Run Cython
-extensions=cythonize("cysignals_example.pyx")
+extensions=cythonize("cysignals_example.pyx", include_path=sys.path)
 
 # Run Distutils
 setup(

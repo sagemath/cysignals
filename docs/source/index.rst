@@ -170,16 +170,6 @@ the usual way::
         except KeyboardInterrupt:
             # (handle interrupt)
 
-Certain C libraries are written in a way that they will raise Python exceptions:
-`libGAP <https://bitbucket.org/vbraun/libgap>`_ and `NTL
-<http://doc.sagemath.org/html/en/reference/libs/sage/libs/ntl/all.html>`_ in `Sage
-<http://sagemath.org>`_ can raise ``RuntimeError`` and `PARI
-<http://doc.sagemath.org/html/en/reference/libs/sage/libs/pari/pari_instance.html>`_
-can raise ``PariError``. These exceptions behave exactly like the
-``KeyboardInterrupt`` in the example above and can be caught by putting the
-``sig_on()`` inside a ``try``/``except`` block. See :ref:`sig-error` to see how
-this is implmented.
-
 It is possible to stack ``sig_on()`` and ``sig_off()``. If you do this, the
 effect is exactly the same as if only the outer ``sig_on()``/``sig_off()`` was
 there. The inner ones will just change a reference counter and otherwise do
@@ -333,7 +323,21 @@ A typical error handler implemented in Cython would look as follows::
         PyErr_SetString(RuntimeError, msg)
         sig_error()
 
-In Sage, this mechanism is used for libGAP, NTL and PARI.
+Exceptions which are raised this way can be handled as usual by putting
+the ``sig_on()`` in a ``try``/``except`` block.
+For example, in `SageMath <http://www.sagemath.org/>`_, the
+`PARI interface <http://doc.sagemath.org/html/en/reference/libs/sage/libs/pari/pari_instance.html>`_
+can raise a custom ``PariError`` exception. This can be handled as follows::
+
+    def handle_pari_error():
+        try:
+            sig_on()  # This must be INSIDE the try
+            # (call to PARI)
+            sig_off()
+        except PariError:
+            # (handle error)
+
+SageMath uses this mechanism for libGAP, NTL and PARI.
 
 .. _advanced-sig:
 
@@ -380,8 +384,8 @@ When writing documentation, one sometimes wants to check that certain
 code can be interrupted in a clean way. The best way to do this is to
 use :func:`cysignals.alarm`.
 
-The following is an example of a doctest demonstrating that the Sage
-function :func:`factor()` can be interrupted::
+The following is an example of a doctest demonstrating that the
+SageMath function :func:`factor()` can be interrupted::
 
     >>> from cysignals.alarm import alarm, AlarmInterrupt
     >>> try:

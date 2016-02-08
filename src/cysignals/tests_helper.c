@@ -1,5 +1,5 @@
 /*
- * C functions for use in sage/tests
+ * C functions for use in tests.pyx
  */
 
 #include <stdlib.h>
@@ -35,7 +35,7 @@ void ms_sleep(long ms)
  *  - this child process creates a second child process
  *  - the second child process kills the first child process
  *  - the main process sees that the first child process is killed
- *    and continues with Sage
+ *    and continues running Python code
  *  - the second child process does the actual waiting and signalling
  */
 void signal_pid_after_delay(int signum, pid_t killpid, long ms, long interval, int n)
@@ -70,7 +70,7 @@ void signal_pid_after_delay(int signum, pid_t killpid, long ms, long interval, i
             /* This is child process 2 */
             kill(child1, SIGTERM);
 
-            /* Signal Sage after delay */
+            /* Signal Python after delay */
             ms_sleep(ms);
             for (;;)
             {
@@ -86,12 +86,12 @@ void signal_pid_after_delay(int signum, pid_t killpid, long ms, long interval, i
         exit(2);  /* This should NOT be reached */
     }
 
-    /* Main Sage process, continue when child 1 finishes */
+    /* Main Python process, continue when child 1 finishes */
     int wait_status;
     waitpid(child1, &wait_status, 0);
 }
 
-/* Signal the Sage process */
+/* Signal the Python process */
 #define signal_after_delay(signum, ms) signal_pid_after_delay(signum, getpid(), ms, 0, 1)
 
 /* The same as above, but sending ``n`` signals */

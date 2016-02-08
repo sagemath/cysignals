@@ -158,7 +158,7 @@ static void cysigs_interrupt_handler(int sig)
  *
  * Inside sig_on() (i.e. when cysigs.sig_on_count is positive), this
  * raises an exception and jumps back to sig_on().
- * Outside of sig_on(), we terminate Sage. */
+ * Outside of sig_on(), we terminate Python. */
 static void cysigs_signal_handler(int sig)
 {
     sig_atomic_t inside = cysigs.inside_signal_handler;
@@ -185,7 +185,7 @@ static void cysigs_signal_handler(int sig)
     }
     else
     {
-        /* We are outside sig_on() and have no choice but to terminate Sage */
+        /* We are outside sig_on() and have no choice but to terminate Python */
 
         /* Reset all signals to their default behaviour and unblock
          * them in case something goes wrong as of now. */
@@ -203,7 +203,7 @@ static void cysigs_signal_handler(int sig)
 
         if (inside) sigdie(sig, "An error occured during signal handling.");
 
-        /* Quit Sage with an appropriate message. */
+        /* Quit Python with an appropriate message. */
         switch(sig)
         {
             case SIGQUIT:

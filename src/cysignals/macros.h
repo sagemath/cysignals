@@ -1,5 +1,5 @@
 /*
-Interrupt and signal handling for Sage.
+Interrupt and signal handling for Cython.
 
 For documentation about how to use these, see the Developer's Guide.
 
@@ -16,10 +16,10 @@ redirects stdin from /dev/null, to cause interactive sessions to exit.
 
 (2) critical signals: SIGQUIT, SIGILL, SIGABRT, SIGFPE, SIGBUS, SIGSEGV.
 These are critical because they cannot be ignored.  If they happen
-outside of sig_on(), we can only exit Sage with the dreaded
+outside of sig_on(), we can only exit Python with the dreaded
 "unhandled SIG..." message.  Inside of sig_on(), they can be handled
 and raise various exceptions (see cysignals/signals.pyx).  SIGQUIT
-will never be handled and always causes Sage to exit.
+will never be handled and always causes Python to exit.
 
 
 AUTHORS:
@@ -81,10 +81,10 @@ extern "C" {
  *
  * The function sigsetjmp() in the _sig_on_() macro can return:
  *  - zero: this happens in the actual sig_on() call. sigsetjmp() sets
- *    up the address for the Sage signal handler to jump to.  The
+ *    up the address for the signal handler to jump to.  The
  *    program continues normally.
  *  - a signal number (e.g. 2 for SIGINT), assumed to be strictly
- *    positive: the Sage signal handler handled a signals.  Since
+ *    positive: the cysignals signal handler handled a signal.  Since
  *    _sig_on_() will return 0 in this case, the Exception (raised by
  *    cysigs_signal_handler) will be detected by Cython.
  *  - a negative number: this is assumed to come from sig_retry().  In

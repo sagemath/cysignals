@@ -33,8 +33,9 @@ AC_RUN_IFELSE([AC_LANG_PROGRAM([], [asm("leal (%eax), %eax; emms");])],
 
 AC_CONFIG_COMMANDS([build/src/config.pxd],
     # Generate a file config.pxd whose contents will be copied to
-    # __init__.pxd to set correct compiler options
-    [[echo "# distutils: extra_link_args = $LIBS" >build/src/config.pxd]],
+    # __init__.pxd to set correct compiler options.
+    # The -Ddummy works around https://github.com/cython/cython/pull/485
+    [[echo "# distutils: extra_link_args = $LIBS -Ddummy" >build/src/config.pxd]],
     [LIBS=$LIBS])
 
 

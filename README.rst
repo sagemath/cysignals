@@ -1,5 +1,5 @@
-cysignals
-=========
+cysignals: interrupt and signal handling for Cython
+===================================================
 
 .. image:: https://travis-ci.org/sagemath/cysignals.svg?branch=master
     :target: https://travis-ci.org/sagemath/cysignals

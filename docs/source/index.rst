@@ -191,7 +191,7 @@ nothing. Make sure that the number of ``sig_on()`` calls equal the number of
         x = f2()
         sig_off()
 
-    def f2():
+    cdef f2():
         sig_on()
         # ...
         sig_off()

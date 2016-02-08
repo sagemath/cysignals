@@ -10,9 +10,10 @@ in Cython::
     >>> while True:
     ...     pass
 
-While this is running, pressing ``CTRL-C`` has no effect. The only way out is to
-kill the Sage process. On certain systems, you can still quit Sage by typing
-``CTRL-\`` (sending a Quit signal) instead of ``CTRL-C``.
+While this is running, pressing ``CTRL-C`` has no effect. The only way
+out is to kill the Python process. On certain systems, you can still
+quit Python by typing ``CTRL-\`` (sending a Quit signal) instead of
+``CTRL-C``.
 
 This module provides two related mechanisms to deal with interrupts:
 

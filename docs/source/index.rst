@@ -367,8 +367,8 @@ There is also a function ``sig_str_no_except(s)`` which is analogous to
 
 .. NOTE::
 
-    See the file :file:`cysignals/signals.pyx` for more examples of how to use
-    the various ``sig_*()`` functions.
+    See the file `src/cysignals/tests.pyx <https://github.com/sagemath/cysignals/blob/master/src/cysignals/tests.pyx>`_
+    for more examples of how to use the various ``sig_*()`` functions.
 
 Testing Interrupts
 ------------------

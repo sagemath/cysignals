@@ -2,7 +2,9 @@
 
 PYTHON=python
 
-all:
+all: build doc
+
+build:
 	$(PYTHON) setup.py build
 
 install:
@@ -11,8 +13,16 @@ install:
 dist:
 	$(PYTHON) setup.py sdist
 
-clean:
+doc:
+	cd docs && $(MAKE) html
+
+clean: clean-doc clean-build
+
+clean-build:
 	rm -rf build
+
+clean-doc:
+	cd docs && $(MAKE) clean
 
 distclean: clean
 
@@ -26,4 +36,4 @@ check-example: install
 
 test: check
 
-.PHONY: all install dist clean distclean check test
+.PHONY: all build doc install dist clean distclean check test

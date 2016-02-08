@@ -1,22 +1,18 @@
 cysignals
 =========
 
-When writing Cython code, special care must be taken to ensure the code can be
-interrupted with ``CTRL-C``. Since Cython optimizes for speed, Cython normally
-does not check for interrupts. For example, code like the following cannot be
-interrupted:
+When writing `Cython <http://cython.org/>`_ code, special care must be
+taken to ensure that the code can be interrupted with ``CTRL-C``.
+Since Cython optimizes for speed, Cython normally does not check for
+interrupts. For example, code like the following cannot be interrupted
+in Cython::
 
-::
-
-    >>> cython('while True: pass')  # DON'T DO THIS
+    >>> while True:
+    ...     pass
 
 While this is running, pressing ``CTRL-C`` has no effect. The only way out is to
 kill the Sage process. On certain systems, you can still quit Sage by typing
 ``CTRL-\`` (sending a Quit signal) instead of ``CTRL-C``.
-
-.. Use Cython syntax highlighting for the rest of this document.
-
-.. highlight:: cython
 
 This module provides two related mechanisms to deal with interrupts:
 
@@ -64,7 +60,8 @@ With the latter we mean that certain Python statements also check for
 interrupts, an example of this is the ``print`` statement. The following loop
 *can* be interrupted::
 
-    >>> cython('while True: print "Hello"')
+    >>> while True:
+    ...     print("Hello")
 
 The typical use case for ``sig_check()`` is within tight loops doing complicated
 stuff (mixed Python and Cython code, potentially raising exceptions). It is
@@ -271,9 +268,9 @@ otherwise)::
         abort()
         sig_off()
 
-.. code-block:: python
+::
 
-    >>>  abort_example()
+    >>> abort_example()
     Traceback (most recent call last):
     ...
     RuntimeError: Aborted
@@ -296,9 +293,7 @@ still be closed by ``sig_off()``. Example Cython code::
         abort()
         sig_off()
 
-Executing this gives:
-
-.. code-block:: python
+Executing this gives::
 
     >>> abort_example_with_sig_str()
     Traceback (most recent call last):

@@ -95,6 +95,7 @@ class build_py_cython(build_py):
 setup(
     name="cysignals",
     version='0.1dev',
+    url="https://github.com/sagemath/cysignals",
     ext_package='cysignals',
     ext_modules=extensions,
     packages=["cysignals"],

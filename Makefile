@@ -11,7 +11,13 @@ install: build
 	$(PYTHON) setup.py install
 
 dist: configure
-	$(PYTHON) setup.py sdist
+	$(PYTHON) setup.py sdist --formats=bztar
+
+distcheck: dist
+	mkdir -p dist/check
+	cd dist/check && tar xjf ../cysignals-0.1dev.tar.bz2
+	cd dist/check/cysignals-0.1dev && ./configure && $(MAKE) all check
+	rm -rf dist/check
 
 doc:
 	cd docs && $(MAKE) html

@@ -97,28 +97,28 @@ extern "C" {
  * a short-circuiting operator (the second argument is only evaluated
  * if the first returns 0).
  */
-#define _sig_on_(message) ( unlikely(_sig_on_prejmp(message, __FILE__, __LINE__)) || _sig_on_postjmp(sigsetjmp(_signals.env,0)) )
+#define _sig_on_(message) ( unlikely(_sig_on_prejmp(message, __FILE__, __LINE__)) || _sig_on_postjmp(sigsetjmp(cysigs.env,0)) )
 
 /*
  * Set message, return 0 if we need to sigsetjmp(), return 1 otherwise.
  */
 static inline int _sig_on_prejmp(const char* message, const char* file, int line)
 {
-    _signals.s = message;
+    cysigs.s = message;
 #if ENABLE_DEBUG_INTERRUPT
-    if (_signals.debug_level >= 4)
+    if (cysigs.debug_level >= 4)
     {
-        fprintf(stderr, "sig_on (count = %i) at %s:%i\n", _signals.sig_on_count+1, file, line);
+        fprintf(stderr, "sig_on (count = %i) at %s:%i\n", cysigs.sig_on_count+1, file, line);
         fflush(stderr);
     }
 #endif
-    if (_signals.sig_on_count > 0)
+    if (cysigs.sig_on_count > 0)
     {
-        _signals.sig_on_count++;
+        cysigs.sig_on_count++;
         return 1;
     }
 
-    /* At this point, _signals.sig_on_count == 0 */
+    /* At this point, cysigs.sig_on_count == 0 */
     return 0;
 }
 
@@ -138,15 +138,15 @@ static inline int _sig_on_postjmp(int jmpret)
 
     /* When we are here, it's either the original sig_on() call or we
      * got here after sig_retry(). */
-    _signals.sig_on_count = 1;
+    cysigs.sig_on_count = 1;
 
     /* Check whether we received an interrupt before this point.
-     * _signals.interrupt_received can only be set by the interrupt
-     * handler if _signals.sig_on_count is zero.  Because of that and
-     * because _signals.sig_on_count and _signals.interrupt_received are
-     * volatile, we can safely evaluate _signals.interrupt_received here
+     * cysigs.interrupt_received can only be set by the interrupt
+     * handler if cysigs.sig_on_count is zero.  Because of that and
+     * because cysigs.sig_on_count and cysigs.interrupt_received are
+     * volatile, we can safely evaluate cysigs.interrupt_received here
      * without race conditions. */
-    if (unlikely(_signals.interrupt_received))
+    if (unlikely(cysigs.interrupt_received))
     {
         _sig_on_interrupt_received();
         return 0;
@@ -163,19 +163,19 @@ static inline int _sig_on_postjmp(int jmpret)
 static inline void _sig_off_(const char* file, int line)
 {
 #if ENABLE_DEBUG_INTERRUPT
-    if (_signals.debug_level >= 4)
+    if (cysigs.debug_level >= 4)
     {
-        fprintf(stderr, "sig_off (count = %i) at %s:%i\n", _signals.sig_on_count, file, line);
+        fprintf(stderr, "sig_off (count = %i) at %s:%i\n", cysigs.sig_on_count, file, line);
         fflush(stderr);
     }
 #endif
-    if (unlikely(_signals.sig_on_count <= 0))
+    if (unlikely(cysigs.sig_on_count <= 0))
     {
         _sig_off_warning(file, line);
     }
     else
     {
-        --_signals.sig_on_count;
+        --cysigs.sig_on_count;
     }
 }
 
@@ -197,7 +197,7 @@ static inline void _sig_off_(const char* file, int line)
  */
 static inline int sig_check(void)
 {
-    if (unlikely(_signals.interrupt_received) && _signals.sig_on_count == 0)
+    if (unlikely(cysigs.interrupt_received) && cysigs.sig_on_count == 0)
     {
         _sig_on_interrupt_received();
         return 0;
@@ -225,28 +225,28 @@ static inline int sig_check(void)
 static inline void sig_block(void)
 {
 #if ENABLE_DEBUG_INTERRUPT
-    if (_signals.block_sigint != 0)
+    if (cysigs.block_sigint != 0)
     {
-        fprintf(stderr, "\n*** WARNING *** sig_block() with sig_on_count = %i, block_sigint = %i\n", _signals.sig_on_count, _signals.block_sigint);
+        fprintf(stderr, "\n*** WARNING *** sig_block() with sig_on_count = %i, block_sigint = %i\n", cysigs.sig_on_count, cysigs.block_sigint);
         print_backtrace();
     }
 #endif
-    _signals.block_sigint = 1;
+    cysigs.block_sigint = 1;
 }
 
 static inline void sig_unblock(void)
 {
 #if ENABLE_DEBUG_INTERRUPT
-    if (_signals.block_sigint != 1)
+    if (cysigs.block_sigint != 1)
     {
-        fprintf(stderr, "\n*** WARNING *** sig_unblock() with sig_on_count = %i, block_sigint = %i\n", _signals.sig_on_count, _signals.block_sigint);
+        fprintf(stderr, "\n*** WARNING *** sig_unblock() with sig_on_count = %i, block_sigint = %i\n", cysigs.sig_on_count, cysigs.block_sigint);
         print_backtrace();
     }
 #endif
-    _signals.block_sigint = 0;
+    cysigs.block_sigint = 0;
 
-    if (unlikely(_signals.interrupt_received) && _signals.sig_on_count > 0)
-        kill(getpid(), _signals.interrupt_received);  /* Re-raise the signal */
+    if (unlikely(cysigs.interrupt_received) && cysigs.sig_on_count > 0)
+        kill(getpid(), cysigs.interrupt_received);  /* Re-raise the signal */
 }
 
 
@@ -259,12 +259,12 @@ static inline void sig_retry(void)
 {
     /* If we're outside of sig_on(), we can't jump, so we can only bail
      * out */
-    if (unlikely(_signals.sig_on_count <= 0))
+    if (unlikely(cysigs.sig_on_count <= 0))
     {
         fprintf(stderr, "sig_retry() without sig_on()\n");
         abort();
     }
-    siglongjmp(_signals.env, -1);
+    siglongjmp(cysigs.env, -1);
 }
 
 /* Used in error callbacks from C code (in particular NTL and PARI).
@@ -272,7 +272,7 @@ static inline void sig_retry(void)
  * to sig_on() where the exception will be seen. */
 static inline void sig_error(void)
 {
-    if (unlikely(_signals.sig_on_count <= 0))
+    if (unlikely(cysigs.sig_on_count <= 0))
     {
         fprintf(stderr, "sig_error() without sig_on()\n");
     }

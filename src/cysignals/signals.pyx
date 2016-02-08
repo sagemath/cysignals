@@ -24,7 +24,7 @@ from libc.stdio cimport freopen, stdin
 from cpython.exc cimport PyErr_Occurred
 
 cdef extern from "implementation.c":
-    sage_signals_t _signals "_signals"
+    sage_signals_t cysigs "cysigs"
     void setup_cysignals_handlers() nogil
     void print_backtrace() nogil
     void _sig_on_interrupt_received() nogil
@@ -188,7 +188,7 @@ def init_interrupts():
 
 def sig_on_reset():
     """
-    Return the current value of ``_signals.sig_on_count`` and set its
+    Return the current value of ``cysigs.sig_on_count`` and set its
     value to zero. This is used by the SageMath doctesting framework.
 
     EXAMPLES::
@@ -201,8 +201,8 @@ def sig_on_reset():
         0
 
     """
-    cdef int s = _signals.sig_on_count
-    _signals.sig_on_count = 0
+    cdef int s = cysigs.sig_on_count
+    cysigs.sig_on_count = 0
     return s
 
 

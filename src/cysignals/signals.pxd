@@ -40,7 +40,7 @@ cdef extern from "struct_signals.h":
         const char* s
 
 cdef api:
-    sage_signals_t _signals "_signals"
+    sage_signals_t cysigs "cysigs"
     void print_backtrace() nogil
     void _sig_on_interrupt_received() nogil
     void _sig_on_recover() nogil

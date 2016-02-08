@@ -62,8 +62,9 @@ static int default_debug_level = 2;
 static struct timeval sigtime;  /* Time of signal */
 #endif
 
-/* The _signals object (there is a unique copy of this throughout Sage) */
-static sage_signals_t _signals;
+/* The cysigs object (there is a unique copy of this, shared by all
+ * Cython modules using cysignals) */
+static sage_signals_t cysigs;
 
 /* The default signal mask during normal operation,
  * initialized by setup_cysignals_handlers(). */
@@ -100,29 +101,29 @@ static inline void reset_CPU(void)
 
 /* Handler for SIGHUP, SIGINT, SIGALRM
  *
- * Inside sig_on() (i.e. when _signals.sig_on_count is positive), this
+ * Inside sig_on() (i.e. when cysigs.sig_on_count is positive), this
  * raises an exception and jumps back to sig_on().
  * Outside of sig_on(), we set Python's interrupt flag using
  * PyErr_SetInterrupt() */
 static void sage_interrupt_handler(int sig)
 {
 #if ENABLE_DEBUG_INTERRUPT
-    if (_signals.debug_level >= 1) {
-        fprintf(stderr, "\n*** SIG %i *** %s sig_on\n", sig, (_signals.sig_on_count > 0) ? "inside" : "outside");
-        if (_signals.debug_level >= 3) print_backtrace();
+    if (cysigs.debug_level >= 1) {
+        fprintf(stderr, "\n*** SIG %i *** %s sig_on\n", sig, (cysigs.sig_on_count > 0) ? "inside" : "outside");
+        if (cysigs.debug_level >= 3) print_backtrace();
         fflush(stderr);
         /* Store time of this signal, unless there is already a
          * pending signals. */
-        if (!_signals.interrupt_received) gettimeofday(&sigtime, NULL);
+        if (!cysigs.interrupt_received) gettimeofday(&sigtime, NULL);
     }
 #endif
 
-    if (_signals.sig_on_count > 0)
+    if (cysigs.sig_on_count > 0)
     {
 #ifdef HAVE_PARI
-      if (!_signals.block_sigint && !PARI_SIGINT_block)
+      if (!cysigs.block_sigint && !PARI_SIGINT_block)
 #else
-      if (!_signals.block_sigint)
+      if (!cysigs.block_sigint)
 #endif
         {
             /* Raise an exception so Python can see it */
@@ -130,7 +131,7 @@ static void sage_interrupt_handler(int sig)
 
             /* Jump back to sig_on() (the first one if there is a stack) */
             reset_CPU();
-            siglongjmp(_signals.env, sig);
+            siglongjmp(cysigs.env, sig);
         }
     }
     else
@@ -144,9 +145,9 @@ static void sage_interrupt_handler(int sig)
     /* If we are here, we cannot handle the interrupt immediately, so
      * we store the signal number for later use.  But make sure we
      * don't overwrite a SIGHUP or SIGTERM which we already received. */
-    if (_signals.interrupt_received != SIGHUP && _signals.interrupt_received != SIGTERM)
+    if (cysigs.interrupt_received != SIGHUP && cysigs.interrupt_received != SIGTERM)
     {
-        _signals.interrupt_received = sig;
+        cysigs.interrupt_received = sig;
 #ifdef HAVE_PARI
         PARI_SIGINT_pending = sig;
 #endif
@@ -155,21 +156,21 @@ static void sage_interrupt_handler(int sig)
 
 /* Handler for SIGQUIT, SIGILL, SIGABRT, SIGFPE, SIGBUS, SIGSEGV
  *
- * Inside sig_on() (i.e. when _signals.sig_on_count is positive), this
+ * Inside sig_on() (i.e. when cysigs.sig_on_count is positive), this
  * raises an exception and jumps back to sig_on().
  * Outside of sig_on(), we terminate Sage. */
 static void sage_signal_handler(int sig)
 {
-    sig_atomic_t inside = _signals.inside_signal_handler;
-    _signals.inside_signal_handler = 1;
+    sig_atomic_t inside = cysigs.inside_signal_handler;
+    cysigs.inside_signal_handler = 1;
 
-    if (inside == 0 && _signals.sig_on_count > 0 && sig != SIGQUIT)
+    if (inside == 0 && cysigs.sig_on_count > 0 && sig != SIGQUIT)
     {
         /* We are inside sig_on(), so we can handle the signal! */
 #if ENABLE_DEBUG_INTERRUPT
-        if (_signals.debug_level >= 1) {
+        if (cysigs.debug_level >= 1) {
             fprintf(stderr, "\n*** SIG %i *** inside sig_on\n", sig);
-            if (_signals.debug_level >= 3) print_backtrace();
+            if (cysigs.debug_level >= 3) print_backtrace();
             fflush(stderr);
             gettimeofday(&sigtime, NULL);
         }
@@ -180,7 +181,7 @@ static void sage_signal_handler(int sig)
 
         /* Jump back to sig_on() (the first one if there is a stack) */
         reset_CPU();
-        siglongjmp(_signals.env, sig);
+        siglongjmp(cysigs.env, sig);
     }
     else
     {
@@ -236,7 +237,7 @@ static void do_raise_exception(int sig)
 {
 #if ENABLE_DEBUG_INTERRUPT
     struct timeval raisetime;
-    if (_signals.debug_level >= 2) {
+    if (cysigs.debug_level >= 2) {
         gettimeofday(&raisetime, NULL);
         long delta_ms = (raisetime.tv_sec - sigtime.tv_sec)*1000L + ((long)raisetime.tv_usec - (long)sigtime.tv_usec)/1000;
         fprintf(stderr, "do_raise_exception(sig=%i)\nPyErr_Occurred() = %p\nRaising Python exception %li ms after signals...\n",
@@ -246,7 +247,7 @@ static void do_raise_exception(int sig)
 #endif
 
     /* Call Cython function to raise exception */
-    sig_raise_exception(sig, _signals.s);
+    sig_raise_exception(sig, cysigs.s);
 }
 
 
@@ -258,9 +259,9 @@ static void _sig_on_interrupt_received(void)
     sigset_t oldset;
     sigprocmask(SIG_BLOCK, &sigmask_with_sigint, &oldset);
 
-    do_raise_exception(_signals.interrupt_received);
-    _signals.sig_on_count = 0;
-    _signals.interrupt_received = 0;
+    do_raise_exception(cysigs.interrupt_received);
+    cysigs.sig_on_count = 0;
+    cysigs.interrupt_received = 0;
 #ifdef HAVE_PARI
     PARI_SIGINT_pending = 0;
 #endif
@@ -272,19 +273,19 @@ static void _sig_on_interrupt_received(void)
  * sig_on_count to zero) */
 static void _sig_on_recover(void)
 {
-    _signals.block_sigint = 0;
+    cysigs.block_sigint = 0;
 #ifdef HAVE_PARI
     PARI_SIGINT_block = 0;
 #endif
-    _signals.sig_on_count = 0;
-    _signals.interrupt_received = 0;
+    cysigs.sig_on_count = 0;
+    cysigs.interrupt_received = 0;
 #ifdef HAVE_PARI
     PARI_SIGINT_pending = 0;
 #endif
 
     /* Reset signal mask */
     sigprocmask(SIG_SETMASK, &default_sigmask, NULL);
-    _signals.inside_signal_handler = 0;
+    cysigs.inside_signal_handler = 0;
 }
 
 /* Give a warning that sig_off() was called without sig_on() */
@@ -304,8 +305,8 @@ static void _sig_off_warning(const char* file, int line)
 
 static void setup_cysignals_handlers(void)
 {
-    /* Reset the _signals structure */
-    memset(&_signals, 0, sizeof(_signals));
+    /* Reset the cysigs structure */
+    memset(&cysigs, 0, sizeof(cysigs));
 
     /* Save the default signal mask */
     sigprocmask(SIG_BLOCK, NULL, &default_sigmask);
@@ -341,8 +342,8 @@ static void setup_cysignals_handlers(void)
     if (sigaction(SIGSEGV, &sa, NULL)) {perror("sigaction"); exit(1);}
 
 #if ENABLE_DEBUG_INTERRUPT
-    _signals.debug_level = default_debug_level;
-    if (_signals.debug_level >= 1)
+    cysigs.debug_level = default_debug_level;
+    if (cysigs.debug_level >= 1)
         fprintf(stderr, "Finished setting up interrupts\n");
 #endif
 }

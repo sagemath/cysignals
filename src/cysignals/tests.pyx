@@ -8,14 +8,10 @@ We disable crash logs for this test run::
     >>> import os
     >>> os.environ["CYSIGNALS_CRASH_LOGS"] = ""
 
-AUTHORS:
-
- - Jeroen Demeyer (2010-09-29): initial version (:trac:`10030`)
-
- - Jeroen Demeyer (2013-11-04): wrap some tests within nogil (:trac:`15352`)
 """
+
 #*****************************************************************************
-#       Copyright (C) 2010 Jeroen Demeyer <jdemeyer@cage.ugent.be>
+#       Copyright (C) 2010-2016 Jeroen Demeyer <jdemeyer@cage.ugent.be>
 #
 #  Distributed under the terms of the GNU General Public License (GPL)
 #  as published by the Free Software Foundation; either version 2 of
@@ -24,23 +20,21 @@ AUTHORS:
 #*****************************************************************************
 
 
-import signal
 from libc.signal cimport (SIGHUP, SIGINT, SIGABRT, SIGILL, SIGSEGV,
         SIGFPE, SIGBUS, SIGQUIT)
-from libc.stdlib cimport abort
+from libc.stdlib cimport abort, malloc, free
+
+from cpython cimport PyErr_SetString
 
 cdef extern from 'tests_helper.c':
     void ms_sleep(long ms) nogil
     void signal_after_delay(int signum, long ms) nogil
     void signals_after_delay(int signum, long ms, long interval, int n) nogil
 
+include 'signals.pxi'
+
 cdef extern from *:
     ctypedef int volatile_int "volatile int"
-
-
-include 'signals.pxi'
-from cpython cimport PyErr_SetString
-from libc.stdlib cimport malloc, free
 
 # Default delay in milliseconds before raising signals
 cdef long DEFAULT_DELAY = 200
@@ -62,7 +56,7 @@ cdef void infinite_malloc_loop() nogil:
 
 # Dereference a NULL pointer on purpose. This signals a SIGSEGV on most
 # systems, but on older Mac OS X and possibly other systems, this
-# signals a SIGBUS instead. In any case, this should give some signals.
+# signals a SIGBUS instead. In any case, this should give some signal.
 cdef void dereference_null_pointer() nogil:
     cdef long* ptr = <long*>(0)
     ptr[0] += 1
@@ -82,7 +76,6 @@ class return_exception:
         >>> @return_exception
         ... def raise_interrupt():
         ...     raise KeyboardInterrupt("just testing")
-        ...
         >>> raise_interrupt()
         KeyboardInterrupt('just testing',)
 
@@ -103,7 +96,7 @@ def interrupt_after_delay(ms_delay = 500):
     INPUT:
 
         - ``ms_delay`` -- (default: 500) a nonnegative integer indicating how
-          many milliseconds to wait before raising the interrupt signals.
+          many milliseconds to wait before raising the interrupt signal.
 
     EXAMPLES:
 
@@ -117,7 +110,6 @@ def interrupt_after_delay(ms_delay = 500):
         ...         pass
         ... except KeyboardInterrupt:
         ...     print "Caught KeyboardInterrupt"
-        ...
         Caught KeyboardInterrupt
 
     """
@@ -342,7 +334,7 @@ def test_sig_on_no_except(long delay = DEFAULT_DELAY):
 
     signal_after_delay(SIGINT, delay)
     if not sig_on_no_except():
-        # We get here when we caught a signals.  An exception
+        # We get here when we caught a signal.  An exception
         # has been raised, but Cython doesn't realize it yet.
         try:
             # Make Cython realize that there is an exception.
@@ -367,7 +359,7 @@ def test_sig_str_no_except(long delay = DEFAULT_DELAY):
     """
     if not sig_on_no_except():
         # We should never get here, because this sig_on_no_except()
-        # will not catch a signals.
+        # will not catch a signal.
         print "Unexpected zero returned from sig_on_no_except()"
     sig_off()
 

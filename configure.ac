@@ -2,7 +2,9 @@ dnl Not sure which autoconf version we need, but 2.69 (from 2012)
 dnl is widely available.
 AC_PREREQ([2.69])
 
-AC_INIT([cysignals], [0.1dev], [https://github.com/sagemath/cysignals/issues])
+AC_DEFUN([VERSION], m4_esyscmd_s(cat VERSION))
+
+AC_INIT([cysignals], VERSION, [https://github.com/sagemath/cysignals/issues])
 AC_COPYRIGHT([GPL version 2 or later])
 AC_CONFIG_SRCDIR([configure.ac])
 AC_CONFIG_HEADERS([build/src/config.h:src/config.h.in])

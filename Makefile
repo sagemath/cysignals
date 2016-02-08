@@ -15,8 +15,8 @@ dist: configure
 
 distcheck: dist
 	mkdir -p dist/check
-	cd dist/check && tar xjf ../cysignals-0.1dev.tar.bz2
-	cd dist/check/cysignals-0.1dev && ./configure && $(MAKE) all check
+	VERSION=`cat VERSION`; cd dist/check && tar xjf ../cysignals-$$VERSION.tar.bz2
+	VERSION=`cat VERSION`; cd dist/check/cysignals-$$VERSION && ./configure && $(MAKE) all check
 	rm -rf dist/check
 
 doc:

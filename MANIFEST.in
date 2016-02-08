@@ -1,4 +1,4 @@
-global-include README README.rst
+global-include README README.rst VERSION
 global-include Makefile configure configure.ac
 global-include setup.py *.pyx
 graft src

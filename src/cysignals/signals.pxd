@@ -35,12 +35,12 @@ cdef inline void cython_check_exception() nogil except *:
 
 # Private stuff below, do not use directly
 cdef extern from "struct_signals.h":
-    ctypedef struct sage_signals_t:
+    ctypedef struct cysigs_t:
         int sig_on_count
         const char* s
 
 cdef api:
-    sage_signals_t cysigs "cysigs"
+    cysigs_t cysigs "cysigs"
     void print_backtrace() nogil
     void _sig_on_interrupt_received() nogil
     void _sig_on_recover() nogil

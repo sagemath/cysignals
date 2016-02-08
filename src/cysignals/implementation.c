@@ -64,7 +64,7 @@ static struct timeval sigtime;  /* Time of signal */
 
 /* The cysigs object (there is a unique copy of this, shared by all
  * Cython modules using cysignals) */
-static sage_signals_t cysigs;
+static cysigs_t cysigs;
 
 /* The default signal mask during normal operation,
  * initialized by setup_cysignals_handlers(). */

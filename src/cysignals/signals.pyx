@@ -24,7 +24,7 @@ from libc.stdio cimport freopen, stdin
 from cpython.exc cimport PyErr_Occurred
 
 cdef extern from "implementation.c":
-    sage_signals_t cysigs "cysigs"
+    cysigs_t cysigs "cysigs"
     void setup_cysignals_handlers() nogil
     void print_backtrace() nogil
     void _sig_on_interrupt_received() nogil

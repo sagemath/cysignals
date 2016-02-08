@@ -61,7 +61,7 @@ typedef struct
 #if ENABLE_DEBUG_INTERRUPT
     int debug_level;
 #endif
-} sage_signals_t;
+} cysigs_t;
 
 #ifdef __cplusplus
 }  /* extern "C" */

@@ -86,7 +86,7 @@ extern "C" {
  *  - a signal number (e.g. 2 for SIGINT), assumed to be strictly
  *    positive: the Sage signal handler handled a signals.  Since
  *    _sig_on_() will return 0 in this case, the Exception (raised by
- *    sage_signal_handler) will be detected by Cython.
+ *    cysigs_signal_handler) will be detected by Cython.
  *  - a negative number: this is assumed to come from sig_retry().  In
  *    this case, the program continues as if nothing happened between
  *    sig_on() and sig_retry().

@@ -105,7 +105,7 @@ static inline void reset_CPU(void)
  * raises an exception and jumps back to sig_on().
  * Outside of sig_on(), we set Python's interrupt flag using
  * PyErr_SetInterrupt() */
-static void sage_interrupt_handler(int sig)
+static void cysigs_interrupt_handler(int sig)
 {
 #if ENABLE_DEBUG_INTERRUPT
     if (cysigs.debug_level >= 1) {
@@ -159,7 +159,7 @@ static void sage_interrupt_handler(int sig)
  * Inside sig_on() (i.e. when cysigs.sig_on_count is positive), this
  * raises an exception and jumps back to sig_on().
  * Outside of sig_on(), we terminate Sage. */
-static void sage_signal_handler(int sig)
+static void cysigs_signal_handler(int sig)
 {
     sig_atomic_t inside = cysigs.inside_signal_handler;
     cysigs.inside_signal_handler = 1;
@@ -326,11 +326,11 @@ static void setup_cysignals_handlers(void)
     sigaddset(&sa.sa_mask, SIGINT);
     sigaddset(&sa.sa_mask, SIGALRM);
 
-    sa.sa_handler = sage_interrupt_handler;
+    sa.sa_handler = cysigs_interrupt_handler;
     if (sigaction(SIGHUP, &sa, NULL)) {perror("sigaction"); exit(1);}
     if (sigaction(SIGINT, &sa, NULL)) {perror("sigaction"); exit(1);}
     if (sigaction(SIGALRM, &sa, NULL)) {perror("sigaction"); exit(1);}
-    sa.sa_handler = sage_signal_handler;
+    sa.sa_handler = cysigs_signal_handler;
     /* Allow signals during signal handling, we have code to deal with
      * this case. */
     sa.sa_flags |= SA_NODEFER;

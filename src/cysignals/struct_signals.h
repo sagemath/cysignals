@@ -37,9 +37,9 @@ typedef struct
      * interrupt-like signals are masked. */
     volatile sig_atomic_t interrupt_received;
 
-    /* Are we currently handling a signal inside sage_signal_handler()?
-     * This is set to 1 on entry in sage_signal_handler (not in
-     * sage_interrupt_handler) and 0 in _sig_on_postjmp.  This is
+    /* Are we currently handling a signal inside cysigs_signal_handler()?
+     * This is set to 1 on entry in cysigs_signal_handler (not in
+     * cysigs_interrupt_handler) and 0 in _sig_on_postjmp.  This is
      * needed to check for signals raised within the signal handler. */
     volatile sig_atomic_t inside_signal_handler;
 

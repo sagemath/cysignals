@@ -870,7 +870,7 @@ def test_sighup(long delay = DEFAULT_DELAY):
             sig_check()
 
 @return_exception
-def test_sigterm_and_sigint(long delay = DEFAULT_DELAY):
+def test_sighup_and_sigint(long delay = DEFAULT_DELAY):
     """
     Test a SIGHUP and a SIGINT arriving at essentially the same time.
     The SIGINT should be ignored and we should get a ``SystemExit``.
@@ -878,7 +878,7 @@ def test_sigterm_and_sigint(long delay = DEFAULT_DELAY):
     TESTS::
 
         >>> from cysignals.tests import *
-        >>> test_sigterm_and_sigint()
+        >>> test_sighup_and_sigint()
         SystemExit()
 
     """
@@ -893,3 +893,41 @@ def test_sigterm_and_sigint(long delay = DEFAULT_DELAY):
         ms_sleep(delay)
         sig_unblock()
         sig_off()
+
+def test_graceful_exit():
+    r"""
+    Start a subprocess, set up some ``atexit`` handler and kill the
+    process with ``SIGHUP``. Then the process should exit gracefully,
+    running the ``atexit`` handler::
+
+        >>> from subprocess import *
+        >>> A = Popen(['python'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        >>> A.stdin.write('from cysignals.tests import test_graceful_exit\n')
+        >>> A.stdin.write('test_graceful_exit()\n')
+        >>> A.stdin.close()
+
+    Now read from the child until we read ``"GO"``.  This ensures that
+    the child process has properly started before we kill it::
+
+        >>> while "GO" not in A.stdout.readline(): pass
+        >>> import signal, sys
+        >>> os.kill(A.pid, signal.SIGHUP)
+        >>> sys.stdout.write(A.stdout.read())
+        Goodbye!
+        >>> A.wait()
+        0
+
+    """
+    # This code is executed in the subprocess
+    import atexit, sys
+    def goodbye():
+        print("Goodbye!")
+    atexit.register(goodbye)
+
+    # Print something to synchronize with the parent
+    print("GO")
+    sys.stdout.flush()
+
+    # Wait to be killed...
+    sig_on()
+    infinite_loop()

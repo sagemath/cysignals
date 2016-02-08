@@ -376,13 +376,27 @@ There is also a function ``sig_str_no_except(s)`` which is analogous to
 Testing Interrupts
 ------------------
 
-When writing documentation, one sometimes wants to check that certain code can
-be interrupted in a clean way. The best way to do this is to use :func:`alarm`.
+When writing documentation, one sometimes wants to check that certain
+code can be interrupted in a clean way. The best way to do this is to
+use :func:`cysignals.alarm`.
 
-The following is an example of a doctest demonstrating that the function
-:func:`factor()` can be interrupted::
+The following is an example of a doctest demonstrating that the Sage
+function :func:`factor()` can be interrupted::
 
-    >>> alarm(0.5); factor(10^1000 + 3)
+    >>> from cysignals.alarm import alarm, AlarmInterrupt
+    >>> try:
+    ...     alarm(0.5)
+    ...     factor(10**1000 + 3)
+    ... except AlarmInterrupt:
+    ...     print("alarm!")
+    alarm!
+
+If you use the SageMath doctesting framework, you can instead doctest
+the exception in the usual way. To avoid race conditions, make sure
+that the calls to ``alarm()`` and the function you want to test are in
+the same doctest::
+
+    >>> alarm(0.5); factor(10**1000 + 3)
     Traceback (most recent call last):
     ...
     AlarmInterrupt

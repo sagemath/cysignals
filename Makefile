@@ -16,9 +16,13 @@ clean:
 
 distclean: clean
 
-check: install
+check: check-doctest check-example
+
+check-doctest: install
 	$(PYTHON) -m doctest src/cysignals/*.pyx
-	cd example && python setup.py build
+
+check-example: install
+	cd example && $(PYTHON) setup.py build
 
 test: check
 

@@ -154,12 +154,21 @@ def sig_print_exception(sig, msg=None):
 
 def init_interrupts():
     """
-    Initialize the Sage interrupt framework.
+    Initialize ``cysignals``.
 
-    This is normally done exactly once during Sage startup when
-    importing this module.
+    This is normally done exactly once, namely when importing
+    ``cysignals``. However, it is legal to call this multiple times,
+    for example when switching between the ``cysignals`` interrupt
+    handler and a different interrupt handler.
 
     OUTPUT: the old Python-level interrupt handler
+
+    EXAMPLES::
+
+        >>> from cysignals.signals import init_interrupts
+        >>> init_interrupts()
+        <built-in function python_check_interrupt>
+
     """
     # Set the Python-level interrupt handler. When a SIGINT occurs,
     # this will not be called directly. Instead, a SIGINT is caught by
@@ -180,7 +189,7 @@ def init_interrupts():
 def sig_on_reset():
     """
     Return the current value of ``_signals.sig_on_count`` and set its
-    value to zero. This is used by the doctesting framework.
+    value to zero. This is used by the SageMath doctesting framework.
 
     EXAMPLES::
 

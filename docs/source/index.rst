@@ -318,8 +318,8 @@ be called by the C library if an error occurs.
 The function ``sig_error()`` can be used to deal with these errors. This
 function may only be called within a ``sig_on()`` block (otherwise the Python
 interpreter will crash hard) after raising a Python exception. You need to use
-the `Python/C API <http://docs.python.org/2/c-api/exceptions.html>`_ for this
-and call ``sig_error()`` after calling some variant of :func:`PyErr_SetObject`.
+the :ref:`Python/C API <python:exceptionhandling>` for this
+and call ``sig_error()`` after calling some variant of :c:func:`PyErr_SetObject()`.
 Even within Cython, you cannot use the ``raise`` statement, because then the
 ``sig_error()`` will never be executed. The call to ``sig_error()`` will use the
 ``sig_on()`` machinery such that the exception will be seen by ``sig_on()``.

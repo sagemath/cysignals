@@ -11,7 +11,7 @@ AC_LANG(C)
 
 AC_SEARCH_LIBS([pari_init], [pari])
 
-AC_CHECK_HEADERS([execinfo.h sys/prctl.h pari/pari.h])
+AC_CHECK_HEADERS([execinfo.h sys/prctl.h])
 AC_CHECK_FUNCS([backtrace])
 
 AC_CHECK_DECL([PARI_SIGINT_block],

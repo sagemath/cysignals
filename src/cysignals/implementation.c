@@ -44,8 +44,12 @@ AUTHORS:
 #if HAVE_SYS_PRCTL_H
 #include <sys/prctl.h>
 #endif
-#if HAVE_PARI_PARI_H
+#if HAVE_PARI
 #include <pari/pari.h>
+#else
+/* Fake PARI variables */
+static int PARI_SIGINT_block = 0;
+static int PARI_SIGINT_pending = 0;
 #endif
 #include "struct_signals.h"
 #include "signals.h"
@@ -68,12 +72,6 @@ static sigset_t default_sigmask;
 
 /* default_sigmask with SIGHUP, SIGINT, SIGALRM added. */
 static sigset_t sigmask_with_sigint;
-
-#if !HAVE_PARI
-/* Fake PARI variables */
-static int PARI_SIGINT_block = 0;
-static int PARI_SIGINT_pending = 0;
-#endif
 
 
 static void do_raise_exception(int sig);

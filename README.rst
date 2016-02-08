@@ -4,6 +4,9 @@ cysignals
 .. image:: https://travis-ci.org/sagemath/cysignals.svg?branch=master
     :target: https://travis-ci.org/sagemath/cysignals
 
+.. image:: https://readthedocs.org/projects/cysignals/badge/?version=latest
+    :target: http://cysignals.readthedocs.org
+
 When writing Cython code, special care must be taken to ensure the code can be
 interrupted with ``CTRL-C``. Since Cython optimizes for speed, Cython normally
 does not check for interrupts. For example, code like the following cannot be

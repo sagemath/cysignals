@@ -66,7 +66,7 @@ static struct timeval sigtime;  /* Time of signal */
 static sage_signals_t _signals;
 
 /* The default signal mask during normal operation,
- * initialized by setup_sage_signal_handler(). */
+ * initialized by setup_cysignals_handlers(). */
 static sigset_t default_sigmask;
 
 /* default_sigmask with SIGHUP, SIGINT, SIGALRM added. */
@@ -302,7 +302,7 @@ static void _sig_off_warning(const char* file, int line)
 }
 
 
-static void setup_sage_signal_handler(void)
+static void setup_cysignals_handlers(void)
 {
     /* Reset the _signals structure */
     memset(&_signals, 0, sizeof(_signals));

@@ -25,7 +25,7 @@ from cpython.exc cimport PyErr_Occurred
 
 cdef extern from "implementation.c":
     sage_signals_t _signals "_signals"
-    void setup_sage_signal_handler() nogil
+    void setup_cysignals_handlers() nogil
     void print_backtrace() nogil
     void _sig_on_interrupt_received() nogil
     void _sig_on_recover() nogil
@@ -181,7 +181,7 @@ def init_interrupts():
     import signal
     old = signal.signal(signal.SIGINT, python_check_interrupt)
 
-    setup_sage_signal_handler()
+    setup_cysignals_handlers()
 
     return old
 

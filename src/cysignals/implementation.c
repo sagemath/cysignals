@@ -28,6 +28,7 @@ AUTHORS:
  *                  http://www.gnu.org/licenses/
  ****************************************************************************/
 
+#include "config.h"
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
@@ -37,18 +38,13 @@ AUTHORS:
 #include <Python.h>
 #include <stdlib.h>
 #include <unistd.h>
-
-/* glibc has a backtrace() command since version 2.1 */
-#ifdef __GLIBC__
-#if (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 1)
-#define HAVE_BACKTRACE 1
+#if HAVE_EXECINFO_H
 #include <execinfo.h>
 #endif
-#endif
-#ifdef __linux__
+#if HAVE_SYS_PRCTL_H
 #include <sys/prctl.h>
 #endif
-#ifdef HAVE_PARI
+#if HAVE_PARI_PARI_H
 #include <pari/pari.h>
 #endif
 #include "struct_signals.h"
@@ -73,6 +69,12 @@ static sigset_t default_sigmask;
 /* default_sigmask with SIGHUP, SIGINT, SIGALRM added. */
 static sigset_t sigmask_with_sigint;
 
+#if !HAVE_PARI
+/* Fake PARI variables */
+static int PARI_SIGINT_block = 0;
+static int PARI_SIGINT_pending = 0;
+#endif
+
 
 static void do_raise_exception(int sig);
 static void sigdie(int sig, const char* s);
@@ -92,7 +94,7 @@ static void print_backtrace(void);
  */
 static inline void reset_CPU(void)
 {
-#if defined(__i386__) || defined(__x86_64__)
+#if HAVE_EMMS
     /* Clear FPU tag word */
     asm("emms");
 #endif
@@ -120,11 +122,7 @@ static void cysigs_interrupt_handler(int sig)
 
     if (cysigs.sig_on_count > 0)
     {
-#ifdef HAVE_PARI
-      if (!cysigs.block_sigint && !PARI_SIGINT_block)
-#else
-      if (!cysigs.block_sigint)
-#endif
+        if (!cysigs.block_sigint && !PARI_SIGINT_block)
         {
             /* Raise an exception so Python can see it */
             do_raise_exception(sig);
@@ -148,9 +146,7 @@ static void cysigs_interrupt_handler(int sig)
     if (cysigs.interrupt_received != SIGHUP && cysigs.interrupt_received != SIGTERM)
     {
         cysigs.interrupt_received = sig;
-#ifdef HAVE_PARI
         PARI_SIGINT_pending = sig;
-#endif
     }
 }
 
@@ -262,9 +258,7 @@ static void _sig_on_interrupt_received(void)
     do_raise_exception(cysigs.interrupt_received);
     cysigs.sig_on_count = 0;
     cysigs.interrupt_received = 0;
-#ifdef HAVE_PARI
     PARI_SIGINT_pending = 0;
-#endif
 
     sigprocmask(SIG_SETMASK, &oldset, NULL);
 }
@@ -274,14 +268,10 @@ static void _sig_on_interrupt_received(void)
 static void _sig_on_recover(void)
 {
     cysigs.block_sigint = 0;
-#ifdef HAVE_PARI
     PARI_SIGINT_block = 0;
-#endif
     cysigs.sig_on_count = 0;
     cysigs.interrupt_received = 0;
-#ifdef HAVE_PARI
     PARI_SIGINT_pending = 0;
-#endif
 
     /* Reset signal mask */
     sigprocmask(SIG_SETMASK, &default_sigmask, NULL);
@@ -361,7 +351,7 @@ static void print_backtrace()
 {
     void* backtracebuffer[1024];
     fflush(stderr);
-#ifdef HAVE_BACKTRACE
+#if HAVE_BACKTRACE
     int btsize = backtrace(backtracebuffer, 1024);
     backtrace_symbols_fd(backtracebuffer, btsize, 2);
     print_sep();

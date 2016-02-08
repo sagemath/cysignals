@@ -1,6 +1,3 @@
-# Auto-generated file setting the correct include directories
-cimport cysignals
-
 from cysignals.signals cimport *
 
 cdef extern from 'pxi.h':

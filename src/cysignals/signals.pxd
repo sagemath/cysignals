@@ -1,3 +1,6 @@
+# Auto-generated file setting the correct include directories
+cimport cysignals.__init__
+
 # NOTE: these functions are actually defined in "macros.h".
 # However, we intentionally do not mention that file here, because
 # every .pyx file using interrupt functions *must* also call

@@ -12,22 +12,12 @@ from glob import glob
 opj = os.path.join
 
 
-have_pari = False
-
-libraries = []
-extra_compile_args = []
-
-if have_pari:
-    libraries += ["pari",  "gmp"]
-    extra_compile_args += ["-DHAVE_PARI"]
-
 cythonize_dir = "build"
 
-kwds = dict(libraries=libraries,
-            include_dirs=[opj("src", "cysignals"),
+kwds = dict(include_dirs=[opj("src", "cysignals"),
+                          opj(cythonize_dir, "src"),
                           opj(cythonize_dir, "src", "cysignals")],
-            depends=glob(opj("src", "cysignals", "*.h")),
-            extra_compile_args=extra_compile_args)
+            depends=glob(opj("src", "cysignals", "*.h")))
 
 extensions = [
     Extension("signals", ["src/cysignals/signals.pyx"], **kwds),
@@ -36,19 +26,30 @@ extensions = [
 ]
 
 
+# Run configure if it wasn't run before. We check this by the presence
+# of config.pxd
+config_pxd = opj(cythonize_dir, "src", "config.pxd")
+if not os.path.isfile(config_pxd):
+    import subprocess
+    subprocess.check_call("make configure && ./configure", shell=True)
+
+
 # Determine installation directory from distutils
 inst = Distribution().get_command_obj("install")
 inst.finalize_options()
 install_dir = opj(inst.install_platlib, "cysignals")
 
 
-# Add an __init__.pxd file setting the correct include path
+# Add an __init__.pxd file setting the correct compiler options
 try:
     os.makedirs(opj(cythonize_dir, "src", "cysignals"))
 except OSError:
     pass
 with open(opj(cythonize_dir, "src", "cysignals", "__init__.pxd"), "wt") as f:
     f.write("# distutils: include_dirs = {0}\n".format(install_dir))
+    # Append config.pxd
+    with open(config_pxd) as c:
+        f.write(c.read())
 
 
 # Run Cython

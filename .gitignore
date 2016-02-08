@@ -57,3 +57,9 @@ target/
 
 # Auto-generated file
 /example/cysignals_example.c
+
+# Autotools
+configure
+config.h.in
+config.status
+autom4te.cache/

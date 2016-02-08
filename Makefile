@@ -4,13 +4,13 @@ PYTHON=python
 
 all: build doc
 
-build:
+build: configure
 	$(PYTHON) setup.py build
 
-install:
+install: build
 	$(PYTHON) setup.py install
 
-dist:
+dist: configure
 	$(PYTHON) setup.py sdist
 
 doc:
@@ -19,12 +19,14 @@ doc:
 clean: clean-doc clean-build
 
 clean-build:
-	rm -rf build
+	rm -rf build example/build example/*.c
 
 clean-doc:
 	cd docs && $(MAKE) clean
 
 distclean: clean
+	rm -rf autom4te.cache
+	rm -f config.log config.status
 
 check: check-doctest check-example
 
@@ -36,4 +38,10 @@ check-example: install
 
 test: check
 
-.PHONY: all build doc install dist clean distclean check test
+configure: configure.ac
+	autoconf
+	autoheader
+	@rm -f src/config.h.in~
+
+.PHONY: all build doc install dist doc clean clean-build clean-doc \
+	distclean check check-doctest check-example test

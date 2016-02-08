@@ -129,7 +129,7 @@ def sig_print_exception(sig, msg=None):
         >>> sig_print_exception(0)
         SystemError: unknown signal number 0
 
-    For interrupts, the message is ignored, see :trac:`17949`::
+    For interrupts, the message is ignored::
 
         >>> sig_print_exception(signal.SIGINT, "ignored")
         KeyboardInterrupt

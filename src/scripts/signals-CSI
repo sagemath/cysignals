@@ -38,7 +38,7 @@ def pid_exists(pid):
 
 def gdb_commands(pid, color):
     cmds = ''
-    cmds += 'set prompt (sage-gdb-prompt)\n'
+    cmds += 'set prompt (cysignals-gdb-prompt)\n'
     cmds += 'set verbose off\n'
     cmds += 'attach {0}\n'.format(pid)
     cmds += 'python\n'
@@ -83,7 +83,7 @@ def run_gdb(pid, color):
     stdout, stderr = cmd.communicate(gdb_commands(pid, color))
     result = []
     for line in stdout.splitlines():
-        if line.find('(sage-gdb-prompt)') >= 0:
+        if line.find('(cysignals-gdb-prompt)') >= 0:
             continue
         if line.startswith('Reading symbols from '):
             continue
@@ -139,7 +139,7 @@ def save_backtrace(output):
     mkdir_p(bt_dir)
     if bt_days >= 0:
         prune_old_logs(bt_dir, bt_days)
-    f, filename = tempfile.mkstemp(dir=bt_dir, prefix='sage_crash_', suffix='.log')
+    f, filename = tempfile.mkstemp(dir=bt_dir, prefix='crash_', suffix='.log')
     os.write(f, output)
     os.close(f)
     return filename

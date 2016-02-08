@@ -88,7 +88,7 @@ class return_exception:
         except BaseException as e:
             return e
 
-def interrupt_after_delay(ms_delay = 500):
+def interrupt_after_delay(ms_delay=500):
     """
     Send an interrupt signal (``SIGINT``) to the process after a delay of
     ``ms_delay`` milliseconds.
@@ -142,7 +142,7 @@ def test_sig_off():
         sig_off()
 
 @return_exception
-def test_sig_on(long delay = DEFAULT_DELAY):
+def test_sig_on(long delay=DEFAULT_DELAY):
     """
     TESTS::
 
@@ -156,7 +156,7 @@ def test_sig_on(long delay = DEFAULT_DELAY):
         sig_on()
         infinite_loop()
 
-def test_sig_str(long delay = DEFAULT_DELAY):
+def test_sig_str(long delay=DEFAULT_DELAY):
     """
     TESTS::
 
@@ -177,7 +177,7 @@ cdef c_test_sig_on_cython():
     infinite_loop()
 
 @return_exception
-def test_sig_on_cython(long delay = DEFAULT_DELAY):
+def test_sig_on_cython(long delay=DEFAULT_DELAY):
     """
     TESTS::
 
@@ -194,7 +194,7 @@ cdef int c_test_sig_on_cython_except() nogil except 42:
     infinite_loop()
 
 @return_exception
-def test_sig_on_cython_except(long delay = DEFAULT_DELAY):
+def test_sig_on_cython_except(long delay=DEFAULT_DELAY):
     """
     TESTS::
 
@@ -212,7 +212,7 @@ cdef void c_test_sig_on_cython_except_all() nogil except *:
     infinite_loop()
 
 @return_exception
-def test_sig_on_cython_except_all(long delay = DEFAULT_DELAY):
+def test_sig_on_cython_except_all(long delay=DEFAULT_DELAY):
     """
     TESTS::
 
@@ -226,7 +226,7 @@ def test_sig_on_cython_except_all(long delay = DEFAULT_DELAY):
         c_test_sig_on_cython_except_all()
 
 @return_exception
-def test_sig_check(long delay = DEFAULT_DELAY):
+def test_sig_check(long delay=DEFAULT_DELAY):
     """
     TESTS::
 
@@ -241,7 +241,7 @@ def test_sig_check(long delay = DEFAULT_DELAY):
             sig_check()
 
 @return_exception
-def test_sig_check_inside_sig_on(long delay = DEFAULT_DELAY):
+def test_sig_check_inside_sig_on(long delay=DEFAULT_DELAY):
     """
     TESTS::
 
@@ -280,7 +280,7 @@ def test_sig_retry():
     return v
 
 @return_exception
-def test_sig_retry_and_signal(long delay = DEFAULT_DELAY):
+def test_sig_retry_and_signal(long delay=DEFAULT_DELAY):
     """
     TESTS::
 
@@ -317,7 +317,7 @@ def test_sig_error():
 ########################################################################
 # Test no_except macros                                                #
 ########################################################################
-def test_sig_on_no_except(long delay = DEFAULT_DELAY):
+def test_sig_on_no_except(long delay=DEFAULT_DELAY):
     """
     TESTS::
 
@@ -346,7 +346,7 @@ def test_sig_on_no_except(long delay = DEFAULT_DELAY):
         return 0 # fail
     infinite_loop()
 
-def test_sig_str_no_except(long delay = DEFAULT_DELAY):
+def test_sig_str_no_except(long delay=DEFAULT_DELAY):
     """
     TESTS::
 
@@ -370,7 +370,7 @@ def test_sig_str_no_except(long delay = DEFAULT_DELAY):
     infinite_loop()
 
 @return_exception
-def test_sig_check_no_except(long delay = DEFAULT_DELAY):
+def test_sig_check_no_except(long delay=DEFAULT_DELAY):
     """
     TESTS::
 
@@ -390,7 +390,7 @@ def test_sig_check_no_except(long delay = DEFAULT_DELAY):
 ########################################################################
 # Test different signals                                               #
 ########################################################################
-def test_signal_segv(long delay = DEFAULT_DELAY):
+def test_signal_segv(long delay=DEFAULT_DELAY):
     """
     TESTS::
 
@@ -406,7 +406,7 @@ def test_signal_segv(long delay = DEFAULT_DELAY):
         signal_after_delay(SIGSEGV, delay)
         infinite_loop()
 
-def test_signal_fpe(long delay = DEFAULT_DELAY):
+def test_signal_fpe(long delay=DEFAULT_DELAY):
     """
     TESTS::
 
@@ -422,7 +422,7 @@ def test_signal_fpe(long delay = DEFAULT_DELAY):
         signal_after_delay(SIGFPE, delay)
         infinite_loop()
 
-def test_signal_ill(long delay = DEFAULT_DELAY):
+def test_signal_ill(long delay=DEFAULT_DELAY):
     """
     TESTS::
 
@@ -438,7 +438,7 @@ def test_signal_ill(long delay = DEFAULT_DELAY):
         signal_after_delay(SIGILL, delay)
         infinite_loop()
 
-def test_signal_abrt(long delay = DEFAULT_DELAY):
+def test_signal_abrt(long delay=DEFAULT_DELAY):
     """
     TESTS::
 
@@ -454,7 +454,7 @@ def test_signal_abrt(long delay = DEFAULT_DELAY):
         signal_after_delay(SIGABRT, delay)
         infinite_loop()
 
-def test_signal_bus(long delay = DEFAULT_DELAY):
+def test_signal_bus(long delay=DEFAULT_DELAY):
     """
     TESTS::
 
@@ -470,7 +470,7 @@ def test_signal_bus(long delay = DEFAULT_DELAY):
         signal_after_delay(SIGBUS, delay)
         infinite_loop()
 
-def test_signal_quit(long delay = DEFAULT_DELAY):
+def test_signal_quit(long delay=DEFAULT_DELAY):
     """
     TESTS:
 
@@ -579,7 +579,7 @@ def unguarded_abort():
     with nogil:
         abort()
 
-def test_bad_str(long delay = DEFAULT_DELAY):
+def test_bad_str(long delay=DEFAULT_DELAY):
     """
     TESTS:
 
@@ -611,7 +611,7 @@ def test_bad_str(long delay = DEFAULT_DELAY):
 # Test various usage scenarios for sig_on()/sig_off()                  #
 ########################################################################
 @return_exception
-def test_sig_on_cython_after_delay(long delay = DEFAULT_DELAY):
+def test_sig_on_cython_after_delay(long delay=DEFAULT_DELAY):
     """
     TESTS::
 
@@ -626,7 +626,7 @@ def test_sig_on_cython_after_delay(long delay = DEFAULT_DELAY):
         sig_on()             # The signal should be detected here
         abort()              # This should not be reached
 
-def test_sig_on_inside_try(long delay = DEFAULT_DELAY):
+def test_sig_on_inside_try(long delay=DEFAULT_DELAY):
     """
     TESTS::
 
@@ -657,7 +657,7 @@ def test_interrupt_bomb(int n = 100, int p = 10):
     cdef int i
 
     # Spawn p processes, each sending n signals with an interval of 1 millisecond
-    cdef long base_delay = DEFAULT_DELAY + 5*p
+    cdef long base_delay=DEFAULT_DELAY + 5*p
     for i in range(p):
         signals_after_delay(SIGINT, base_delay, 1, n)
 
@@ -678,7 +678,7 @@ def test_interrupt_bomb(int n = 100, int p = 10):
 
 # Special thanks to Robert Bradshaw for suggesting the try/finally
 # construction. -- Jeroen Demeyer
-def test_try_finally_signal(long delay = DEFAULT_DELAY):
+def test_try_finally_signal(long delay=DEFAULT_DELAY):
     """
     Test a try/finally construct for sig_on() and sig_off(), raising
     a signal inside the ``try``.
@@ -741,7 +741,7 @@ def test_try_finally_return():
 ########################################################################
 # Test sig_block()/sig_unblock()                                       #
 ########################################################################
-def test_sig_block(long delay = DEFAULT_DELAY):
+def test_sig_block(long delay=DEFAULT_DELAY):
     """
     TESTS::
 
@@ -767,7 +767,7 @@ def test_sig_block(long delay = DEFAULT_DELAY):
     # Never reached
     return 1
 
-def test_sig_block_outside_sig_on(long delay = DEFAULT_DELAY):
+def test_sig_block_outside_sig_on(long delay=DEFAULT_DELAY):
     """
     TESTS::
 
@@ -791,7 +791,7 @@ def test_sig_block_outside_sig_on(long delay = DEFAULT_DELAY):
         return "Success"
     abort()   # This should not be reached
 
-def test_signal_during_malloc(long delay = DEFAULT_DELAY):
+def test_signal_during_malloc(long delay=DEFAULT_DELAY):
     """
     Test a signal arriving during a sage_malloc() or sage_free() call.
     Since these are wrapped with sig_block()/sig_unblock(), we should
@@ -852,7 +852,7 @@ def sig_check_bench():
 # Test SIGHUP                                                          #
 ########################################################################
 @return_exception
-def test_sighup(long delay = DEFAULT_DELAY):
+def test_sighup(long delay=DEFAULT_DELAY):
     """
     Test a basic SIGHUP signal, which would normally exit the Python interpreter
     by raising ``SystemExit``.
@@ -870,7 +870,7 @@ def test_sighup(long delay = DEFAULT_DELAY):
             sig_check()
 
 @return_exception
-def test_sighup_and_sigint(long delay = DEFAULT_DELAY):
+def test_sighup_and_sigint(long delay=DEFAULT_DELAY):
     """
     Test a SIGHUP and a SIGINT arriving at essentially the same time.
     The SIGINT should be ignored and we should get a ``SystemExit``.

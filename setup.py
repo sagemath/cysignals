@@ -31,6 +31,7 @@ kwds = dict(libraries=libraries,
 
 extensions = [
     Extension("signals", ["src/cysignals/signals.pyx"], **kwds),
+    Extension("alarm", ["src/cysignals/alarm.pyx"], **kwds),
     Extension("tests", ["src/cysignals/tests.pyx"], **kwds)
 ]
 

@@ -55,6 +55,10 @@ with open(opj(cythonize_dir, "src", "cysignals", "__init__.pxd"), "wt") as f:
 extensions=cythonize(extensions, build_dir=cythonize_dir,
                      include_path=["src", opj(cythonize_dir, "src")])
 
+# Fix include_dirs (i.e. ignore the __init__.pxd for this compilation)
+for ext in extensions:
+    ext.include_dirs = kwds['include_dirs']
+
 
 # Run Distutils
 class build_py_cython(build_py):

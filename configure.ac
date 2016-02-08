@@ -15,7 +15,7 @@ AC_CHECK_HEADERS([execinfo.h sys/prctl.h pari/pari.h])
 AC_CHECK_FUNCS([backtrace])
 
 AC_CHECK_DECL([PARI_SIGINT_block],
-    AC_DEFINE(HAVE_PARI, 1, [Define to 1 if PARI is fully supported.]),
+    [AC_DEFINE(HAVE_PARI, 1, [Define to 1 if PARI is fully supported.])],
     [], [[#include <pari/pari.h>]])
 
 AC_MSG_CHECKING([for emms instruction])

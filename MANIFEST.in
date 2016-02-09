@@ -3,4 +3,5 @@ global-include Makefile configure configure.ac
 global-include setup.py *.pyx
 graft src
 graft docs/source
-prune build dist
+prune build
+prune dist

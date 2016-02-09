@@ -110,6 +110,8 @@ class build_py_cython(build_py):
 
 setup(
     name="cysignals",
+    author=u"Martin R. Albrecht, François Bissey, Volker Braun, Jeroen Demeyer",
+    author_email="sage-devel@googlegroups.com",
     version=open("VERSION").read().strip(),
     url="https://github.com/sagemath/cysignals",
     ext_modules=extensions,

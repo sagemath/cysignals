@@ -29,17 +29,33 @@ The functions ``sig_check()``, ``sig_on()`` and ``sig_off()`` can be put in all
 kinds of Cython functions: ``def``, ``cdef`` or ``cpdef``. You cannot put them
 in pure Python code (files with extension ``.py``).
 
-To use these functions, you **must** include the following in your
-``.pyx`` file
-(you must not put this in a ``.pxd`` file; a ``.pxi`` file also works)::
+Basic example
+-------------
+
+The ``sig_check()`` in the loop below ensures that the loop can be
+interrupted by ``CTRL-C``::
 
     include "cysignals/signals.pxi"
 
-.. NOTE::
+    from libc.math cimport sin
 
-    Because of `cython/cython#483 <https://github.com/cython/cython/pull/483>`_
-    you might want to add ``include_path=sys.path`` to your `cythonize` call in
-    `setup.py`.
+    def sine_sum(double x, long count):
+        cdef double s = 0
+        for i in range(count):
+            sig_check()
+            s += sin(i*x)
+        return s
+
+The line ``include "cysignals/signals.pxi"`` must be put in every
+``.pyx`` file using cysignals.
+You must not put this in a ``.pxd`` file; a ``.pxi`` file included only
+in ``.pyx`` files also works.
+
+Because of `cython/cython#483 <https://github.com/cython/cython/pull/483>`_,
+you should add ``include_path=sys.path`` to your ``cythonize()`` call in
+``setup.py`` (otherwise Cython will not find :file:`cysignals/signals.pxi`).
+See the `example <https://github.com/sagemath/cysignals/tree/master/example>`_
+directory for this complete working example.
 
 .. NOTE::
 

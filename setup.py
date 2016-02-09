@@ -121,6 +121,6 @@ setup(
                   "cysignals-cython": ["__init__.pxd", "*.h"]},
     scripts=glob(opj("src", "scripts", "*")),
     cmdclass=dict(build_py=build_py_cython),
-    license='GNU General Public License, version 2 or later',
+    license='GNU Lesser General Public License, version 3 or later',
     long_description=open('README.rst').read(),
 )

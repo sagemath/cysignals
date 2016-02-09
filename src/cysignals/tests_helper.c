@@ -2,6 +2,15 @@
  * C functions for use in tests.pyx
  */
 
+/*****************************************************************************
+ *       Copyright (C) 2010-2016 Jeroen Demeyer <jdemeyer@cage.ugent.be>
+ *
+ *  Distributed under the terms of the GNU Lesser General Public License (GPL)
+ *  as published by the Free Software Foundation; either version 3 of
+ *  the License, or (at your option) any later version.
+ *                  http://www.gnu.org/licenses/
+ ****************************************************************************/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

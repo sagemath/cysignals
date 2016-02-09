@@ -41,8 +41,8 @@ AUTHORS:
  *                     2006 Martin Albrecht <malb@informatik.uni-bremen.de>
  *                     2010-2015 Jeroen Demeyer <jdemeyer@cage.ugent.be>
  *
- *  Distributed under the terms of the GNU General Public License (GPL)
- *  as published by the Free Software Foundation; either version 2 of
+ *  Distributed under the terms of the GNU Lesser General Public License (LGPL)
+ *  as published by the Free Software Foundation; either version 3 of
  *  the License, or (at your option) any later version.
  *                  http://www.gnu.org/licenses/
  ****************************************************************************/

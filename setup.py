@@ -3,7 +3,6 @@
 from distutils.core import setup, Distribution
 from distutils.command.build_py import build_py
 from distutils.extension import Extension
-from distutils.sysconfig import get_python_lib
 from Cython.Build import cythonize
 
 import os

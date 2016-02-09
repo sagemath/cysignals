@@ -20,9 +20,9 @@ kwds = dict(include_dirs=[opj("src", "cysignals"),
             depends=glob(opj("src", "cysignals", "*.h")))
 
 extensions = [
-    Extension("signals", ["src/cysignals/signals.pyx"], **kwds),
-    Extension("alarm", ["src/cysignals/alarm.pyx"], **kwds),
-    Extension("tests", ["src/cysignals/tests.pyx"], **kwds)
+    Extension("cysignals.signals", ["src/cysignals/signals.pyx"], **kwds),
+    Extension("cysignals.alarm", ["src/cysignals/alarm.pyx"], **kwds),
+    Extension("cysignals.tests", ["src/cysignals/tests.pyx"], **kwds)
 ]
 
 
@@ -112,7 +112,6 @@ setup(
     name="cysignals",
     version=open("VERSION").read().strip(),
     url="https://github.com/sagemath/cysignals",
-    ext_package='cysignals',
     ext_modules=extensions,
     packages=["cysignals"],
     package_dir={"cysignals": opj("src", "cysignals"),

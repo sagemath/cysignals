@@ -28,8 +28,8 @@ extensions = [
 
 # Run configure if it wasn't run before. We check this by the presence
 # of config.pxd
-config_pxd = opj(cythonize_dir, "src", "config.pxd")
-if not os.path.isfile(config_pxd):
+config_pxd_file = opj(cythonize_dir, "src", "config.pxd")
+if not os.path.isfile(config_pxd_file):
     import subprocess
     subprocess.check_call("make configure && ./configure", shell=True)
 
@@ -40,16 +40,32 @@ inst.finalize_options()
 install_dir = opj(inst.install_platlib, "cysignals")
 
 
-# Add an __init__.pxd file setting the correct compiler options
+# Add an __init__.pxd file setting the correct compiler options.
+# The variable "init_pxd" is the string which should be written to
+# __init__.pxd
+init_pxd = "# distutils: include_dirs = {0}\n".format(install_dir)
+# Append config.pxd
+with open(config_pxd_file) as c:
+    init_pxd += c.read()
+
+# First, try to read the existing __init__.pxd file and write it only
+# if it changed.
+init_pxd_file = opj(cythonize_dir, "src", "cysignals", "__init__.pxd")
 try:
-    os.makedirs(opj(cythonize_dir, "src", "cysignals"))
-except OSError:
-    pass
-with open(opj(cythonize_dir, "src", "cysignals", "__init__.pxd"), "wt") as f:
-    f.write("# distutils: include_dirs = {0}\n".format(install_dir))
-    # Append config.pxd
-    with open(config_pxd) as c:
-        f.write(c.read())
+    f = open(init_pxd_file, "r+")
+except IOError:
+    try:
+        os.makedirs(os.path.dirname(init_pxd_file))
+    except OSError:
+        pass
+    f = open(init_pxd_file, "w+")
+
+if f.read() != init_pxd:
+    print("generating {0}".format(init_pxd_file))
+    f.seek(0)
+    f.truncate()
+    f.write(init_pxd)
+f.close()
 
 
 # Run Cython

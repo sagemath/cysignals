@@ -1,31 +1,25 @@
 /*
 Interrupt and signal handling for Cython
-
-AUTHORS:
-
-- William Stein, Martin Albrecht (2006): initial version
-
-- Jeroen Demeyer (2010-10-03): almost complete rewrite (#9678)
-
-- Jeroen Demeyer (2013-01-11): handle SIGHUP also (#13908)
-
-- Jeroen Demeyer (2013-01-28): handle SIGQUIT also (#14029)
-
-- Jeroen Demeyer (2013-05-13): handle SIGALRM also (#13311)
-
-- Jeroen Demeyer (2015-03-21): move to Cython (#18027)
-
 */
 
 /*****************************************************************************
  *       Copyright (C) 2006 William Stein <wstein@gmail.com>
- *                     2006 Martin Albrecht <malb@informatik.uni-bremen.de>
- *                     2010-2015 Jeroen Demeyer <jdemeyer@cage.ugent.be>
+ *                     2006-2016 Martin Albrecht <malb@informatik.uni-bremen.de>
+ *                     2010-2016 Jeroen Demeyer <jdemeyer@cage.ugent.be>
  *
- *  Distributed under the terms of the GNU Lesser General Public License (GPL)
- *  as published by the Free Software Foundation; either version 3 of
- *  the License, or (at your option) any later version.
- *                  http://www.gnu.org/licenses/
+ * cysignals is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * cysignals is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with cysignals.  If not, see <http://www.gnu.org/licenses/>.
+ *
  ****************************************************************************/
 
 #include "config.h"

@@ -25,7 +25,7 @@ will never be handled and always causes Python to exit.
 
 /*****************************************************************************
  *       Copyright (C) 2006 William Stein <wstein@gmail.com>
- *                     2006 Martin Albrecht <malb@informatik.uni-bremen.de>
+ *                     2006 Martin Albrecht <martinralbrecht+cysignals@gmail.com>
  *                     2010-2016 Jeroen Demeyer <jdemeyer@cage.ugent.be>
  *
  * cysignals is free software: you can redistribute it and/or modify it

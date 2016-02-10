@@ -12,5 +12,5 @@ setup(
     name="cysignals_example",
     version='1.0',
     ext_modules=extensions,
-    license='GNU General Public License, version 2 or later',
+    license='GNU Lesser General Public License, version 3 or later',
 )

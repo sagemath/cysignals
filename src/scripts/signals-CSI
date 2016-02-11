@@ -139,7 +139,7 @@ def save_backtrace(output):
     try:
         bt_dir = os.environ['CYSIGNALS_CRASH_LOGS']
         # Don't delete all files in this directory, in case the user
-        # set CYSIGNALS_CRASH_LOGS to a stupic value.
+        # set CYSIGNALS_CRASH_LOGS to a stupid value.
         bt_days = -1
     except KeyError:
         bt_dir = 'signals_crash_logs'

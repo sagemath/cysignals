@@ -1,3 +1,3 @@
-from .signals import AlarmInterrupt, SignalError, init_interrupts  # noqa
+from .signals import AlarmInterrupt, SignalError, init_cysignals  # noqa
 
-init_interrupts()
+init_cysignals()

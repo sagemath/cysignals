@@ -156,7 +156,7 @@ def sig_print_exception(sig, msg=None):
         traceback.print_exception(typ, val, None, file=sys.stdout)
 
 
-def init_interrupts():
+def init_cysignals():
     """
     Initialize ``cysignals``.
 
@@ -169,8 +169,8 @@ def init_interrupts():
 
     EXAMPLES::
 
-        >>> from cysignals.signals import init_interrupts
-        >>> init_interrupts()
+        >>> from cysignals.signals import init_cysignals
+        >>> init_cysignals()
         <built-in function python_check_interrupt>
 
     """

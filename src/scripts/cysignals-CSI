@@ -65,7 +65,7 @@ def gdb_commands(pid, color):
     cmds += 'import sys; sys.stdout.flush()\n'
     cmds += 'end\n'
     cmds += 'bt full\n'
-    script = os.path.join(os.path.dirname(sys.argv[0]), 'signals-CSI-helper.py')
+    script = os.path.join(os.path.dirname(sys.argv[0]), 'cysignals-CSI-helper.py')
     with open(script, 'r') as f:
         cmds += 'python\n'
         cmds += 'color = {0}\n'.format(color)

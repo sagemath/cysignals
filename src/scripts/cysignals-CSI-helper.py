@@ -1,4 +1,4 @@
-# Run by ``signals-CSI`` in gdb's Python interpreter.
+# Run by ``cysignals-CSI`` in gdb's Python interpreter.
 #*****************************************************************************
 #       Copyright (C) 2013 Volker Braun <vbraun.name@gmail.com>
 #

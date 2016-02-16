@@ -380,19 +380,19 @@ static void print_enhanced_backtrace(void)
         char pid_str[32];
         char* argv[5];
 
-        snprintf(path, sizeof(path), "signals-CSI");
+        snprintf(path, sizeof(path), "cysignals-CSI");
         snprintf(pid_str, sizeof(pid_str), "%i", parent_pid);
 
-        argv[0] = "signals-CSI";
+        argv[0] = "cysignals-CSI";
         argv[1] = "--no-color";
         argv[2] = "--pid";
         argv[3] = pid_str;
         argv[4] = NULL;
         execvp(path, argv);
-        perror("Failed to execute signals-CSI");
+        perror("Failed to execute cysignals-CSI");
         exit(2);
     }
-    /* Wait for signals-CSI to finish */
+    /* Wait for cysignals-CSI to finish */
     waitpid(pid, NULL, 0);
 
     print_sep();

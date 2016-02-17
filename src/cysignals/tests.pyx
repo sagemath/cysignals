@@ -492,7 +492,6 @@ def test_signal_quit(long delay=DEFAULT_DELAY):
         ------------------------------------------------------------------------
         ...
         ------------------------------------------------------------------------
-        ------------------------------------------------------------------------
         <BLANKLINE>
 
     """
@@ -537,7 +536,6 @@ def unguarded_dereference_null_pointer():
         ------------------------------------------------------------------------
         ...
         ------------------------------------------------------------------------
-        ------------------------------------------------------------------------
         Unhandled SIG...
         This probably occurred because a *compiled* module has a bug
         in it and is not properly wrapped with sig_on(), sig_off().
@@ -576,7 +574,6 @@ def unguarded_abort():
         ------------------------------------------------------------------------
         ...
         ------------------------------------------------------------------------
-        ------------------------------------------------------------------------
         Unhandled SIGABRT: An abort() occurred.
         This probably occurred because a *compiled* module has a bug
         in it and is not properly wrapped with sig_on(), sig_off().
@@ -599,7 +596,6 @@ def test_bad_str(long delay=DEFAULT_DELAY):
         >>> print Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1]  # doctest: +ELLIPSIS
         ------------------------------------------------------------------------
         ...
-        ------------------------------------------------------------------------
         ------------------------------------------------------------------------
         An error occured during signal handling.
         This probably occurred because a *compiled* module has a bug

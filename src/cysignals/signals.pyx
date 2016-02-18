@@ -84,6 +84,9 @@ cdef public int sig_raise_exception "sig_raise_exception"(int sig, const char* m
     if PyErr_Occurred():
         return 0
 
+    # Convert msg to Python string, assuming UTF-8 encoding
+    s = msg.decode("utf-8") if msg is not NULL else None
+
     if sig == SIGHUP or sig == SIGTERM:
         # Redirect stdin from /dev/null to close interactive sessions
         _ = freopen("/dev/null", "r", stdin)
@@ -94,25 +97,15 @@ cdef public int sig_raise_exception "sig_raise_exception"(int sig, const char* m
     if sig == SIGALRM:
         raise AlarmInterrupt
     if sig == SIGILL:
-        if msg == NULL:
-            msg = "Illegal instruction"
-        raise SignalError(msg)
+        raise SignalError(s or "Illegal instruction")
     if sig == SIGABRT:
-        if msg == NULL:
-            msg = "Aborted"
-        raise RuntimeError(msg)
+        raise RuntimeError(s or "Aborted")
     if sig == SIGFPE:
-        if msg == NULL:
-            msg = "Floating point exception"
-        raise FloatingPointError(msg)
+        raise FloatingPointError(s or "Floating point exception")
     if sig == SIGBUS:
-        if msg == NULL:
-            msg = "Bus error"
-        raise SignalError(msg)
+        raise SignalError(s or "Bus error")
     if sig == SIGSEGV:
-        if msg == NULL:
-            msg = "Segmentation fault"
-        raise SignalError(msg)
+        raise SignalError(s or "Segmentation fault")
 
     raise SystemError("unknown signal number %s"%sig)
 
@@ -145,7 +138,7 @@ def sig_print_exception(sig, msg=None):
     if msg is None:
         m = NULL
     else:
-        m = msg
+        m = msg = msg.encode("utf-8")
 
     try:
         sig_raise_exception(sig, m)

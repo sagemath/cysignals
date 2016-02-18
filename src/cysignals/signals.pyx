@@ -153,7 +153,12 @@ def sig_print_exception(sig, msg=None):
         # Print exception to stdout without traceback
         import sys, traceback
         typ, val, tb = sys.exc_info()
-        traceback.print_exception(typ, val, None, file=sys.stdout)
+        try:
+            # Python 3
+            traceback.print_exception(typ, val, None, file=sys.stdout, chain=False)
+        except TypeError:
+            # Python 2
+            traceback.print_exception(typ, val, None, file=sys.stdout)
 
 
 def init_cysignals():

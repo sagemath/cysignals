@@ -488,7 +488,7 @@ def test_signal_quit(long delay=DEFAULT_DELAY):
 
         >>> from subprocess import *
         >>> cmd = 'from cysignals.tests import *; test_signal_quit()'
-        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1])  # doctest: +ELLIPSIS
+        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))  # doctest: +ELLIPSIS
         ------------------------------------------------------------------------
         ...
         ------------------------------------------------------------------------
@@ -532,7 +532,7 @@ def unguarded_dereference_null_pointer():
 
         >>> from subprocess import *
         >>> cmd = 'from cysignals.tests import *; unguarded_dereference_null_pointer()'
-        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1])  # doctest: +ELLIPSIS
+        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))  # doctest: +ELLIPSIS
         ------------------------------------------------------------------------
         ...
         ------------------------------------------------------------------------
@@ -570,7 +570,7 @@ def unguarded_abort():
 
         >>> from subprocess import *
         >>> cmd = 'from cysignals.tests import *; unguarded_abort()'
-        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1])  # doctest: +ELLIPSIS
+        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))  # doctest: +ELLIPSIS
         ------------------------------------------------------------------------
         ...
         ------------------------------------------------------------------------
@@ -593,7 +593,7 @@ def test_bad_str(long delay=DEFAULT_DELAY):
 
         >>> from subprocess import *
         >>> cmd = 'from cysignals.tests import *; test_bad_str()'
-        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1])  # doctest: +ELLIPSIS
+        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))  # doctest: +ELLIPSIS
         ------------------------------------------------------------------------
         ...
         ------------------------------------------------------------------------
@@ -907,17 +907,17 @@ def test_graceful_exit():
 
         >>> from subprocess import *
         >>> A = Popen(['python'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        >>> A.stdin.write('from cysignals.tests import test_graceful_exit\n')
-        >>> A.stdin.write('test_graceful_exit()\n')
+        >>> A.stdin.write(b'from cysignals.tests import test_graceful_exit\n')
+        >>> A.stdin.write(b'test_graceful_exit()\n')
         >>> A.stdin.close()
 
     Now read from the child until we read ``"GO"``.  This ensures that
     the child process has properly started before we kill it::
 
-        >>> while "GO" not in A.stdout.readline(): pass
+        >>> while b'GO' not in A.stdout.readline(): pass
         >>> import signal, sys
         >>> os.kill(A.pid, signal.SIGHUP)
-        >>> sys.stdout.write(A.stdout.read())
+        >>> sys.stdout.write(A.stdout.read().decode("utf-8"))
         Goodbye!
         >>> A.wait()
         0

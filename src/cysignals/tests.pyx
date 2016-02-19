@@ -31,7 +31,7 @@ We disable crash logs for this test run::
 
 from libc.signal cimport (SIGHUP, SIGINT, SIGABRT, SIGILL, SIGSEGV,
         SIGFPE, SIGBUS, SIGQUIT)
-from libc.stdlib cimport abort, malloc, free
+from libc.stdlib cimport abort
 
 from cpython cimport PyErr_SetString
 
@@ -56,12 +56,15 @@ cdef void infinite_loop() nogil:
     while True:
         pass
 
-cdef void infinite_malloc_loop() nogil:
-    cdef size_t s = 1
-    while True:
-        free(malloc(s))
-        s *= 2
-        if (s > 1000000): s = 1
+# Disabled because we don't have sig_malloc()/sig_free() in
+# cysignals yet.
+#
+#cdef void infinite_malloc_loop() nogil:
+#    cdef size_t s = 1
+#    while True:
+#        sig_free(sig_malloc(s))
+#        s *= 2
+#        if (s > 1000000): s = 1
 
 # Dereference a NULL pointer on purpose. This signals a SIGSEGV on most
 # systems, but on older Mac OS X and possibly other systems, this
@@ -796,26 +799,29 @@ def test_sig_block_outside_sig_on(long delay=DEFAULT_DELAY):
         return "Success"
     abort()   # This should not be reached
 
-def test_signal_during_malloc(long delay=DEFAULT_DELAY):
-    """
-    Test a signal arriving during a sage_malloc() or sage_free() call.
-    Since these are wrapped with sig_block()/sig_unblock(), we should
-    safely be able to interrupt them.
-
-    TESTS::
-
-        >>> from cysignals.tests import *
-        >>> for i in range(4):  # Several times to reduce chances of false positive
-        ...       test_signal_during_malloc()
-
-    """
-    try:
-        with nogil:
-            signal_after_delay(SIGINT, delay)
-            sig_on()
-            infinite_malloc_loop()
-    except KeyboardInterrupt:
-        pass
+# Disabled because we don't have sig_malloc()/sig_free() in
+# cysignals yet.
+#
+#def test_signal_during_malloc(long delay=DEFAULT_DELAY):
+#    """
+#    Test a signal arriving during a sig_malloc() or sig_free() call.
+#    Since these are wrapped with sig_block()/sig_unblock(), we should
+#    safely be able to interrupt them.
+#
+#    TESTS::
+#
+#        >>> from cysignals.tests import *
+#        >>> for i in range(4):  # Several times to reduce chances of false positive
+#        ...       test_signal_during_malloc()
+#
+#    """
+#    try:
+#        with nogil:
+#            signal_after_delay(SIGINT, delay)
+#            sig_on()
+#            infinite_malloc_loop()
+#    except KeyboardInterrupt:
+#        pass
 
 
 ########################################################################

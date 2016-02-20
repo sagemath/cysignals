@@ -121,7 +121,7 @@ def interrupt_after_delay(ms_delay=500):
         ...     while True:
         ...         pass
         ... except KeyboardInterrupt:
-        ...     print "Caught KeyboardInterrupt"
+        ...     print("Caught KeyboardInterrupt")
         Caught KeyboardInterrupt
 
     """
@@ -341,7 +341,7 @@ def test_sig_on_no_except(long delay=DEFAULT_DELAY):
     if not sig_on_no_except():
         # We should never get here, because this sig_on_no_except()
         # will not catch a signals.
-        print "Unexpected zero returned from sig_on_no_except()"
+        print("Unexpected zero returned from sig_on_no_except()")
     sig_off()
 
     signal_after_delay(SIGINT, delay)
@@ -372,7 +372,7 @@ def test_sig_str_no_except(long delay=DEFAULT_DELAY):
     if not sig_on_no_except():
         # We should never get here, because this sig_on_no_except()
         # will not catch a signal.
-        print "Unexpected zero returned from sig_on_no_except()"
+        print("Unexpected zero returned from sig_on_no_except()")
     sig_off()
 
     if not sig_str_no_except("Everything ok!"):
@@ -491,7 +491,7 @@ def test_signal_quit(long delay=DEFAULT_DELAY):
 
         >>> from subprocess import *
         >>> cmd = 'from cysignals.tests import *; test_signal_quit()'
-        >>> print Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1]  # doctest: +ELLIPSIS
+        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))  # doctest: +ELLIPSIS
         ------------------------------------------------------------------------
         ...
         ------------------------------------------------------------------------
@@ -535,7 +535,7 @@ def unguarded_dereference_null_pointer():
 
         >>> from subprocess import *
         >>> cmd = 'from cysignals.tests import *; unguarded_dereference_null_pointer()'
-        >>> print Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1]  # doctest: +ELLIPSIS
+        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))  # doctest: +ELLIPSIS
         ------------------------------------------------------------------------
         ...
         ------------------------------------------------------------------------
@@ -573,7 +573,7 @@ def unguarded_abort():
 
         >>> from subprocess import *
         >>> cmd = 'from cysignals.tests import *; unguarded_abort()'
-        >>> print Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1]  # doctest: +ELLIPSIS
+        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))  # doctest: +ELLIPSIS
         ------------------------------------------------------------------------
         ...
         ------------------------------------------------------------------------
@@ -596,7 +596,7 @@ def test_bad_str(long delay=DEFAULT_DELAY):
 
         >>> from subprocess import *
         >>> cmd = 'from cysignals.tests import *; test_bad_str()'
-        >>> print Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1]  # doctest: +ELLIPSIS
+        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))  # doctest: +ELLIPSIS
         ------------------------------------------------------------------------
         ...
         ------------------------------------------------------------------------
@@ -682,7 +682,7 @@ def test_interrupt_bomb(int n = 100, int p = 10):
             i = i + 1
         except RuntimeError:
             break
-    print "Received %i/%i interrupts"%(i,n*p)
+    print("Received %i/%i interrupts"%(i,n*p))
 
 # Special thanks to Robert Bradshaw for suggesting the try/finally
 # construction. -- Jeroen Demeyer
@@ -913,17 +913,17 @@ def test_graceful_exit():
 
         >>> from subprocess import *
         >>> A = Popen(['python'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        >>> A.stdin.write('from cysignals.tests import test_graceful_exit\n')
-        >>> A.stdin.write('test_graceful_exit()\n')
+        >>> _ = A.stdin.write(b'from cysignals.tests import test_graceful_exit\n')
+        >>> _ = A.stdin.write(b'test_graceful_exit()\n')
         >>> A.stdin.close()
 
     Now read from the child until we read ``"GO"``.  This ensures that
     the child process has properly started before we kill it::
 
-        >>> while "GO" not in A.stdout.readline(): pass
+        >>> while b'GO' not in A.stdout.readline(): pass
         >>> import signal, sys
         >>> os.kill(A.pid, signal.SIGHUP)
-        >>> sys.stdout.write(A.stdout.read())
+        >>> _ = sys.stdout.write(A.stdout.read().decode("utf-8"))
         Goodbye!
         >>> A.wait()
         0

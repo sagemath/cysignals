@@ -13,8 +13,8 @@ Since Cython optimizes for speed, Cython normally does not check for
 interrupts. For example, code like the following cannot be interrupted
 in Cython::
 
-    >>> while True:
-    ...     pass
+    while True:
+        pass
 
 The ``cysignals`` package provides mechanisms to handle interrupts (and other
 signals and errors) in Cython code.

@@ -7,8 +7,8 @@ Since Cython optimizes for speed, Cython normally does not check for
 interrupts. For example, code like the following cannot be interrupted
 in Cython::
 
-    >>> while True:
-    ...     pass
+    while True:
+        pass
 
 While this is running, pressing ``CTRL-C`` has no effect. The only way
 out is to kill the Python process. On certain systems, you can still

@@ -907,8 +907,8 @@ def test_graceful_exit():
 
         >>> from subprocess import *
         >>> A = Popen(['python'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        >>> A.stdin.write(b'from cysignals.tests import test_graceful_exit\n')
-        >>> A.stdin.write(b'test_graceful_exit()\n')
+        >>> _ = A.stdin.write(b'from cysignals.tests import test_graceful_exit\n')
+        >>> _ = A.stdin.write(b'test_graceful_exit()\n')
         >>> A.stdin.close()
 
     Now read from the child until we read ``"GO"``.  This ensures that
@@ -917,7 +917,7 @@ def test_graceful_exit():
         >>> while b'GO' not in A.stdout.readline(): pass
         >>> import signal, sys
         >>> os.kill(A.pid, signal.SIGHUP)
-        >>> sys.stdout.write(A.stdout.read().decode("utf-8"))
+        >>> _ = sys.stdout.write(A.stdout.read().decode("utf-8"))
         Goodbye!
         >>> A.wait()
         0

@@ -49,9 +49,9 @@ static int PARI_SIGINT_pending = 0;
 #include "signals.h"
 
 
-/* Interrupt debug level.  This only works if ENABLE_DEBUG_INTERRUPT
+/* Interrupt debug level.  This only works if ENABLE_DEBUG_CYSIGNALS
  * has been set to "1" in debug.h */
-#if ENABLE_DEBUG_INTERRUPT
+#if ENABLE_DEBUG_CYSIGNALS
 static int default_debug_level = 2;
 static struct timeval sigtime;  /* Time of signal */
 #endif
@@ -101,7 +101,7 @@ static inline void reset_CPU(void)
  * PyErr_SetInterrupt() */
 static void cysigs_interrupt_handler(int sig)
 {
-#if ENABLE_DEBUG_INTERRUPT
+#if ENABLE_DEBUG_CYSIGNALS
     if (cysigs.debug_level >= 1) {
         fprintf(stderr, "\n*** SIG %i *** %s sig_on\n", sig, (cysigs.sig_on_count > 0) ? "inside" : "outside");
         if (cysigs.debug_level >= 3) print_backtrace();
@@ -155,7 +155,7 @@ static void cysigs_signal_handler(int sig)
     if (inside == 0 && cysigs.sig_on_count > 0 && sig != SIGQUIT)
     {
         /* We are inside sig_on(), so we can handle the signal! */
-#if ENABLE_DEBUG_INTERRUPT
+#if ENABLE_DEBUG_CYSIGNALS
         if (cysigs.debug_level >= 1) {
             fprintf(stderr, "\n*** SIG %i *** inside sig_on\n", sig);
             if (cysigs.debug_level >= 3) print_backtrace();
@@ -223,7 +223,7 @@ extern int sig_raise_exception(int sig, const char* msg);
 /* This calls sig_raise_exception() to actually raise the exception. */
 static void do_raise_exception(int sig)
 {
-#if ENABLE_DEBUG_INTERRUPT
+#if ENABLE_DEBUG_CYSIGNALS
     struct timeval raisetime;
     if (cysigs.debug_level >= 2) {
         gettimeofday(&raisetime, NULL);
@@ -323,7 +323,7 @@ static void setup_cysignals_handlers(void)
     if (sigaction(SIGBUS, &sa, NULL)) {perror("sigaction"); exit(1);}
     if (sigaction(SIGSEGV, &sa, NULL)) {perror("sigaction"); exit(1);}
 
-#if ENABLE_DEBUG_INTERRUPT
+#if ENABLE_DEBUG_CYSIGNALS
     cysigs.debug_level = default_debug_level;
     if (cysigs.debug_level >= 1)
         fprintf(stderr, "Finished setting up interrupts\n");
@@ -405,7 +405,7 @@ static void sigdie(int sig, const char* s)
     print_sep();
     print_backtrace();
 
-#if ENABLE_DEBUG_INTERRUPT
+#if ENABLE_DEBUG_CYSIGNALS
     /* Interrupt debugging is enabled, don't do enhanced backtraces as
      * the user is probably using other debugging tools and we don't
      * want to interfere with that. */

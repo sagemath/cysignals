@@ -18,8 +18,8 @@
  *
  ****************************************************************************/
 
-#ifndef INTERRUPT_STRUCT_SIGNALS_H
-#define INTERRUPT_STRUCT_SIGNALS_H
+#ifndef CYSIGNALS_STRUCT_SIGNALS_H
+#define CYSIGNALS_STRUCT_SIGNALS_H
 
 
 #include <setjmp.h>
@@ -78,7 +78,7 @@ typedef struct
      */
     const char* s;
 
-#if ENABLE_DEBUG_INTERRUPT
+#if ENABLE_DEBUG_CYSIGNALS
     int debug_level;
 #endif
 } cysigs_t;
@@ -87,4 +87,4 @@ typedef struct
 }  /* extern "C" */
 #endif
 
-#endif  /* ifndef INTERRUPT_STRUCT_SIGNALS_H */
+#endif  /* ifndef CYSIGNALS_STRUCT_SIGNALS_H */

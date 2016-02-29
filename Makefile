@@ -11,7 +11,7 @@ install: build
 	$(PYTHON) setup.py install
 
 dist: configure
-	$(PYTHON) setup.py sdist --formats=bztar
+	umask 0022 && $(PYTHON) setup.py sdist --formats=bztar
 
 distcheck: dist
 	mkdir -p dist/check

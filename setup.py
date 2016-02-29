@@ -113,6 +113,11 @@ setup(
     author_email="sage-devel@googlegroups.com",
     version=open("VERSION").read().strip(),
     url="https://github.com/sagemath/cysignals",
+    license="GNU Lesser General Public License, version 3 or later",
+    description="Interrupt and signal handling for Cython",
+    long_description=open('README.rst').read(),
+    platforms=["POSIX"],
+
     ext_modules=extensions,
     packages=["cysignals"],
     package_dir={"cysignals": opj("src", "cysignals"),
@@ -121,6 +126,4 @@ setup(
                   "cysignals-cython": ["__init__.pxd", "*.h"]},
     scripts=glob(opj("src", "scripts", "*")),
     cmdclass=dict(build_py=build_py_cython),
-    license='GNU Lesser General Public License, version 3 or later',
-    long_description=open('README.rst').read(),
 )

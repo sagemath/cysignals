@@ -11,6 +11,7 @@ install: build
 	$(PYTHON) setup.py install
 
 dist: configure
+	chmod go+rX-w -R .
 	umask 0022 && $(PYTHON) setup.py sdist --formats=bztar
 
 distcheck: dist

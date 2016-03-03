@@ -374,6 +374,9 @@ static void print_enhanced_backtrace(void)
     }
 
     if (pid == 0) { /* child */
+        /* Redirect all output to stderr */
+        dup2(2, 1);
+
         /* We deliberately put these variables on the stack to avoid
          * malloc() calls, the heap might be messed up! */
         char path[1024];

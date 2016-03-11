@@ -4,7 +4,7 @@ cimport cysignals.__init__
 # NOTE: these functions are actually defined in "macros.h".
 # However, we intentionally do not mention that file here, because
 # every .pyx file using interrupt functions *must* also call
-# import_sage__ext__interrupt__interrupt() which is done automatically
+# import_cysignals__signals() which is done automatically
 # if signals.pxi is included.
 #
 # A failure to include signals.pxi will therefore lead to a compiler

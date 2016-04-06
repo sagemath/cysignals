@@ -5,3 +5,6 @@ graft src
 graft docs/source
 prune build
 prune dist
+
+exclude src/config.*
+global-exclude *.so .gitignore

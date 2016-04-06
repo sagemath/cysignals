@@ -59,6 +59,7 @@ target/
 
 # Auto-generated file
 /example/cysignals_example.c
+src/.gitignore
 
 # Autotools
 configure

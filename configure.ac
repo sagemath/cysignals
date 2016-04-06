@@ -7,7 +7,7 @@ AC_DEFUN([VERSION], m4_esyscmd_s(cat VERSION))
 AC_INIT([cysignals], VERSION, [https://github.com/sagemath/cysignals/issues])
 AC_COPYRIGHT([GPL version 2 or later])
 AC_CONFIG_SRCDIR([configure.ac])
-AC_CONFIG_HEADERS([build/src/config.h:src/config.h.in])
+AC_CONFIG_HEADERS([src/config.h:src/config.h.in])
 
 AC_LANG(C)
 
@@ -33,11 +33,11 @@ AC_RUN_IFELSE([AC_LANG_PROGRAM([], [asm("leal (%eax), %eax; emms");])],
 )
 
 
-AC_CONFIG_COMMANDS([build/src/config.pxd],
+AC_CONFIG_COMMANDS([src/config.pxd],
     # Generate a file config.pxd whose contents will be copied to
     # __init__.pxd to set correct compiler options.
     # The -Ddummy works around https://github.com/cython/cython/pull/485
-    [[echo "# distutils: extra_link_args = $LIBS -Ddummy" >build/src/config.pxd]],
+    [[echo "# distutils: extra_link_args = $LIBS -Ddummy" > src/config.pxd]],
     [LIBS=$LIBS])
 
 

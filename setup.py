@@ -5,6 +5,9 @@ from distutils.command.build_py import build_py
 from distutils.extension import Extension
 from Cython.Build import cythonize
 
+import warnings
+warnings.simplefilter("always")
+
 import os
 from glob import glob
 
@@ -70,6 +73,13 @@ f.close()
 # Run Cython
 extensions=cythonize(extensions, build_dir=cythonize_dir,
                      include_path=["src", opj(cythonize_dir, "src")])
+
+# Deprecate Cython without https://github.com/cython/cython/pull/486
+if os.path.isdir(opj(cythonize_dir, "cysignals")):
+    warnings.warn(
+        "building cysignals with Cython versions older than 0.24 is deprecated, "
+        "you should upgrade Cython and remove the %r directory" % cythonize_dir,
+        DeprecationWarning)
 
 # Fix include_dirs (i.e. ignore the __init__.pxd for this compilation)
 for ext in extensions:

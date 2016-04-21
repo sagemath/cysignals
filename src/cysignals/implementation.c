@@ -228,8 +228,10 @@ static void do_raise_exception(int sig)
     if (cysigs.debug_level >= 2) {
         gettimeofday(&raisetime, NULL);
         long delta_ms = (raisetime.tv_sec - sigtime.tv_sec)*1000L + ((long)raisetime.tv_usec - (long)sigtime.tv_usec)/1000;
+        PyGILState_STATE gilstate = PyGILState_Ensure();
         fprintf(stderr, "do_raise_exception(sig=%i)\nPyErr_Occurred() = %p\nRaising Python exception %li ms after signals...\n",
             sig, PyErr_Occurred(), delta_ms);
+        PyGILState_Release(gilstate);
         fflush(stderr);
     }
 #endif

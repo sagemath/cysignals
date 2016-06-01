@@ -25,19 +25,21 @@ Interrupt and signal handling for Cython
 #include "config.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <limits.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <Python.h>
-#include <stdlib.h>
+#if HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #if HAVE_EXECINFO_H
 #include <execinfo.h>
 #endif
 #if HAVE_SYS_PRCTL_H
 #include <sys/prctl.h>
 #endif
+#include <Python.h>
 #if HAVE_PARI
 #include <pari/pari.h>
 #else

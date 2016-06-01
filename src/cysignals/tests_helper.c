@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
-#include <time.h>
+#include <sys/time.h>
 #include <unistd.h>
 #include <signal.h>
 #include <sys/select.h>
@@ -36,10 +36,10 @@
 /* Wait ``ms`` milliseconds */
 void ms_sleep(long ms)
 {
-    struct timespec t;
+    struct timeval t;
     t.tv_sec = (ms / 1000);
-    t.tv_nsec = (ms % 1000) * 1000000;
-    pselect(0, NULL, NULL, NULL, &t, NULL);
+    t.tv_usec = (ms % 1000) * 1000;
+    select(0, NULL, NULL, NULL, &t);
 }
 
 

@@ -1,8 +1,6 @@
 /*
 Interrupt and signal handling for Cython.
 
-For documentation about how to use these, see the Developer's Guide.
-
 This code distinguishes between two kinds of signals:
 
 (1) interrupt-like signals: SIGINT, SIGALRM, SIGHUP.  The word

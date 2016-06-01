@@ -5,7 +5,7 @@ AC_PREREQ([2.69])
 AC_DEFUN([VERSION], m4_esyscmd_s(cat VERSION))
 
 AC_INIT([cysignals], VERSION, [https://github.com/sagemath/cysignals/issues])
-AC_COPYRIGHT([GPL version 2 or later])
+AC_COPYRIGHT([GNU Lesser General Public License version 3 or later])
 AC_CONFIG_SRCDIR([configure.ac])
 AC_CONFIG_HEADERS([build/src/config.h:src/config.h.in])
 

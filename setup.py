@@ -33,7 +33,8 @@ extensions = [
 config_pxd_file = opj(cythonize_dir, "src", "config.pxd")
 if not os.path.isfile(config_pxd_file):
     import subprocess
-    subprocess.check_call("make configure && ./configure", shell=True)
+    subprocess.check_call(["make", "configure"])
+    subprocess.check_call(["./configure"])
 
 
 # Determine installation directory from distutils

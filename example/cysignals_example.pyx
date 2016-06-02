@@ -5,6 +5,7 @@ from libc.math cimport sin
 
 def sine_sum(double x, long count):
     cdef double s = 0
+    cdef long i
     for i in range(count):
         sig_check()
         s += sin(i*x)

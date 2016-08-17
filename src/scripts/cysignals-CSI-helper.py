@@ -17,9 +17,7 @@
 #
 #*****************************************************************************
 
-import os
 import sys
-import glob
 
 import gdb
 from Cython.Debugger import libpython, libcython

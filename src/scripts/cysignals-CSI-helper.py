@@ -32,25 +32,13 @@ except (NameError, AttributeError):
     pass
 
 
-def cython_debug_files():
-    """
-    Cython extra debug information files
-    """
-    pattern = os.path.join(os.environ['SAGE_SRC'], 'cython_debug',
-                           'cython_debug_info_*')
-    return glob.glob(pattern)
-
 print('\n\n')
 print('Cython backtrace')
 print('----------------')
 
 # The Python interpreter in GDB does not do automatic backtraces for you
 try:
-
-    for f in cython_debug_files():
-        cy.import_.invoke(f, None)
-
-    class SageBacktrace(CythonCommand):
+    class Backtrace(CythonCommand):
         name = 'cy fullbt'
         alias = 'cy full_backtrace'
         command_class = gdb.COMMAND_STACK
@@ -123,7 +111,7 @@ try:
                 index += 1
                 frame = frame.newer()
 
-    trace = SageBacktrace.register()
+    trace = Backtrace.register()
     trace.invoke(None, None)
 
 

@@ -108,7 +108,12 @@ def run_gdb(pid, color):
                                stderr=PIPE, env=env)
     except OSError:
         return "Unable to start gdb (not installed?)"
-    stdout, stderr = cmd.communicate(gdb_commands(pid, color))
+    try:
+        stdout, stderr = cmd.communicate(gdb_commands(pid, color))
+    except BaseException:
+        # Something went wrong => kill gdb
+        cmd.kill()
+        raise
     result = []
     for line in stdout.splitlines():
         if line.find('(cysignals-gdb-prompt)') >= 0:
@@ -173,6 +178,33 @@ def save_backtrace(output):
     return filename
 
 
+def main(args):
+    print('Attaching gdb to process id {0}.'.format(args.pid))
+    trace = run_gdb(args.pid, not args.nocolor)
+    print(trace)
+
+    fatalities = [
+        ( 'Unable to start gdb',
+          'GDB is not installed.' ),
+        ( 'Hangup detected on fd 0',
+          'Your system GDB is an old version that does not work with pipes'),
+        ( 'error detected on stdin',
+          'Your system GDB does not have Python support'),
+        ( 'ImportError: No module named',
+          'Your system GDB uses an incompatible version of Python') ]
+
+    for key, msg in fatalities:
+        if key in trace:
+            print()
+            print(msg)
+            print('Install gdb for enhanced tracebacks.')
+            return
+
+    filename = save_backtrace(trace)
+    if filename is not None:
+        print('Saved trace to {0}'.format(filename))
+
+
 if __name__ == '__main__':
     parser = ArgumentParser(description=description)
     parser.add_argument('-p', '--pid', dest='pid', action='store',
@@ -194,35 +226,8 @@ if __name__ == '__main__':
         print('There is no process with pid {0}.'.format(args.pid))
         sys.exit(1)
 
-    print('Attaching gdb to process id {0}.'.format(args.pid))
-    trace = run_gdb(args.pid, not args.nocolor)
-    print(trace)
-
-    fatalities = [
-        ( 'Unable to start gdb',
-          'GDB is not installed.' ),
-        ( 'Hangup detected on fd 0',
-          'Your system GDB is an old version that does not work with pipes'),
-        ( 'error detected on stdin',
-          'Your system GDB does not have Python support'),
-        ( 'ImportError: No module named',
-          'Your system GDB uses an incompatible version of Python') ]
-
-    fail = False
-    for key, msg in fatalities:
-        if key in trace:
-            print()
-            print(msg)
-            fail = True
-            break
-
-    if fail:
-        print('Install gdb for enhanced tracebacks.')
-    else:
-        filename = save_backtrace(trace)
-        if filename is not None:
-            print('Saved trace to {0}'.format(filename))
-
-    if args.kill:
-        os.kill(args.pid, signal.SIGKILL)
-
+    try:
+        main(args)
+    finally:
+        if args.kill:
+            os.kill(args.pid, signal.SIGKILL)

@@ -42,6 +42,16 @@ from argparse import ArgumentParser
 from datetime import datetime
 
 
+def b(x):
+    """
+    Convert `x` (either a ``str`` or ``bytes``) to ``bytes``, assuming
+    ASCII encoding.
+    """
+    if isinstance(x, bytes):
+        return x
+    return bytes(x, "ascii")
+
+
 def pid_exists(pid):
     """
     Return True if and only if there is a process with id pid running.
@@ -54,29 +64,30 @@ def pid_exists(pid):
 
 
 def gdb_commands(pid, color):
-    cmds = ''
-    cmds += 'set prompt (cysignals-gdb-prompt)\n'
-    cmds += 'set verbose off\n'
-    cmds += 'attach {0}\n'.format(pid)
-    cmds += 'python\n'
-    cmds += 'print("\\n")\n'
-    cmds += 'print("Stack backtrace")\n'
-    cmds += 'print("---------------")\n'
-    cmds += 'import sys; sys.stdout.flush()\n'
-    cmds += 'end\n'
-    cmds += 'bt full\n'
+    cmds = b('')
+    cmds += b('set prompt (cysignals-gdb-prompt)\n')
+    cmds += b('set verbose off\n')
+    cmds += b('attach {0}\n'.format(pid))
+    cmds += b('python\n')
+    cmds += b('print("\\n")\n')
+    cmds += b('print("Stack backtrace")\n')
+    cmds += b('print("---------------")\n')
+    cmds += b('import sys; sys.stdout.flush()\n')
+    cmds += b('end\n')
+    cmds += b('bt full\n')
     script = os.path.join(os.path.dirname(sys.argv[0]), 'cysignals-CSI-helper.py')
     with open(script, 'r') as f:
-        cmds += 'python\n'
-        cmds += 'color = {0}\n'.format(color)
-        cmds += f.read()
-        cmds += 'end\n'
-    cmds += 'detach inferior 1\n'
-    cmds += 'python print("Stack backtrace (newest frame = first)\\n")\n'
-    cmds += 'python print("--------------------------------------\\n")\n'
-    cmds += 'python import sys; sys.stdout.flush()\n'
-    cmds += 'quit\n'
+        cmds += b('python\n')
+        cmds += b('color = {0}\n'.format(color))
+        cmds += b(f.read())
+        cmds += b('end\n')
+    cmds += b('detach inferior 1\n')
+    cmds += b('python print("Stack backtrace (newest frame = first)\\n")\n')
+    cmds += b('python print("--------------------------------------\\n")\n')
+    cmds += b('python import sys; sys.stdout.flush()\n')
+    cmds += b('quit\n')
     return cmds
+
 
 def run_gdb(pid, color):
     """
@@ -107,18 +118,18 @@ def run_gdb(pid, color):
         if line.startswith('Loaded symbols for '):
             continue
         result.append(line)
-    if stderr != "":
+    if stderr:
         result.append(stderr)
     return '\n'.join(result)
+
 
 def mkdir_p(path):
     try:
         os.makedirs(path)
     except OSError as e:
-        if os.path.isdir(path):
-            pass
-        else:
+        if not os.path.isdir(path):
             raise
+
 
 def prune_old_logs(directory, days):
     """

@@ -191,7 +191,7 @@ static void cysigs_signal_handler(int sig)
         signal(SIGTERM, SIG_DFL);
         sigprocmask(SIG_SETMASK, &default_sigmask, NULL);
 
-        if (inside) sigdie(sig, "An error occured during signal handling.");
+        if (inside) sigdie(sig, "An error occurred during signal handling.");
 
         /* Quit Python with an appropriate message. */
         switch(sig)

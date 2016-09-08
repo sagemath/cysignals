@@ -64,14 +64,14 @@ extern "C" {
  *
  * _sig_on_(message) is a macro which pretends to be a function.
  * Since this is declared as "cdef except 0", Cython will know that an
- * exception occured if the value of _sig_on_() is 0 (false).
+ * exception occurred if the value of _sig_on_() is 0 (false).
  *
  * INPUT:
  *
  *  - message -- a string to be displayed as error message when the code
  *    between sig_on() and sig_off() fails and raises an exception.
  *
- * OUTPUT: zero if an exception occured, non-zero otherwise.
+ * OUTPUT: zero if an exception occurred, non-zero otherwise.
  *
  * The function sigsetjmp() in the _sig_on_() macro can return:
  *  - zero: this happens in the actual sig_on() call. sigsetjmp() sets
@@ -125,7 +125,7 @@ static inline int _sig_on_postjmp(int jmpret)
 {
     if (unlikely(jmpret > 0))
     {
-        /* An exception occured */
+        /* An exception occurred */
         _sig_on_recover();
         return 0;
     }
@@ -187,7 +187,7 @@ static inline void _sig_off_(const char* file, int line)
  * but much faster.  Essentially, it checks whether we missed any
  * interrupts.
  *
- * OUTPUT: zero if an interrupt occured, non-zero otherwise.
+ * OUTPUT: zero if an interrupt occurred, non-zero otherwise.
  */
 static inline int sig_check(void)
 {

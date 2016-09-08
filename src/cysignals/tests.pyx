@@ -598,7 +598,7 @@ def test_bad_str(long delay=DEFAULT_DELAY):
         ------------------------------------------------------------------------
         ...
         ------------------------------------------------------------------------
-        An error occured during signal handling.
+        An error occurred during signal handling.
         This probably occurred because a *compiled* module has a bug
         in it and is not properly wrapped with sig_on(), sig_off().
         Python will now terminate.

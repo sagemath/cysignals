@@ -133,8 +133,8 @@ setup(
     packages=["cysignals"],
     package_dir={"cysignals": opj("src", "cysignals"),
                  "cysignals-cython": opj(cythonize_dir, "src", "cysignals")},
-    package_data={"cysignals": ["*.pxi", "*.pxd", "*.h"],
+    package_data={"cysignals": ["*.pxi", "*.pxd", "*.h", "gdb/*.pii"],
                   "cysignals-cython": ["__init__.pxd", "*.h"]},
-    scripts=glob(opj("src", "scripts", "*")),
+    scripts=[opj("src", "scripts", "cysignals-CSI")],
     cmdclass=dict(build_py=build_py_cython),
 )

@@ -64,6 +64,8 @@ def pid_exists(pid):
 
 
 def gdb_commands(pid, color):
+    from cysignals import __file__ as cysignals_pkg_root
+    cysignals_pkg_root = os.path.dirname(cysignals_pkg_root)
     cmds = b('')
     cmds += b('set prompt (cysignals-gdb-prompt)\n')
     cmds += b('set verbose off\n')
@@ -75,7 +77,7 @@ def gdb_commands(pid, color):
     cmds += b('import sys; sys.stdout.flush()\n')
     cmds += b('end\n')
     cmds += b('bt full\n')
-    script = os.path.join(os.path.dirname(sys.argv[0]), 'cysignals-CSI-helper.py')
+    script = os.path.join(cysignals_pkg_root, 'gdb', 'cysignals-CSI-helper.pii')
     with open(script, 'r') as f:
         cmds += b('python\n')
         cmds += b('color = {0}\n'.format(color))

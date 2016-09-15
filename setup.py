@@ -130,11 +130,13 @@ setup(
     platforms=["POSIX"],
 
     ext_modules=extensions,
-    packages=["cysignals"],
+    packages=["cysignals","cysignals_gdb"],
     package_dir={"cysignals": opj("src", "cysignals"),
-                 "cysignals-cython": opj(cythonize_dir, "src", "cysignals")},
+                 "cysignals-cython": opj(cythonize_dir, "src", "cysignals"),
+                 "cysignals_gdb": opj("src", "scripts")},
     package_data={"cysignals": ["*.pxi", "*.pxd", "*.h"],
-                  "cysignals-cython": ["__init__.pxd", "*.h"]},
-    scripts=glob(opj("src", "scripts", "*")),
+                  "cysignals-cython": ["__init__.pxd", "*.h"],
+                  "cysignals_gdb": ["cysignals-CSI-helper.py"]},
+    scripts=[opj("src", "scripts", "cysignals-CSI")],
     cmdclass=dict(build_py=build_py_cython),
 )

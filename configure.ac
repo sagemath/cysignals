@@ -1,12 +1,13 @@
 dnl Not sure which autoconf version we need, but 2.69 (from 2012)
 dnl is widely available.
 AC_PREREQ([2.69])
+AC_COPYRIGHT([GNU Lesser General Public License version 3 or later])
 
 AC_DEFUN([VERSION], m4_esyscmd_s(cat VERSION))
 
 AC_INIT([cysignals], VERSION, [https://github.com/sagemath/cysignals/issues])
-AC_COPYRIGHT([GNU Lesser General Public License version 3 or later])
-AC_CONFIG_SRCDIR([configure.ac])
+AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_SRCDIR([src/cysignals/pxi.h])
 AC_CONFIG_HEADERS([build/src/config.h:src/config.h.in])
 
 AC_LANG(C)

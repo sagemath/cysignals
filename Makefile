@@ -46,8 +46,8 @@ check-example: install
 test: check
 
 configure: configure.ac
-	autoconf
-	autoheader
+	autoconf -i -f -I m4
+	autoheader -f
 	@rm -f src/config.h.in~
 
 .PHONY: all build doc install dist doc clean clean-build clean-doc \

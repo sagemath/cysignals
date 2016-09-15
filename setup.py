@@ -11,10 +11,23 @@ warnings.simplefilter("always")
 import os
 from glob import glob
 
+import sys
+
 opj = os.path.join
 
+ac_configure_flags = os.environ.get("PYSETUP_CONFIGURE_FLAGS","--without-pari")
+if "--without-pari" in sys.argv:
+	ac_configure_flags = "--without-pari"
+	sys.argv.remove("--without-pari")
+if "--with-pari" in sys.argv:
+	ac_configure_flags = "--with-pari"
+	sys.argv.remove("--with-pari")
 
-cythonize_dir = "build"
+cythonize_dir = "build/XXXX"
+if "--without-pari" in ac_configure_flags:
+	cythonize_dir = "build/bare"
+elif "--with-pari" in ac_configure_flags:
+	cythonize_dir = "build/pari"
 
 kwds = dict(include_dirs=[opj("src", "cysignals"),
                           opj(cythonize_dir, "src"),
@@ -34,7 +47,7 @@ config_pxd_file = opj(cythonize_dir, "src", "config.pxd")
 if not os.path.isfile(config_pxd_file):
     import subprocess
     subprocess.check_call(["make", "configure"])
-    subprocess.check_call(["sh", "configure"])
+    subprocess.check_call(["mkdir", "-p", cythonize_dir, "&&", "{", "cd", cythonize_dir, ";", "sh", "../../configure", ac_configure_flags, ";", "}"])
 
 
 # Determine installation directory from distutils

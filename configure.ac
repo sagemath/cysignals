@@ -8,7 +8,7 @@ AC_DEFUN([VERSION], m4_esyscmd_s(cat VERSION))
 AC_INIT([cysignals], VERSION, [https://github.com/sagemath/cysignals/issues])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src/cysignals/pxi.h])
-AC_CONFIG_HEADERS([build/src/config.h:src/config.h.in])
+AC_CONFIG_HEADERS([src/config.h])
 
 AC_LANG(C)
 
@@ -32,13 +32,13 @@ AC_RUN_IFELSE([AC_LANG_PROGRAM([], [asm("leal (%eax), %eax; emms");])],
 )
 
 
-AC_CONFIG_COMMANDS([build/src/config.pxd],
+AC_CONFIG_COMMANDS([src/config.pxd],
     # Generate a file config.pxd whose contents will be copied to
     # __init__.pxd to set correct compiler options.
     # The -DCYSIGNALS_DUMMY works around https://github.com/cython/cython/pull/485
     [[
-			echo "# distutils: extra_compile_args = $EXTRACOMPILEARGS" >build/src/config.pxd
-			echo "# distutils: extra_link_args = -DCYSIGNALS_DUMMY $EXTRALINKARGS" >>build/src/config.pxd
+			echo "# distutils: extra_compile_args = $EXTRACOMPILEARGS" > src/config.pxd
+			echo "# distutils: extra_link_args = -DCYSIGNALS_DUMMY $EXTRALINKARGS" >> src/config.pxd
 		]],
     [
 			EXTRACOMPILEARGS="$PARI_CPPFLAGS $PARI_CFLAGS"

@@ -51,10 +51,7 @@ static int PARI_SIGINT_pending = 0;
 #include "signals.h"
 
 
-/* Interrupt debug level.  This only works if ENABLE_DEBUG_CYSIGNALS
- * has been set to "1" in debug.h */
 #if ENABLE_DEBUG_CYSIGNALS
-static int default_debug_level = 2;
 static struct timeval sigtime;  /* Time of signal */
 #endif
 
@@ -326,11 +323,20 @@ static void setup_cysignals_handlers(void)
     if (sigaction(SIGFPE, &sa, NULL)) {perror("sigaction"); exit(1);}
     if (sigaction(SIGBUS, &sa, NULL)) {perror("sigaction"); exit(1);}
     if (sigaction(SIGSEGV, &sa, NULL)) {perror("sigaction"); exit(1);}
+}
 
+
+static inline int _set_debug_level(int level)
+{
 #if ENABLE_DEBUG_CYSIGNALS
-    cysigs.debug_level = default_debug_level;
-    if (cysigs.debug_level >= 1)
-        fprintf(stderr, "Finished setting up interrupts\n");
+    int old = cysigs.debug_level;
+    cysigs.debug_level = level;
+    return old;
+#else
+    if (level == 0)
+        return 0;    /* 0 is the only valid debug level */
+    else
+        return -1;   /* Error */
 #endif
 }
 

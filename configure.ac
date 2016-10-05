@@ -7,7 +7,14 @@ AC_DEFUN([VERSION], m4_esyscmd_s(cat VERSION))
 AC_INIT([cysignals], VERSION, [https://github.com/sagemath/cysignals/issues])
 AC_COPYRIGHT([GNU Lesser General Public License version 3 or later])
 AC_CONFIG_SRCDIR([configure.ac])
-AC_CONFIG_HEADERS([build/src/config.h:src/config.h.in])
+AC_CONFIG_HEADERS([build/src/config.h:src/config.h.in build/src/cysignals/debug.h:src/cysignals/debug.h.in])
+
+AC_ARG_ENABLE(debug,
+        AS_HELP_STRING([--enable-debug], [enable debug output]))
+
+if test "$enable_debug" = yes; then
+    AC_DEFINE([ENABLE_DEBUG_CYSIGNALS], 1, [Enable debug output])
+fi
 
 AC_LANG(C)
 

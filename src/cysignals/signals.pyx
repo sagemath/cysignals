@@ -29,6 +29,7 @@ from cpython.exc cimport PyErr_Occurred
 
 cdef extern from "implementation.c":
     cysigs_t cysigs "cysigs"
+    int _set_debug_level(int) nogil
     void setup_cysignals_handlers() nogil
     void print_backtrace() nogil
     void _sig_on_interrupt_received() nogil
@@ -193,7 +194,33 @@ def init_cysignals():
 
     setup_cysignals_handlers()
 
+    # Set debug level to 2 by default (if debugging was enabled)
+    _set_debug_level(2)
+
     return old
+
+
+def set_debug_level(int level):
+    """
+    Set the cysignals debug level and return the old debug level.
+
+    Setting this to a positive value is only allowed if cysignals was
+    compiled with ``--enable-debug``.
+
+    EXAMPLES::
+
+        >>> from cysignals.signals import set_debug_level
+        >>> old = set_debug_level(0)
+        >>> set_debug_level(old)
+        0
+
+    """
+    if level < 0:
+        raise ValueError("cysignals debug level must be >= 0")
+    cdef int r = _set_debug_level(level)
+    if r == -1:
+        raise RuntimeError("cysignals is compiled without debugging, recompile with --enable-debug")
+    return r
 
 
 def sig_on_reset():

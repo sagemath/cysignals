@@ -3,4 +3,6 @@
  * code (0: disable, 1: enable).  Enabling will make the code slower.
  * The debug level itself needs to be set in implementation.c
  */
-#define ENABLE_DEBUG_CYSIGNALS 0
+#ifndef ENABLE_DEBUG_CYSIGNALS
+#undef ENABLE_DEBUG_CYSIGNALS
+#endif

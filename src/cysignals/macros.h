@@ -274,6 +274,21 @@ static inline void sig_error(void)
 }
 
 
+static inline int _set_debug_level(int level)
+{
+#if ENABLE_DEBUG_CYSIGNALS
+    int old = cysigs.debug_level;
+    cysigs.debug_level = level;
+    return old;
+#else
+    if (level == 0)
+        return 0;    /* 0 is the only valid debug level */
+    else
+        return -1;   /* Error */
+#endif
+}
+
+
 #ifdef __cplusplus
 }  /* extern "C" */
 #endif

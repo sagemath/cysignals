@@ -11,6 +11,7 @@ before_install:
   - sudo apt-get install -qq -y python-flake8
 
 install:
+  - cython --version
   - pip install -r requirements.txt
   - "./setup.py build"
   - "./setup.py -q install"

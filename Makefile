@@ -38,7 +38,7 @@ distclean: clean
 check: check-doctest check-example
 
 check-doctest: install
-	$(PYTHON) -m doctest src/cysignals/*.pyx
+	$(PYTHON) -B rundoctests.py src/cysignals/*.pyx
 
 check-example: install
 	cd example && $(PYTHON) setup.py build

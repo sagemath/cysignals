@@ -25,7 +25,8 @@ kwds = dict(include_dirs=[opj("src", "cysignals"),
 extensions = [
     Extension("cysignals.signals", ["src/cysignals/signals.pyx"], **kwds),
     Extension("cysignals.alarm", ["src/cysignals/alarm.pyx"], **kwds),
-    Extension("cysignals.tests", ["src/cysignals/tests.pyx"], **kwds)
+    Extension("cysignals.pselect", ["src/cysignals/pselect.pyx"], **kwds),
+    Extension("cysignals.tests", ["src/cysignals/tests.pyx"], **kwds),
 ]
 
 

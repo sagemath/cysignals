@@ -84,8 +84,8 @@ cpdef int get_fileno(f) except -1:
 
         >>> from os import devnull
         >>> from cysignals.pselect import get_fileno
-        >>> get_fileno(open(devnull))
-        3
+        >>> get_fileno(open(devnull)) > 2
+        True
         >>> get_fileno(42)
         42
         >>> get_fileno(None)
@@ -289,9 +289,9 @@ cdef class PSelecter:
             >>> f = open(os.devnull, "r+")
             >>> sel = PSelecter()
             >>> sel.pselect(rlist=[f])
-            ([<open file '/dev/null', mode 'r+' at ...>], [], [], False)
+            ([<...'/dev/null'...>], [], [], False)
             >>> sel.pselect(wlist=[f])
-            ([], [<open file '/dev/null', mode 'r+' at ...>], [], False)
+            ([], [<...'/dev/null'...>], [], False)
 
         A list of various files, all of them should be ready for
         reading. Also create a pipe, which should be ready for
@@ -334,7 +334,7 @@ cdef class PSelecter:
             >>> PSelecter().pselect([n])
             Traceback (most recent call last):
             ...
-            IOError: ...
+            OSError: ...
 
         """
         # Convert given lists to fd_set
@@ -383,10 +383,7 @@ cdef class PSelecter:
             if err == libc.errno.EINTR:
                 return ([], [], [], False)
             import os
-            if err == libc.errno.EBADF:
-                raise IOError(err, os.strerror(err))
-            else:
-                raise OSError(err, os.strerror(err))
+            raise OSError(err, os.strerror(err))
 
         # Figure out which file descriptors to return
         rready = []

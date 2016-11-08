@@ -99,7 +99,7 @@ class build_ext(_build_ext):
 
     def cythonize(self, extensions):
         return cythonize(extensions,
-                build_dir=cythonize_dir, include_path=["src"])
+                build_dir=cythonize_dir, include_path=["src", os.path.join(cythonize_dir, "src")])
 
     def create_init_pxd(self):
         """

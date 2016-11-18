@@ -15,14 +15,13 @@ install:
   - pip install -r requirements.txt
   - cython --version
   - gcc --version
-  - "./setup.py build"
-  - "./setup.py -q install"
+  - make install
 
 before_script:
   - "flake8 --max-line-length=120 --max-complexity=16 --ignore=E22,E241,E731 src"
 
 script:
-  - make distcheck
+  - make check-install distcheck
 
 notifications:
   on_success: change

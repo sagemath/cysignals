@@ -95,7 +95,7 @@ check-user: check-user-doctest check-user-example
 
 user-install: configure
 	rm -rf tmp/user
-	export PYTHONUSERBASE="`pwd`/tmp/user" && $(PYTHON) setup.py install --user --single-version-externally-managed --record=/dev/null
+	export PYTHONUSERBASE="`pwd`/tmp/user" && $(PIP) install --no-index --ignore-installed --user .
 
 check-user-doctest: user-install
 	export PYTHONUSERBASE="`pwd`/tmp/user" && $(DOCTEST) src/cysignals/*.pyx

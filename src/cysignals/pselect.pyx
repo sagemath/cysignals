@@ -67,6 +67,64 @@ Now using the ``multiprocessing`` module::
 cimport libc.errno
 from posix.signal cimport *
 from posix.select cimport *
+from cpython.exc cimport PyErr_SetFromErrno
+
+
+def interruptible_sleep(double seconds):
+    """
+    Sleep for ``seconds`` seconds or until a signal arrives. This
+    behaves like ``time.sleep`` from Python versions <= 3.4
+    (before :pep:`475`).
+
+    EXAMPLES::
+
+        >>> from cysignals.pselect import interruptible_sleep
+        >>> interruptible_sleep(0.5)
+
+    We set up an alarm handler doing nothing and check that the alarm
+    interrupts the sleep::
+
+        >>> import signal, time
+        >>> def alarm_handler(sig, frame):
+        ...     pass
+        >>> _ = signal.signal(signal.SIGALRM, alarm_handler)
+        >>> t0 = time.time()
+        >>> _ = signal.alarm(1)
+        >>> interruptible_sleep(2)
+        >>> t = time.time() - t0
+        >>> (1.0 <= t <= 1.9) or t
+        True
+
+    TESTS::
+
+        >>> interruptible_sleep(0)
+        >>> interruptible_sleep(-1)
+        Traceback (most recent call last):
+        ...
+        ValueError: sleep length must be non-negative
+
+    Reset the signal handlers::
+
+        >>> from cysignals import init_cysignals
+        >>> _ = init_cysignals()
+
+    """
+    if seconds < 0:
+        raise ValueError("sleep length must be non-negative")
+
+    cdef fd_set rfds, wfds, xfds
+    FD_ZERO(&rfds)
+    FD_ZERO(&wfds)
+    FD_ZERO(&xfds)
+
+    cdef timespec tv
+    tv.tv_sec = <long>seconds
+    tv.tv_nsec = <long>(1e9 * (seconds - <double>tv.tv_sec))
+
+    cdef int ret = pselect(0, &rfds, &wfds, &xfds, &tv, NULL)
+    if ret < 0:
+        if libc.errno.errno != libc.errno.EINTR:
+            PyErr_SetFromErrno(OSError)
 
 
 cpdef int get_fileno(f) except -1:
@@ -229,7 +287,7 @@ cdef class PSelecter:
 
             >>> import time
             >>> from multiprocessing import *
-            >>> from cysignals.pselect import PSelecter
+            >>> from cysignals.pselect import PSelecter, interruptible_sleep
             >>> w = PSelecter([signal.SIGCHLD])
             >>> with w:
             ...     p = Process(target=time.sleep, args=(0.25,))
@@ -238,7 +296,7 @@ cdef class PSelecter:
 
         This ``sleep`` should be interruptible now::
 
-            >>> time.sleep(1)
+            >>> interruptible_sleep(1)
             >>> t = time.time() - t0
             >>> (0.2 <= t <= 0.9) or t
             True
@@ -376,14 +434,10 @@ cdef class PSelecter:
             return ([], [], [], True)
 
         # Error?
-        cdef int err
         if ret < 0:
-            # Save this value in case Python statements change it.
-            err = libc.errno.errno
-            if err == libc.errno.EINTR:
+            if libc.errno.errno == libc.errno.EINTR:
                 return ([], [], [], False)
-            import os
-            raise OSError(err, os.strerror(err))
+            PyErr_SetFromErrno(OSError)
 
         # Figure out which file descriptors to return
         rready = []

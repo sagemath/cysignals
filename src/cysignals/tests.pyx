@@ -497,7 +497,7 @@ def test_signal_quit(long delay=DEFAULT_DELAY):
 
         >>> from subprocess import *
         >>> cmd = 'from cysignals.tests import *; test_signal_quit()'
-        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))  # doctest: +ELLIPSIS
+        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))
         ------------------------------------------------------------------------
         ...
         ------------------------------------------------------------------------
@@ -522,7 +522,7 @@ def test_dereference_null_pointer():
     Error. ::
 
         >>> from cysignals.tests import *
-        >>> test_dereference_null_pointer() # doctest: +ELLIPSIS
+        >>> test_dereference_null_pointer()
         Traceback (most recent call last):
         ...
         SignalError: ...
@@ -541,7 +541,7 @@ def unguarded_dereference_null_pointer():
 
         >>> from subprocess import *
         >>> cmd = 'from cysignals.tests import *; unguarded_dereference_null_pointer()'
-        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))  # doctest: +ELLIPSIS
+        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))
         ------------------------------------------------------------------------
         ...
         ------------------------------------------------------------------------
@@ -579,7 +579,7 @@ def unguarded_abort():
 
         >>> from subprocess import *
         >>> cmd = 'from cysignals.tests import *; unguarded_abort()'
-        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))  # doctest: +ELLIPSIS
+        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))
         ------------------------------------------------------------------------
         ...
         ------------------------------------------------------------------------
@@ -602,7 +602,7 @@ def test_bad_str(long delay=DEFAULT_DELAY):
 
         >>> from subprocess import *
         >>> cmd = 'from cysignals.tests import *; test_bad_str()'
-        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))  # doctest: +ELLIPSIS
+        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))
         ------------------------------------------------------------------------
         ...
         ------------------------------------------------------------------------
@@ -664,7 +664,7 @@ def test_interrupt_bomb(int n = 100, int p = 10):
     TESTS::
 
         >>> from cysignals.tests import *
-        >>> test_interrupt_bomb()  # doctest: +ELLIPSIS
+        >>> test_interrupt_bomb()
         Received ... interrupts
 
     """

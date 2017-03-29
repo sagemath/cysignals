@@ -33,7 +33,7 @@ description = """
 
 import sys
 import os
-import subprocess
+from subprocess import Popen, PIPE
 import signal
 import tempfile
 import sysconfig
@@ -102,18 +102,18 @@ def run_gdb(pid, color):
     else:
         env['LD_PRELOAD'] = libpython
 
-    PIPE = subprocess.PIPE
     try:
-        cmd = subprocess.Popen('gdb', stdin=PIPE, stdout=PIPE,
-                               stderr=PIPE, env=env)
+        cmd = Popen('gdb', stdin=PIPE, stdout=PIPE, stderr=PIPE, env=env)
     except OSError:
         return "Unable to start gdb (not installed?)"
+
     try:
         stdout, stderr = cmd.communicate(gdb_commands(pid, color))
     except BaseException:
         # Something went wrong => kill gdb
         cmd.kill()
         raise
+
     result = []
     for line in stdout.splitlines():
         if line.find('(cysignals-gdb-prompt)') >= 0:
@@ -125,6 +125,9 @@ def run_gdb(pid, color):
         result.append(line)
     if stderr:
         result.append(stderr)
+    if cmd.wait() != 0:
+        result.append("Failed to run gdb.")
+
     return '\n'.join(result)
 
 
@@ -184,14 +187,16 @@ def main(args):
     print(trace)
 
     fatalities = [
-        ( 'Unable to start gdb',
-          'GDB is not installed.' ),
-        ( 'Hangup detected on fd 0',
-          'Your system GDB is an old version that does not work with pipes'),
-        ( 'error detected on stdin',
-          'Your system GDB does not have Python support'),
-        ( 'ImportError: No module named',
-          'Your system GDB uses an incompatible version of Python') ]
+        ('Unable to start gdb',
+         'GDB is not installed.'),
+        ('Hangup detected on fd 0',
+         'Your system GDB is an old version that does not work with pipes.'),
+        ('error detected on stdin',
+         'Your system GDB does not have Python support.'),
+        ('ImportError: No module named',
+         'Your system GDB uses an incompatible version of Python.'),
+        ('Failed to run gdb', 'Failed to run gdb.'),
+    ]
 
     for key, msg in fatalities:
         if key in trace:

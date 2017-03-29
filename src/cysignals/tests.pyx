@@ -924,7 +924,7 @@ def test_graceful_exit():
     the child process has properly started before we kill it::
 
         >>> while b'GO' not in A.stdout.readline(): pass
-        >>> import signal, sys
+        >>> import os, signal, sys
         >>> os.kill(A.pid, signal.SIGHUP)
         >>> _ = sys.stdout.write(A.stdout.read().decode("utf-8"))
         Goodbye!

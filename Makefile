@@ -64,6 +64,9 @@ check-doctest: install
 check-example: install
 	cd example && $(PYTHON) setup.py clean build
 
+check-gdb: install
+	$(PYTHON) testgdb.py
+
 
 #####################
 # Check installation

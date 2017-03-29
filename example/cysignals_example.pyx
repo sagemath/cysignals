@@ -1,5 +1,5 @@
-include "cysignals/signals.pxi"
-include "cysignals/memory.pxi"
+from cysignals.signals cimport sig_check
+from cysignals.memory cimport check_allocarray
 
 from libc.math cimport sin
 

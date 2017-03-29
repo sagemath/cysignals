@@ -1,17 +1,29 @@
+#*****************************************************************************
+#  cysignals is free software: you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published
+#  by the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  cysignals is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public License
+#  along with cysignals.  If not, see <http://www.gnu.org/licenses/>.
+#
+#*****************************************************************************
+
 # Auto-generated file setting the correct include directories
 cimport cysignals.__init__
 
-# NOTE: these functions are actually defined in "macros.h".
-# However, we intentionally do not mention that file here, because
-# every .pyx file using interrupt functions *must* also call
-# import_cysignals__signals() which is done automatically
-# if signals.pxi is included.
-#
-# A failure to include signals.pxi will therefore lead to a compiler
-# error (since sig_on() will not be defined) or an ImportError due to a
-# missing symbol but hopefully not an obscure segmentation fault.
-#
-cdef extern from * nogil:
+cdef extern from "struct_signals.h":
+    ctypedef struct cysigs_t:
+        int sig_on_count
+        const char* s
+
+
+cdef extern from "|macros.h" nogil:
     int sig_on() except 0
     int sig_str(char*) except 0
     int sig_check() except 0
@@ -28,6 +40,7 @@ cdef extern from * nogil:
     int sig_str_no_except "sig_str"(char*)
     int sig_check_no_except "sig_check"()
 
+
 # This function does nothing, but it is declared cdef except *, so it
 # can be used to make Cython check whether there is a pending exception
 # (PyErr_Occurred() is non-NULL). To Cython, it will look like
@@ -36,15 +49,15 @@ cdef inline void cython_check_exception() nogil except *:
     pass
 
 
-# Private stuff below, do not use directly
-cdef extern from "struct_signals.h":
-    ctypedef struct cysigs_t:
-        int sig_on_count
-        const char* s
-
-cdef api:
+# Private stuff below, should not be used directly
+cdef nogil:
     cysigs_t cysigs "cysigs"
-    void print_backtrace() nogil
-    void _sig_on_interrupt_received() nogil
-    void _sig_on_recover() nogil
-    void _sig_off_warning(const char*, int) nogil
+    void print_backtrace()
+    void _sig_on_interrupt_received "_sig_on_interrupt_received"()
+    void _sig_on_recover "_sig_on_recover"()
+    void _sig_off_warning "_sig_off_warning"(const char*, int)
+
+cysigs
+_sig_on_interrupt_received
+_sig_on_recover
+_sig_off_warning

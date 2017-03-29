@@ -1,4 +1,5 @@
-include "cysignals/signals.pxi"
+# This file is kept for backwards compatibility only, you should no
+# longer use this .pxi file.
 
 from cysignals.memory cimport (
         sig_malloc, sig_realloc, sig_calloc, sig_free,

@@ -49,15 +49,15 @@ cdef inline void cython_check_exception() nogil except *:
 
 
 # Private stuff below, should not be used directly
-cdef extern from "macros.h" nogil:
-    cysigs_t cysigs "cysigs"
-
 cdef nogil:
+    cysigs_t cysigs "cysigs"
     void print_backtrace()
     void _sig_on_interrupt_received "_sig_on_interrupt_received"()
     void _sig_on_recover "_sig_on_recover"()
     void _sig_off_warning "_sig_off_warning"(const char*, int)
 
+# Ensure that these variables are used, to force Cython to cimport them
+cysigs
 _sig_on_interrupt_received
 _sig_on_recover
 _sig_off_warning

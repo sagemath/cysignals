@@ -8,20 +8,25 @@ python:
 
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -qq -y python-pip python-dev
-  - sudo apt-get install -qq -y python-flake8
+  - sudo apt-get install -q -y python-pip python-dev
+  - sudo apt-get install -q -y python-flake8
+  - sudo apt-get install -q -y gdb python2.7-dbg python3.4-dbg
 
 install:
   - pip install -r requirements.txt
   - cython --version
   - gcc --version
+  - gdb --version
+  - ldd `which gdb`
   - make install
 
 before_script:
   - "flake8 --max-line-length=120 --max-complexity=16 --ignore=E22,E241,E731 src"
 
 script:
-  - make check-install distcheck
+  - env  # Display environment variables
+  - which python && python --version && ldd `which python`
+  - make check-install distcheck check-gdb
 
 notifications:
   on_success: change

@@ -35,7 +35,7 @@ doc:
 clean: clean-doc clean-build
 
 clean-build:
-	rm -rf build example/build example/*.c
+	rm -rf build example/build example/*.cpp
 
 clean-doc:
 	rm -rf docs/build

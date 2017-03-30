@@ -22,8 +22,7 @@ cdef extern from "struct_signals.h":
         int sig_on_count
         const char* s
 
-
-cdef extern from "|macros.h" nogil:
+cdef extern from "macros.h" nogil:
     int sig_on() except 0
     int sig_str(char*) except 0
     int sig_check() except 0
@@ -50,14 +49,15 @@ cdef inline void cython_check_exception() nogil except *:
 
 
 # Private stuff below, should not be used directly
-cdef nogil:
+cdef extern from "macros.h" nogil:
     cysigs_t cysigs "cysigs"
+
+cdef nogil:
     void print_backtrace()
     void _sig_on_interrupt_received "_sig_on_interrupt_received"()
     void _sig_on_recover "_sig_on_recover"()
     void _sig_off_warning "_sig_off_warning"(const char*, int)
 
-cysigs
 _sig_on_interrupt_received
 _sig_on_recover
 _sig_off_warning

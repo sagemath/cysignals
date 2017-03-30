@@ -91,6 +91,15 @@ extern "C" {
  * a short-circuiting operator (the second argument is only evaluated
  * if the first returns 0).
  */
+
+/*
+ * Forward declarations of items declared in cysignals.pxd.
+ */
+static cysigs_t cysigs;
+static void _sig_on_interrupt_received(void);
+static void _sig_on_recover(void);
+static void _sig_off_warning(const char*, int);
+
 #define _sig_on_(message) ( unlikely(_sig_on_prejmp(message, __FILE__, __LINE__)) || _sig_on_postjmp(sigsetjmp(cysigs.env,0)) )
 
 /*

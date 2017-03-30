@@ -96,14 +96,13 @@ extern "C" {
  * Forward declarations of items declared in cysignals.pxd.
  */
 
+static CYTHON_INLINE cysigs_t* get_cysigs(void);
+#define cysigs (*get_cysigs())
 #ifdef CYSIGNALS_IMPLEMENTATION
-static cysigs_t cysigs;
 static void _sig_on_interrupt_received(void);
 static void _sig_on_recover(void);
 static void _sig_off_warning(const char*, int);
 #else
-static cysigs_t *__pyx_vp_9cysignals_7signals_cysigs;
-#define cysigs (*__pyx_vp_9cysignals_7signals_cysigs)
 static void (*_sig_on_interrupt_received)(void);
 static void (*_sig_on_recover)(void);
 static void (*_sig_off_warning)(const char*, int);

@@ -50,14 +50,16 @@ cdef inline void cython_check_exception() nogil except *:
 
 # Private stuff below, should not be used directly
 cdef nogil:
-    cysigs_t cysigs "cysigs"
+    cysigs_t cysigs
+    inline cysigs_t* get_cysigs "get_cysigs"():
+        return &cysigs
     void print_backtrace()
     void _sig_on_interrupt_received "_sig_on_interrupt_received"()
     void _sig_on_recover "_sig_on_recover"()
     void _sig_off_warning "_sig_off_warning"(const char*, int)
 
 # Ensure that these variables are used, to force Cython to cimport them
-cysigs
+get_cysigs
 _sig_on_interrupt_received
 _sig_on_recover
 _sig_off_warning

@@ -4,10 +4,6 @@ Memory allocation functions which are interrupt-safe
 The ``sig_`` variants are simple wrappers around the corresponding C
 functions. The ``check_`` variants check the return value and raise
 ``MemoryError`` in case of failure.
-
-NOTE: to use these functions, you must also include ``signals.pxi``.
-Therefore, it is recommended to include ``memory.pxi`` instead of
-cimporting from here.
 """
 
 #*****************************************************************************

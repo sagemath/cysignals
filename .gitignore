@@ -58,7 +58,7 @@ target/
 .ipynb_checkpoints
 
 # Auto-generated file
-/example/cysignals_example.c
+/example/cysignals_example.cpp
 
 # Autotools
 configure

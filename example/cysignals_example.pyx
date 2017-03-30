@@ -1,3 +1,5 @@
+# distutils: language = c++
+
 from cysignals.signals cimport sig_check
 from cysignals.memory cimport check_allocarray
 

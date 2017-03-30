@@ -93,20 +93,21 @@ extern "C" {
  */
 
 /*
- * Forward declarations of items declared in cysignals.pxd.
+ * Forward declarations of variables declared in cysignals.pxd.
+ *
+ * We need to jump through hoops here because a static variable cannot
+ * be forward-declared in C++, but a function can. So we wrap
+ * all these variables in an inline function.
  */
 
 static CYTHON_INLINE cysigs_t* get_cysigs(void);
 #define cysigs (*get_cysigs())
-#ifdef CYSIGNALS_IMPLEMENTATION
-static void _sig_on_interrupt_received(void);
-static void _sig_on_recover(void);
-static void _sig_off_warning(const char*, int);
-#else
-static void (*_sig_on_interrupt_received)(void);
-static void (*_sig_on_recover)(void);
-static void (*_sig_off_warning)(const char*, int);
-#endif
+static CYTHON_INLINE void call_sig_on_interrupt_received(void);
+#define _sig_on_interrupt_received call_sig_on_interrupt_received
+static CYTHON_INLINE void call_sig_on_recover(void);
+#define _sig_on_recover call_sig_on_recover
+static CYTHON_INLINE void call_sig_off_warning(const char*, int);
+#define _sig_off_warning call_sig_off_warning
 
 #define _sig_on_(message) ( unlikely(_sig_on_prejmp(message, __FILE__, __LINE__)) || _sig_on_postjmp(sigsetjmp(cysigs.env,0)) )
 
@@ -305,6 +306,9 @@ static inline int _set_debug_level(int level)
 #endif
 }
 
+#undef _sig_on_interrupt_received
+#undef _sig_on_recover
+#undef _sig_off_warning
 
 #ifdef __cplusplus
 }  /* extern "C" */

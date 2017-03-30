@@ -37,9 +37,11 @@ from subprocess import Popen, PIPE
 import signal
 import tempfile
 import sysconfig
+import site
 
 from argparse import ArgumentParser
 from datetime import datetime
+from distutils.spawn import find_executable
 
 
 def b(x):
@@ -93,19 +95,30 @@ def run_gdb(pid, color):
     """
     Execute gdb.
     """
+    env = dict(os.environ)
+
     # Preload the right Python library
     libpython = os.path.join(sysconfig.get_config_var('LIBDIR'),
                              sysconfig.get_config_var('INSTSONAME'))
-    env = dict(os.environ)
     if sys.platform == 'macosx':
         env['DYLD_INSERT_LIBRARIES'] = libpython
     else:
         env['LD_PRELOAD'] = libpython
 
+    # Set the correct Python path
+    env['PYTHONPATH'] = os.path.dirname(site.__file__)
+
+    whichgdb = find_executable('gdb')
+    if whichgdb is None:
+        return b"Cannot find gdb installed"
+
     try:
-        cmd = Popen('gdb', stdin=PIPE, stdout=PIPE, stderr=PIPE, env=env)
+        # Run gdb but pretending to be Python in argv[0].
+        # This is needed for Python to find its own files.
+        cmd = Popen([sys.executable], executable=whichgdb,
+                stdin=PIPE, stdout=PIPE, stderr=PIPE, env=env)
     except OSError:
-        return "Unable to start gdb (not installed?)"
+        return b"Unable to start gdb (not installed?)"
 
     try:
         stdout, stderr = cmd.communicate(gdb_commands(pid, color))
@@ -116,19 +129,18 @@ def run_gdb(pid, color):
 
     result = []
     for line in stdout.splitlines():
-        if line.find('(cysignals-gdb-prompt)') >= 0:
+        if line.find(b"(cysignals-gdb-prompt)") >= 0:
             continue
-        if line.startswith('Reading symbols from '):
+        if line.startswith(b"Reading symbols from "):
             continue
-        if line.startswith('Loaded symbols for '):
+        if line.startswith(b"Loaded symbols for "):
             continue
         result.append(line)
-    if stderr:
-        result.append(stderr)
+    result.append(stderr)
     if cmd.wait() != 0:
-        result.append("Failed to run gdb.")
+        result.append(b"Failed to run gdb.")
 
-    return '\n'.join(result)
+    return b'\n'.join(result)
 
 
 def mkdir_p(path):
@@ -153,6 +165,7 @@ def prune_old_logs(directory, days):
                 os.unlink(filename)
             except OSError:
                 pass
+
 
 def save_backtrace(output):
     try:
@@ -183,19 +196,22 @@ def save_backtrace(output):
 
 def main(args):
     print('Attaching gdb to process id {0}.'.format(args.pid))
+    sys.stdout.flush()
     trace = run_gdb(args.pid, not args.nocolor)
-    print(trace)
+    os.write(1, trace)
 
     fatalities = [
-        ('Unable to start gdb',
+        (b'Cannot find gdb',
          'GDB is not installed.'),
-        ('Hangup detected on fd 0',
+        (b'Unable to start gdb',
+         'GDB is not installed.'),
+        (b'Hangup detected on fd 0',
          'Your system GDB is an old version that does not work with pipes.'),
-        ('error detected on stdin',
+        (b'error detected on stdin',
          'Your system GDB does not have Python support.'),
-        ('ImportError: No module named',
+        (b'ImportError: No module named',
          'Your system GDB uses an incompatible version of Python.'),
-        ('Failed to run gdb', 'Failed to run gdb.'),
+        (b'Failed to run gdb', 'Failed to run gdb.'),
     ]
 
     for key, msg in fatalities:

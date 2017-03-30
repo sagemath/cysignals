@@ -1,3 +1,4 @@
+#distutils: extra_compile_args=-DCYSIGNALS_IMPLEMENTATION
 r"""
 Interrupt and signal handling
 

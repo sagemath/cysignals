@@ -35,16 +35,16 @@ from libc.stdlib cimport abort
 
 from cpython cimport PyErr_SetString
 
-cdef extern from '|tests_helper.c':
+from .signals cimport *
+from .memory cimport *
+
+cdef extern from 'tests_helper.c':
     void ms_sleep(long ms) nogil
     void signal_after_delay(int signum, long ms) nogil
     void signals_after_delay(int signum, long ms, long interval, int n) nogil
 
 cdef extern from *:
     ctypedef int volatile_int "volatile int"
-
-from .signals cimport *
-from .memory cimport *
 
 # Default delay in milliseconds before raising signals
 cdef long DEFAULT_DELAY = 200

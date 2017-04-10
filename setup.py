@@ -5,6 +5,7 @@ from setuptools import setup
 from distutils.command.build import build as _build
 from distutils.command.build_py import build_py as _build_py
 from setuptools.command.install import install as _install
+from setuptools.command.bdist_egg import bdist_egg as _bdist_egg
 from setuptools.extension import Extension
 from Cython.Build.Dependencies import cythonize
 
@@ -159,6 +160,12 @@ class install(_install):
         _install.change_roots(self, *names)
 
 
+class no_egg(_bdist_egg):
+    def run(self):
+        from distutils.errors import DistutilsOptionError
+        raise DistutilsOptionError("The package cysignals will not function correctly when built as egg. Therefore, it cannot be installed using 'python setup.py install' or 'easy_install'. Instead, use 'pip install' to install cysignals.")
+
+
 setup(
     name="cysignals",
     author=u"Martin R. Albrecht, François Bissey, Volker Braun, Jeroen Demeyer",
@@ -177,5 +184,5 @@ setup(
     package_data={"cysignals": ["*.pxi", "*.pxd", "*.h"],
                   "cysignals-cython": ["*.h"]},
     scripts=glob(opj("src", "scripts", "*")),
-    cmdclass=dict(build=build, build_py=build_py, install=install)
+    cmdclass=dict(build=build, build_py=build_py, install=install, bdist_egg=no_egg)
 )

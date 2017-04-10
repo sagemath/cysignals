@@ -34,3 +34,13 @@ Defining error callbacks for external libraries:
 
 .. toctree::
     sigerror
+
+Signal-related interfaces
+-------------------------
+
+cysignals provides further support for system calls related to signals.
+These are not directly related to ``sig_check`` or ``sig_on``
+but provide some supporting functionality beyond what Python provides:
+
+.. toctree::
+    pselect

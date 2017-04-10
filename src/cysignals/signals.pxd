@@ -16,10 +16,11 @@
 
 # Auto-generated file setting the correct include directories
 cimport cysignals.__init__
+from libc.signal cimport sig_atomic_t
 
 cdef extern from "struct_signals.h":
     ctypedef struct cysigs_t:
-        int sig_on_count
+        sig_atomic_t sig_on_count
         const char* s
 
 cdef extern from "macros.h" nogil:

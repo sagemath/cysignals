@@ -35,7 +35,7 @@ Basic example
 The ``sig_check()`` in the loop below ensures that the loop can be
 interrupted by ``CTRL-C``::
 
-    include "cysignals/signals.pxi"
+    from cysignals.signals cimport sig_check
 
     from libc.math cimport sin
 
@@ -46,14 +46,6 @@ interrupted by ``CTRL-C``::
             s += sin(i*x)
         return s
 
-The line ``include "cysignals/signals.pxi"`` must be put in every
-``.pyx`` file using cysignals.
-You must not put this in a ``.pxd`` file; a ``.pxi`` file included only
-in ``.pyx`` files also works.
-
-Because of `cython/cython#483 <https://github.com/cython/cython/pull/483>`_,
-you should add ``include_path=sys.path`` to your ``cythonize()`` call in
-``setup.py`` (otherwise Cython will not find :file:`cysignals/signals.pxi`).
 See the `example <https://github.com/sagemath/cysignals/tree/master/example>`_
 directory for this complete working example.
 
@@ -332,7 +324,7 @@ Even within Cython, you cannot use the ``raise`` statement, because then the
 
 A typical error handler implemented in Cython would look as follows::
 
-    include "cysignals/signals.pxi"
+    from cysignals.signals cimport sig_error
     from cpython.exc cimport PyErr_SetString
 
     cdef void error_handler(char *msg):

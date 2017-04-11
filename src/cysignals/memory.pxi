@@ -1,5 +1,4 @@
-# This file is kept for backwards compatibility only, you should no
-# longer use this .pxi file.
+cdef extern from "pxi_warning.h": pass
 
 from cysignals.signals cimport *
 from cysignals.memory cimport (

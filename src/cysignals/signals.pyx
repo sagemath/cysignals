@@ -148,14 +148,6 @@ def sig_print_exception(sig, msg=None):
         import sys, traceback
         typ, val, tb = sys.exc_info()
         try:
-            # For doctests, we want exceptions to look the same,
-            # regardless of the Python version. Python 3 will put the
-            # module name in the traceback, which we avoid by faking
-            # the module to be __main__.
-            typ.__module__ = "__main__"
-        except TypeError:
-            pass
-        try:
             # Python 3
             traceback.print_exception(typ, val, None, file=sys.stdout, chain=False)
         except TypeError:

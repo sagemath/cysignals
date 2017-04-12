@@ -43,4 +43,5 @@ These are not directly related to ``sig_check`` or ``sig_on``
 but provide some supporting functionality beyond what Python provides:
 
 .. toctree::
+    pysignals
     pselect

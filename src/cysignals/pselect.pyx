@@ -1,6 +1,6 @@
 """
-Interface to the ``pselect()`` system call
-==========================================
+Interface to the ``pselect()`` and ``sigprocmask()`` system calls
+=================================================================
 
 This module defines a class :class:`PSelecter` which can be used to
 call the system call ``pselect()`` and which can also be used in a

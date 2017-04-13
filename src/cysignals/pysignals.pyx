@@ -151,7 +151,7 @@ def getossignal(int sig):
     r"""
     Get the OS-level signal handler.
 
-    This returns an opaque object of type :class:`SigAction: which can
+    This returns an opaque object of type :class:`SigAction` which can
     only be used in a future call to :func:`setossignal`.
 
     EXAMPLES::

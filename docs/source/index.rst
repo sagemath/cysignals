@@ -17,10 +17,16 @@ quit Python by typing ``CTRL-\`` (sending a Quit signal) instead of
 The package cysignals provides functionality to deal with this,
 see :ref:`section_interrupt`.
 
+Besides this, cysignals also provides Python functions/classes
+to deal with signals.
+These are not directly related to interrupts in Cython,
+but provide some supporting functionality beyond what Python provides,
+see :ref:`index_python`.
+
 Interrupt/Signal Handling
 -------------------------
 
-Dealing with interrupts and other signals:
+Dealing with interrupts and other signals using ``sig_check`` and ``sig_on``:
 
 .. toctree::
     interrupt
@@ -30,17 +36,17 @@ Dealing with interrupts and other signals:
 Error handling
 --------------
 
-Defining error callbacks for external libraries:
+Defining error callbacks for external libraries using ``sig_error``:
 
 .. toctree::
     sigerror
 
-Signal-related interfaces
--------------------------
+.. _index_python:
 
-cysignals provides further support for system calls related to signals.
-These are not directly related to ``sig_check`` or ``sig_on``
-but provide some supporting functionality beyond what Python provides:
+Signal-related interfaces for Python code
+-----------------------------------------
+
+cysignals provides further support for system calls related to signals:
 
 .. toctree::
     pysignals

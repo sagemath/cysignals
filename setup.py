@@ -1,6 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
+import sys
+
+# When building with readthedocs, install the requirements too
+if "READTHEDOCS" in os.environ:
+    from subprocess import check_call
+    check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
+
 from setuptools import setup
 from distutils.command.build import build as _build
 from distutils.command.build_py import build_py as _build_py
@@ -12,7 +20,6 @@ from Cython.Build.Dependencies import cythonize
 import warnings
 warnings.simplefilter("always")
 
-import os
 from glob import glob
 
 opj = os.path.join
@@ -84,7 +91,9 @@ class build(_build):
 
     def cythonize(self, extensions):
         return cythonize(extensions,
-                build_dir=cythonize_dir, include_path=["src", os.path.join(cythonize_dir, "src")])
+                build_dir=cythonize_dir,
+                include_path=["src", os.path.join(cythonize_dir, "src")],
+                compiler_directives=dict(binding=True))
 
     def create_init_pxd(self):
         """

@@ -122,7 +122,9 @@ def interruptible_sleep(double seconds):
     tv.tv_sec = <long>seconds
     tv.tv_nsec = <long>(1e9 * (seconds - <double>tv.tv_sec))
 
-    cdef int ret = pselect(0, &rfds, &wfds, &xfds, &tv, NULL)
+    cdef int ret
+    with nogil:
+        ret = pselect(0, &rfds, &wfds, &xfds, &tv, NULL)
     if ret < 0:
         if libc.errno.errno != libc.errno.EINTR:
             PyErr_SetFromErrno(OSError)
@@ -429,7 +431,9 @@ cdef class PSelecter:
             tv.tv_nsec = <long>(1e9 * (tm - <double>tv.tv_sec))
             ptv = &tv
 
-        ret = pselect(nfds, &rfds, &wfds, &xfds, ptv, &self.oldset)
+        with nogil:
+            ret = pselect(nfds, &rfds, &wfds, &xfds, ptv, &self.oldset)
+
         # No file descriptors ready => timeout
         if ret == 0:
             return ([], [], [], True)

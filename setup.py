@@ -17,7 +17,6 @@ from distutils.command.build_py import build_py as _build_py
 from setuptools.command.install import install as _install
 from setuptools.command.bdist_egg import bdist_egg as _bdist_egg
 from setuptools.extension import Extension
-from Cython.Build.Dependencies import cythonize
 
 import warnings
 warnings.simplefilter("always")
@@ -92,6 +91,7 @@ class build(_build):
         _build.run(self)
 
     def cythonize(self, extensions):
+        from Cython.Build.Dependencies import cythonize
         return cythonize(extensions,
                 build_dir=cythonize_dir,
                 include_path=["src", os.path.join(cythonize_dir, "src")],
@@ -188,6 +188,7 @@ setup(
     description="Interrupt and signal handling for Cython",
     long_description=open('README.rst').read(),
     platforms=["POSIX"],
+    setup_requires=["Cython"],
 
     ext_modules=extensions,
     packages=["cysignals"],

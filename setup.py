@@ -6,8 +6,10 @@ import sys
 
 # When building with readthedocs, install the requirements too
 if "READTHEDOCS" in os.environ:
-    from subprocess import check_call
-    check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
+    reqs = "requirements.txt"
+    if os.path.isfile(reqs):
+        from subprocess import check_call
+        check_call([sys.executable, "-m", "pip", "install", "-r", reqs])
 
 from setuptools import setup
 from distutils.command.build import build as _build

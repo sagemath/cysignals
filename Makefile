@@ -115,7 +115,9 @@ distcheck: dist
 	cd dist/check/cysignals-$(VERSION) && $(MAKE) distclean
 	cd dist/check/cysignals-$(VERSION) && $(LS_R) >../dist1.ls
 	cd dist/check; diff -u dist0.ls dist1.ls || { echo >&2 "Error: distclean after all leaves garbage"; exit 1; }
-	cd dist/check/cysignals-$(VERSION) && $(MAKE) check-tmp
+	cd dist/check/cysignals-$(VERSION) && $(MAKE) check-user
+	cd dist/check/cysignals-$(VERSION) && ./configure --enable-debug
+	cd dist/check/cysignals-$(VERSION) && $(MAKE) check-prefix
 	cd dist/check/cysignals-$(VERSION) && $(MAKE) distclean
 	cd dist/check/cysignals-$(VERSION) && $(LS_R) >../dist2.ls
 	cd dist/check; diff -u dist0.ls dist2.ls || { echo >&2 "Error: distclean after check-tmp leaves garbage"; exit 1; }

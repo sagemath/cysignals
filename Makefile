@@ -33,6 +33,7 @@ doc:
 #####################
 
 clean: clean-doc clean-build
+	rm -rf tmp
 
 clean-build:
 	rm -rf build example/build example/*.cpp
@@ -77,7 +78,6 @@ check-gdb: install
 # - user (with --user)
 
 check-tmp: check-prefix check-user
-	rm -rf tmp
 
 prefix-install: configure
 	rm -rf tmp/local tmp/build

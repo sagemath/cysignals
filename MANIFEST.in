@@ -5,3 +5,4 @@ graft src
 graft docs/source
 prune build
 prune dist
+prune tmp

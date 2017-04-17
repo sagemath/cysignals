@@ -102,6 +102,8 @@ extern "C" {
 
 static CYTHON_INLINE cysigs_t* get_cysigs(void);
 #define cysigs (*get_cysigs())
+static CYTHON_INLINE void call_print_backtrace(void);
+#define print_backtrace call_print_backtrace
 static CYTHON_INLINE void call_sig_on_interrupt_received(void);
 #define _sig_on_interrupt_received call_sig_on_interrupt_received
 static CYTHON_INLINE void call_sig_on_recover(void);
@@ -306,6 +308,7 @@ static inline int _set_debug_level(int level)
 #endif
 }
 
+#undef print_backtrace
 #undef _sig_on_interrupt_received
 #undef _sig_on_recover
 #undef _sig_off_warning

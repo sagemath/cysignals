@@ -59,6 +59,8 @@ cdef nogil:
 
     inline cysigs_t* get_cysigs "get_cysigs"():
         return &cysigs
+    inline void call_print_backtrace "call_print_backtrace"():
+        print_backtrace()
     inline void call_sig_on_interrupt_received "call_sig_on_interrupt_received"():
         _sig_on_interrupt_received()
     inline void call_sig_on_recover "call_sig_on_recover"():

@@ -54,7 +54,8 @@ test: check
 
 check: check-tmp
 
-check-all: check-tmp check-install
+check-all: check-tmp
+	$(MAKE) check-install
 
 # Install and check
 check-install: check-doctest check-example
@@ -77,7 +78,9 @@ check-gdb: install
 # - prefix (with --prefix and --root)
 # - user (with --user)
 
-check-tmp: check-prefix check-user
+check-tmp:
+	$(MAKE) check-prefix
+	$(MAKE) check-user
 
 prefix-install: configure
 	rm -rf tmp/local tmp/build

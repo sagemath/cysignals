@@ -271,7 +271,7 @@ cdef class PSelecter:
         sigprocmask(SIG_BLOCK, &self.blockset, &self.oldset)
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, *args):
         """
         Reset signal mask to what it was before :meth:`__enter__`.
 

@@ -25,7 +25,7 @@ See ``tests.pyx`` for extensive tests.
 
 from libc.signal cimport *
 from libc.stdio cimport freopen, stdin
-from cpython.exc cimport PyErr_Occurred
+from cpython.exc cimport PyErr_Occurred, PyErr_SetString
 
 cdef extern from "implementation.c":
     cysigs_t cysigs "cysigs"
@@ -85,30 +85,37 @@ cdef public int sig_raise_exception "sig_raise_exception"(int sig, const char* m
     if PyErr_Occurred():
         return 0
 
-    # Convert msg to Python string, assuming UTF-8 encoding
-    s = msg.decode("utf-8") if msg is not NULL else None
-
     if sig == SIGHUP or sig == SIGTERM:
         # Redirect stdin from /dev/null to close interactive sessions
         _ = freopen("/dev/null", "r", stdin)
         # This causes Python to exit
         raise SystemExit
-    if sig == SIGINT:
+    elif sig == SIGINT:
         raise KeyboardInterrupt
-    if sig == SIGALRM:
+    elif sig == SIGALRM:
         raise AlarmInterrupt
-    if sig == SIGILL:
-        raise SignalError(s or "Illegal instruction")
-    if sig == SIGABRT:
-        raise RuntimeError(s or "Aborted")
-    if sig == SIGFPE:
-        raise FloatingPointError(s or "Floating point exception")
-    if sig == SIGBUS:
-        raise SignalError(s or "Bus error")
-    if sig == SIGSEGV:
-        raise SignalError(s or "Segmentation fault")
-
-    raise SystemError("unknown signal number %s"%sig)
+    elif sig == SIGILL:
+        if msg is NULL:
+            msg = "Illegal instruction"
+        PyErr_SetString(SignalError, msg)
+    elif sig == SIGABRT:
+        if msg is NULL:
+            msg = "Aborted"
+        PyErr_SetString(RuntimeError, msg)
+    elif sig == SIGFPE:
+        if msg is NULL:
+            msg = "Floating point exception"
+        PyErr_SetString(FloatingPointError, msg)
+    elif sig == SIGBUS:
+        if msg is NULL:
+            msg = "Bus error"
+        PyErr_SetString(SignalError, msg)
+    elif sig == SIGSEGV:
+        if msg is NULL:
+            msg = "Segmentation fault"
+        PyErr_SetString(SignalError, msg)
+    else:
+        raise SystemError(f"unknown signal number {sig}")
 
 
 def sig_print_exception(sig, msg=None):

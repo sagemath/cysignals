@@ -238,8 +238,8 @@ def setsignal(int sig, action, osaction=None):
     r"""
     Set the Python-level signal handler for signal ``sig`` to
     ``action``. If ``osaction`` is given, set the OS-level signal
-    handler to ``osaction``. If ``osaction`` is ``None``, change only
-    the Python-level handler.
+    handler to ``osaction``. If ``osaction`` is ``None`` (the default),
+    change only the Python-level handler and keep the OS-level handler.
 
     Return the old Python-level handler.
 
@@ -287,6 +287,7 @@ def setsignal(int sig, action, osaction=None):
     if sigprocmask(SIG_BLOCK, &block, &oldmask): PyErr_SetFromErrno(OSError)
     try:
         # Check for pending signal before changing signal handler
+        # to work around https://bugs.python.org/issue30057
         PyErr_CheckSignals()
         # Determine new OS-level signal handler
         if osaction is None:  # Use the current handler

@@ -265,9 +265,7 @@ static inline void sig_unblock(void)
 
 
 /*
- * Retry a failed computation starting from sig_on().  This is useful
- * for PARI: if PARI complains that it doesn't have enough memory, we
- * allocate a larger stack and retry the computation.
+ * Retry a failed computation starting from sig_on().
  */
 static inline void sig_retry(void)
 {

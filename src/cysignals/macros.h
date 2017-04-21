@@ -239,7 +239,7 @@ static inline int sig_check(void)
 static inline void sig_block(void)
 {
 #if ENABLE_DEBUG_CYSIGNALS
-    if (cysigs.block_sigint != 0)
+    if (cysigs.debug_level >= 1 && cysigs.block_sigint != 0)
     {
         fprintf(stderr, "\n*** WARNING *** sig_block() with sig_on_count = %i, block_sigint = %i\n", cysigs.sig_on_count, cysigs.block_sigint);
         print_backtrace();
@@ -251,7 +251,7 @@ static inline void sig_block(void)
 static inline void sig_unblock(void)
 {
 #if ENABLE_DEBUG_CYSIGNALS
-    if (cysigs.block_sigint != 1)
+    if (cysigs.debug_level >= 1 && cysigs.block_sigint != 1)
     {
         fprintf(stderr, "\n*** WARNING *** sig_unblock() with sig_on_count = %i, block_sigint = %i\n", cysigs.sig_on_count, cysigs.block_sigint);
         print_backtrace();

@@ -62,7 +62,10 @@ set_debug_level(0)
 # C helper functions                                                   #
 ########################################################################
 cdef void infinite_loop() nogil:
-    while True:
+    # Ensure that the compiler cannot "optimize away" this infinite
+    # loop, see https://bugs.llvm.org/show_bug.cgi?id=965
+    cdef volatile_int x = 0
+    while x == 0:
         pass
 
 cdef void infinite_malloc_loop() nogil:

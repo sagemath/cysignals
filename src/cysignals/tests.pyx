@@ -781,6 +781,39 @@ def test_sig_block(long delay=DEFAULT_DELAY):
     # Never reached
     return 1
 
+def test_sig_block_nested(long delay=DEFAULT_DELAY):
+    """
+    TESTS::
+
+        >>> from cysignals.tests import *
+        >>> test_sig_block()
+        42
+
+    """
+    cdef volatile_int v = 0
+
+    try:
+        with nogil:
+            sig_on()
+            sig_block()
+            sig_block()
+            sig_block()
+            signal_after_delay(SIGINT, delay)
+            sig_unblock()
+            ms_sleep(delay * 2)  # We get signaled during this sleep
+            sig_check()
+            sig_unblock()
+            sig_on()
+            sig_off()
+            v = 42
+            sig_unblock()        # Here, the interrupt will be handled
+            sig_off()
+    except KeyboardInterrupt:
+        return v
+
+    # Never reached
+    return 1
+
 def test_sig_block_outside_sig_on(long delay=DEFAULT_DELAY):
     """
     TESTS::
@@ -796,7 +829,9 @@ def test_sig_block_outside_sig_on(long delay=DEFAULT_DELAY):
         # sig_block()/sig_unblock() shouldn't do anything
         # since we're outside of sig_on()
         sig_block()
+        sig_block()
         ms_sleep(delay * 2)  # We get signaled during this sleep
+        sig_unblock()
         sig_unblock()
 
     try:

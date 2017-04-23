@@ -106,7 +106,7 @@ static void cysigs_interrupt_handler(int sig)
         if (cysigs.debug_level >= 3) print_backtrace();
         fflush(stderr);
         /* Store time of this signal, unless there is already a
-         * pending signals. */
+         * pending signal. */
         if (!cysigs.interrupt_received) gettimeofday(&sigtime, NULL);
     }
 #endif

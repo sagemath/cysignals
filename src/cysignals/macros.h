@@ -125,6 +125,11 @@ static inline int _sig_on_prejmp(const char* message, const char* file, int line
         fprintf(stderr, "sig_on (count = %i) at %s:%i\n", cysigs.sig_on_count+1, file, line);
         fflush(stderr);
     }
+    if (cysigs.block_sigint && cysigs.sig_on_count <= 0)
+    {
+        fprintf(stderr, "\n*** ERROR *** sig_on() with sig_on_count = %i, block_sigint = %i\n", cysigs.sig_on_count, cysigs.block_sigint);
+        print_backtrace();
+    }
 #endif
     if (cysigs.sig_on_count > 0)
     {
@@ -231,36 +236,38 @@ static inline int sig_check(void)
  * - This only works inside sig_on()/sig_off().  Outside of sig_on(),
  *   interrupts behave as usual.  This is because we can't propagate
  *   Python exceptions from low-level C code.
+ * - Despite the above note, it is still legal to use sig_block()
+ *   outside of sig_block().
  * - Other signals still go through, because we can't really ignore
  *   SIGSEGV for example.
- * - For efficiency reasons, currently these may NOT be nested.
- *   Nesting could be implemented like src/headers/pariinl.h in PARI.
+ * - It is NOT allowed to have an outer call of sig_on() inside
+ *   sig_block().
+ *   A deeper nesting (sig_on(); sig_block(); sig_on();) is OK.
  */
 static inline void sig_block(void)
 {
-#if ENABLE_DEBUG_CYSIGNALS
-    if (cysigs.block_sigint != 0)
-    {
-        fprintf(stderr, "\n*** WARNING *** sig_block() with sig_on_count = %i, block_sigint = %i\n", cysigs.sig_on_count, cysigs.block_sigint);
-        print_backtrace();
-    }
-#endif
-    cysigs.block_sigint = 1;
+    /* This increment may not be atomic. However, that's not an issue
+     * because our signal handlers do not change this value. The value
+     * of block_sigint is set to 0 in _sig_on_recover, but that only
+     * happens after a longjmp(). */
+    ++cysigs.block_sigint;
 }
 
 static inline void sig_unblock(void)
 {
 #if ENABLE_DEBUG_CYSIGNALS
-    if (cysigs.block_sigint != 1)
+    if (cysigs.block_sigint < 1)
     {
-        fprintf(stderr, "\n*** WARNING *** sig_unblock() with sig_on_count = %i, block_sigint = %i\n", cysigs.sig_on_count, cysigs.block_sigint);
+        fprintf(stderr, "\n*** ERROR *** sig_unblock() with sig_on_count = %i, block_sigint = %i\n", cysigs.sig_on_count, cysigs.block_sigint);
         print_backtrace();
     }
 #endif
-    cysigs.block_sigint = 0;
+    --cysigs.block_sigint;
 
-    if (unlikely(cysigs.interrupt_received) && cysigs.sig_on_count > 0)
-        kill(getpid(), cysigs.interrupt_received);  /* Re-raise the signal */
+    if (unlikely(cysigs.interrupt_received))
+        /* Re-raise the signal if we can handle it now */
+        if (cysigs.sig_on_count > 0 && cysigs.block_sigint == 0)
+            raise(cysigs.interrupt_received);
 }
 
 

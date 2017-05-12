@@ -27,11 +27,16 @@ opj = os.path.join
 
 
 cythonize_dir = "build"
+macros = []
+
+if sys.platform == 'cygwin':
+    macros.append(('FD_SETSIZE', 512))
 
 kwds = dict(include_dirs=[opj("src", "cysignals"),
                           opj(cythonize_dir, "src"),
                           opj(cythonize_dir, "src", "cysignals")],
-            depends=glob(opj("src", "cysignals", "*.h")))
+            depends=glob(opj("src", "cysignals", "*.h")),
+            define_macros=macros)
 
 extensions = [
     Extension("cysignals.signals", ["src/cysignals/signals.pyx"], **kwds),

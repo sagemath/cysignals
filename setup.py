@@ -30,6 +30,9 @@ cythonize_dir = "build"
 macros = []
 
 if sys.platform == 'cygwin':
+    # On Cygwin FD_SETSIZE defaults to a rather low 64; we set it higher
+    # for use with PSelecter
+    # See https://github.com/sagemath/cysignals/pull/57
     macros.append(('FD_SETSIZE', 512))
 
 kwds = dict(include_dirs=[opj("src", "cysignals"),

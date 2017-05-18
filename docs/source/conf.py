@@ -269,11 +269,8 @@ intersphinx_mapping = {'python': ('https://docs.python.org/2.7', None)}
 
 
 # Monkey-patch inspect with Cython support
-import inspect
 def isfunction(obj):
-    for cls in inspect.getmro(type(obj)):
-        if "__code__" in cls.__dict__:
-            return True
-    return False
+    return hasattr(type(obj), "__code__")
 
+import inspect
 inspect.isfunction = isfunction

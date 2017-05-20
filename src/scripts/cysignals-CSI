@@ -95,23 +95,11 @@ def run_gdb(pid, color):
     """
     Execute gdb.
     """
-    env = dict(os.environ)
-
-    # Preload the right Python library
-    libpython = os.path.join(sysconfig.get_config_var('LIBDIR'),
-                             sysconfig.get_config_var('INSTSONAME'))
-    if sys.platform == 'macosx':
-        env['DYLD_INSERT_LIBRARIES'] = libpython
-    else:
-        env['LD_PRELOAD'] = libpython
-
-    # Set the correct Python path
-    env['PYTHONPATH'] = os.path.dirname(site.__file__)
-
     whichgdb = find_executable('gdb')
     if whichgdb is None:
         return b"Cannot find gdb installed"
 
+    env = dict(os.environ)
     try:
         # Run gdb but pretending to be Python in argv[0].
         # This is needed for Python to find its own files.

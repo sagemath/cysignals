@@ -101,9 +101,7 @@ def run_gdb(pid, color):
 
     env = dict(os.environ)
     try:
-        # Run gdb but pretending to be Python in argv[0].
-        # This is needed for Python to find its own files.
-        cmd = Popen([sys.executable], executable=whichgdb,
+        cmd = Popen(["gdb"], executable=whichgdb,
                 stdin=PIPE, stdout=PIPE, stderr=PIPE, env=env)
     except OSError:
         return b"Unable to start gdb (not installed?)"

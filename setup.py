@@ -27,7 +27,9 @@ opj = os.path.join
 
 
 cythonize_dir = "build"
-macros = []
+
+# Disable .c line numbers in exception tracebacks
+macros = [("CYTHON_CLINE_IN_TRACEBACK", 0)]
 
 if sys.platform == 'cygwin':
     # On Cygwin FD_SETSIZE defaults to a rather low 64; we set it higher

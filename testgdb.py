@@ -2,6 +2,9 @@
 #
 # Test interaction with gdb, i.e. the cysignals-CSI script
 #
+# NOTE: this test is known to be broken in some cases, see
+# https://github.com/sagemath/cysignals/pull/52
+#
 
 import unittest
 

@@ -22,7 +22,7 @@ install: configure
 
 dist: configure
 	chmod go+rX-w -R .
-	umask 0022 && $(PYTHON) setup.py sdist --formats=bztar
+	umask 0022 && $(PYTHON) setup.py sdist --formats=gztar
 
 doc:
 	cd docs && $(MAKE) html
@@ -112,7 +112,7 @@ check-user-example: user-install
 distcheck: dist
 	rm -rf dist/check
 	mkdir -p dist/check
-	cd dist/check && tar xjf ../cysignals-$(VERSION).tar.bz2
+	cd dist/check && tar xzf ../cysignals-$(VERSION).tar.gz
 	cd dist/check/cysignals-$(VERSION) && $(LS_R) >../dist0.ls
 	cd dist/check/cysignals-$(VERSION) && $(MAKE) all
 	cd dist/check/cysignals-$(VERSION) && $(MAKE) distclean
@@ -125,7 +125,7 @@ distcheck: dist
 	cd dist/check/cysignals-$(VERSION) && $(LS_R) >../dist2.ls
 	cd dist/check; diff -u dist0.ls dist2.ls || { echo >&2 "Error: distclean after check-tmp leaves garbage"; exit 1; }
 	cd dist/check/cysignals-$(VERSION) && $(MAKE) dist
-	cd dist/check/cysignals-$(VERSION) && tar xjf dist/cysignals-$(VERSION).tar.bz2
+	cd dist/check/cysignals-$(VERSION) && tar xjf dist/cysignals-$(VERSION).tar.gz
 	cd dist/check/cysignals-$(VERSION)/cysignals-$(VERSION) && $(LS_R) >../../dist3.ls
 	cd dist/check; diff -u dist0.ls dist3.ls || { echo >&2 "Error: sdist is not reproducible"; exit 1; }
 	rm -rf dist/check

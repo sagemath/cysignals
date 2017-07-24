@@ -125,7 +125,7 @@ distcheck: dist
 	cd dist/check/cysignals-$(VERSION) && $(LS_R) >../dist2.ls
 	cd dist/check; diff -u dist0.ls dist2.ls || { echo >&2 "Error: distclean after check-tmp leaves garbage"; exit 1; }
 	cd dist/check/cysignals-$(VERSION) && $(MAKE) dist
-	cd dist/check/cysignals-$(VERSION) && tar xjf dist/cysignals-$(VERSION).tar.gz
+	cd dist/check/cysignals-$(VERSION) && tar xzf dist/cysignals-$(VERSION).tar.gz
 	cd dist/check/cysignals-$(VERSION)/cysignals-$(VERSION) && $(LS_R) >../../dist3.ls
 	cd dist/check; diff -u dist0.ls dist3.ls || { echo >&2 "Error: sdist is not reproducible"; exit 1; }
 	rm -rf dist/check

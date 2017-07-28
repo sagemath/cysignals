@@ -11,7 +11,7 @@ It also sets the OS-level signal handler to a specific C function
 which calls the Python-level signal handler.
 
 The Python ``signal`` module does not allow access to the OS-level
-signal handler (in particular, it does not allow to temporarily change
+signal handler (in particular, it does not allow one to temporarily change
 a signal handler if the OS-level handler was not the Python one).
 """
 

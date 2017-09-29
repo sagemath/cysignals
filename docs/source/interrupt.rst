@@ -220,7 +220,7 @@ raised by subroutines inside the ``try``::
         finally:
             sig_off()
 
-If you want to also catch this exception, you need a nested ``try``::
+If you also want to catch this exception, you need a nested ``try``::
 
     from cysignals.signals cimport sig_on, sig_off
     def try_finally_and_catch_example():

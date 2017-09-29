@@ -22,9 +22,10 @@ SageMath function :func:`factor()` can be interrupted:
     alarm!
 
 If you use the SageMath doctesting framework, you can instead doctest
-the exception in the usual way. To avoid race conditions, make sure
-that the calls to ``alarm()`` and the function you want to test are in
-the same doctest:
+the exception in the usual way (the Python ``doctest`` module exits
+whenever a ``KeyboardInterrupt`` is raised in a doctest).
+To avoid race conditions, make sure that the calls to ``alarm()`` and
+the function you want to test are in the same doctest:
 
 .. code-block:: pycon
 

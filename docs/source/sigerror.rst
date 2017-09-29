@@ -27,9 +27,12 @@ A typical error handler implemented in Cython would look as follows::
 
 Exceptions which are raised this way can be handled as usual by putting
 the ``sig_on()`` in a ``try``/``except`` block.
-For example, in `SageMath <http://www.sagemath.org/>`_, the
-`PARI interface <http://doc.sagemath.org/html/en/reference/libs/sage/libs/pari/pari_instance.html>`_
-can raise a custom ``PariError`` exception. This can be handled as follows::
+For example, the package `cypari2 <https://github.com/defeo/cypari2>`_
+provides a wrapper around the number theory library PARI/GP.
+The `error handler <https://github.com/defeo/cypari2/blob/master/cypari2/handle_error.pyx>`_
+has a callback which turns errors from PARI/GP
+into Python exceptions of type ``PariError``.
+This can be handled as follows::
 
     from cysignals.signals cimport sig_on, sig_off
     def handle_pari_error():
@@ -40,4 +43,4 @@ can raise a custom ``PariError`` exception. This can be handled as follows::
         except PariError:
             # (handle error)
 
-SageMath uses this mechanism for libGAP, NTL and PARI.
+SageMath uses this mechanism for libGAP, GLPK, NTL and PARI.

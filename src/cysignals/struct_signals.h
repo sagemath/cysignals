@@ -72,10 +72,10 @@ typedef struct
      * been received. This is set by sig_on(). */
     sigjmp_buf env;
 
-    /* An optional string may be passed to the signal handler which
-     * will be used as the text for the exception. This can be set
-     * using sig_str() instead of sig_on().
-     */
+    /* An optional string (in UTF-8 encoding) to be used as text for
+     * the exception raised by sig_raise_exception(). If this is NULL,
+     * use some default string depending on the type of signal. This can
+     * be set using sig_str() instead of sig_on(). */
     const char* s;
 
 #if ENABLE_DEBUG_CYSIGNALS

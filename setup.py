@@ -52,6 +52,26 @@ extensions = [
 ]
 
 
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+    'Intended Audience :: Developers',
+    ('License :: OSI Approved :: '
+     'GNU Lesser General Public License v3 or later (LGPLv3+)'),
+    'Operating System :: POSIX',
+    'Programming Language :: C',
+    'Programming Language :: Cython',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 2',
+    'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.4',
+    'Programming Language :: Python :: 3.5',
+    'Programming Language :: Python :: 3.6',
+    'Topic :: System',
+    'Topic :: Software Development :: Debuggers',
+]
+
+
 def write_if_changed(filename, text):
     """
     Write ``text`` to ``filename`` but only if it differs from the
@@ -197,7 +217,7 @@ setup(
     license="GNU Lesser General Public License, version 3 or later",
     description="Interrupt and signal handling for Cython",
     long_description=open('README.rst').read(),
-    platforms=["POSIX"],
+    classifiers=classifiers,
     setup_requires=["Cython"],
 
     ext_modules=extensions,
@@ -207,5 +227,5 @@ setup(
     package_data={"cysignals": ["*.pxi", "*.pxd", "*.h"],
                   "cysignals-cython": ["*.h"]},
     scripts=glob(opj("src", "scripts", "*")),
-    cmdclass=dict(build=build, build_py=build_py, install=install, bdist_egg=no_egg)
+    cmdclass=dict(build=build, build_py=build_py, install=install, bdist_egg=no_egg),
 )

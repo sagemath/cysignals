@@ -26,7 +26,7 @@ description = """
     this script runs and resumes when it is finished."""
 
 # A backtrace is saved in the directory $CYSIGNALS_CRASH_LOGS, which is
-# signals_crash_logs by default.  Any backtraces older than
+# cysignals_crash_logs by default.  Any backtraces older than
 # $CYSIGNALS_CRASH_DAYS (default: 7 if CYSIGNALS_CRASH_LOGS unset, -1 if
 # set) are automatically deleted, but with a negative value they are
 # never deleted.
@@ -160,7 +160,7 @@ def save_backtrace(output):
         # set CYSIGNALS_CRASH_LOGS to a stupid value.
         bt_days = -1
     except KeyError:
-        bt_dir = 'signals_crash_logs'
+        bt_dir = 'cysignals_crash_logs'
         bt_days = 7
 
     if not bt_dir:

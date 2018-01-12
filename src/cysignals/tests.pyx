@@ -3,10 +3,10 @@ Test interrupt and signal handling
 
 TESTS:
 
-We disable crash logs for this test run::
+We disable crash debugging for this test run::
 
     >>> import os
-    >>> os.environ["CYSIGNALS_CRASH_LOGS"] = ""
+    >>> os.environ["CYSIGNALS_CRASH_NDEBUG"] = ""
 
 """
 
@@ -545,7 +545,8 @@ def unguarded_dereference_null_pointer():
 
         >>> from subprocess import *
         >>> cmd = 'from cysignals.tests import *; unguarded_dereference_null_pointer()'
-        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))
+        >>> msg = Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1]
+        >>> print(msg.decode("utf-8"))
         ------------------------------------------------------------------------
         ...
         ------------------------------------------------------------------------
@@ -554,6 +555,17 @@ def unguarded_dereference_null_pointer():
         in it and is not properly wrapped with sig_on(), sig_off().
         Python will now terminate.
         ------------------------------------------------------------------------
+        <BLANKLINE>
+
+    The same but with ``CYSIGNALS_CRASH_QUIET`` set. This will crash
+    Python silently::
+
+        >>> from subprocess import *
+        >>> cmd = 'from cysignals.tests import *; unguarded_dereference_null_pointer()'
+        >>> env = dict(os.environ)
+        >>> env["CYSIGNALS_CRASH_QUIET"] = ""
+        >>> msg = Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE, env=env).communicate()[1]
+        >>> print(msg.decode("utf-8"))
         <BLANKLINE>
 
     """

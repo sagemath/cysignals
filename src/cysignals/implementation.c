@@ -400,6 +400,8 @@ static void print_enhanced_backtrace(void)
 /* Print a message s and kill ourselves with signal sig */
 static void sigdie(int sig, const char* s)
 {
+    if (getenv("CYSIGNALS_CRASH_QUIET")) goto dienow;
+
     print_sep();
     print_backtrace();
 
@@ -410,7 +412,8 @@ static void sigdie(int sig, const char* s)
 #else
 #ifndef __APPLE__
     /* See http://trac.sagemath.org/13889 for how Apple screwed this up */
-    print_enhanced_backtrace();
+    if (getenv("CYSIGNALS_CRASH_NDEBUG") == NULL)
+        print_enhanced_backtrace();
 #endif
 #endif
 
@@ -423,6 +426,7 @@ static void sigdie(int sig, const char* s)
         print_sep();
     }
 
+dienow:
     /* Suicide with signal ``sig`` */
     kill(getpid(), sig);
 

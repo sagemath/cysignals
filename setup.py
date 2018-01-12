@@ -50,6 +50,21 @@ extensions = [
     Extension("cysignals.pselect", ["src/cysignals/pselect.pyx"], **kwds),
     Extension("cysignals.tests", ["src/cysignals/tests.pyx"], **kwds),
 ]
+classifiers = [
+    'Development Status :: 3 - Alpha',
+    'Intended Audience :: Developers',
+    ('License :: OSI Approved :: '
+     'GNU Lesser General Public License v3 or later (LGPLv3+)'),
+    'Operating System :: POSIX',
+    'Programming Language :: Cython',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 2',
+    'Programming Language :: Python :: 2.7',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.4',
+    'Programming Language :: Python :: 3.5',
+    'Programming Language :: Python :: 3.6',
+    'Topic :: Software Development']
 
 
 def write_if_changed(filename, text):
@@ -197,7 +212,6 @@ setup(
     license="GNU Lesser General Public License, version 3 or later",
     description="Interrupt and signal handling for Cython",
     long_description=open('README.rst').read(),
-    platforms=["POSIX"],
     setup_requires=["Cython"],
 
     ext_modules=extensions,
@@ -207,5 +221,6 @@ setup(
     package_data={"cysignals": ["*.pxi", "*.pxd", "*.h"],
                   "cysignals-cython": ["*.h"]},
     scripts=glob(opj("src", "scripts", "*")),
-    cmdclass=dict(build=build, build_py=build_py, install=install, bdist_egg=no_egg)
+    cmdclass=dict(build=build, build_py=build_py, install=install, bdist_egg=no_egg),
+    classifiers=classifiers,
 )

@@ -32,6 +32,7 @@ Dealing with interrupts and other signals using ``sig_check`` and ``sig_on``:
     interrupt
     signals
     sigadvanced
+    crash
 
 Error handling
 --------------

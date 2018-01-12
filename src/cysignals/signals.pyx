@@ -22,6 +22,7 @@ See ``tests.pyx`` for extensive tests.
 #
 #*****************************************************************************
 
+from __future__ import absolute_import
 
 from libc.signal cimport *
 from libc.stdio cimport freopen, stdin

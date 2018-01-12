@@ -33,6 +33,8 @@ a signal handler if the OS-level handler was not the Python one).
 #
 #*****************************************************************************
 
+from __future__ import absolute_import
+
 import signal
 from signal import getsignal
 from libc.string cimport memcpy

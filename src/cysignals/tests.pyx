@@ -28,6 +28,7 @@ We disable crash logs for this test run::
 #
 #*****************************************************************************
 
+from __future__ import absolute_import
 
 from libc.signal cimport (SIGHUP, SIGINT, SIGABRT, SIGILL, SIGSEGV,
         SIGFPE, SIGBUS, SIGQUIT)

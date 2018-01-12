@@ -20,6 +20,8 @@ Fine-grained alarm function
 #
 #*****************************************************************************
 
+from __future__ import absolute_import
+
 from posix.time cimport (setitimer, itimerval, ITIMER_REAL,
         time_t, suseconds_t)
 

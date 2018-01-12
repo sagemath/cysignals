@@ -208,15 +208,22 @@ class no_egg(_bdist_egg):
         raise DistutilsOptionError("The package cysignals will not function correctly when built as egg. Therefore, it cannot be installed using 'python setup.py install' or 'easy_install'. Instead, use 'pip install' to install cysignals.")
 
 
+with open("VERSION") as f:
+    VERSION = f.read().strip()
+
+with open('README.rst') as f:
+    README = f.read()
+
+
 setup(
     name="cysignals",
     author=u"Martin R. Albrecht, François Bissey, Volker Braun, Jeroen Demeyer",
     author_email="sage-devel@googlegroups.com",
-    version=open("VERSION").read().strip(),
+    version=VERSION,
     url="https://github.com/sagemath/cysignals",
     license="GNU Lesser General Public License, version 3 or later",
     description="Interrupt and signal handling for Cython",
-    long_description=open('README.rst').read(),
+    long_description=README,
     classifiers=classifiers,
     setup_requires=["Cython"],
 

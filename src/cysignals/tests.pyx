@@ -499,9 +499,10 @@ def test_signal_quit(long delay=DEFAULT_DELAY):
     We run Python in a subprocess and make it raise a SIGQUIT under
     ``sig_on()``.  This should cause Python to exit::
 
+        >>> from sys import executable
         >>> from subprocess import *
         >>> cmd = 'from cysignals.tests import *; test_signal_quit()'
-        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))
+        >>> print(Popen([executable, '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))
         ------------------------------------------------------------------------
         ...
         ------------------------------------------------------------------------
@@ -543,9 +544,10 @@ def unguarded_dereference_null_pointer():
     We run Python in a subprocess and dereference a NULL pointer without
     using ``sig_on()``. This will crash Python::
 
+        >>> from sys import executable
         >>> from subprocess import *
         >>> cmd = 'from cysignals.tests import *; unguarded_dereference_null_pointer()'
-        >>> msg = Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1]
+        >>> msg = Popen([executable, '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1]
         >>> print(msg.decode("utf-8"))
         ------------------------------------------------------------------------
         ...
@@ -564,7 +566,7 @@ def unguarded_dereference_null_pointer():
         >>> cmd = 'from cysignals.tests import *; unguarded_dereference_null_pointer()'
         >>> env = dict(os.environ)
         >>> env["CYSIGNALS_CRASH_QUIET"] = ""
-        >>> msg = Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE, env=env).communicate()[1]
+        >>> msg = Popen([executable, '-c', cmd], stdout=PIPE, stderr=PIPE, env=env).communicate()[1]
         >>> print(msg.decode("utf-8"))
         <BLANKLINE>
 
@@ -593,9 +595,10 @@ def unguarded_abort():
 
     We run Python in a subprocess and make it call abort()::
 
+        >>> from sys import executable
         >>> from subprocess import *
         >>> cmd = 'from cysignals.tests import *; unguarded_abort()'
-        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))
+        >>> print(Popen([executable, '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))
         ------------------------------------------------------------------------
         ...
         ------------------------------------------------------------------------
@@ -616,9 +619,10 @@ def test_bad_str(long delay=DEFAULT_DELAY):
 
     We run Python in a subprocess and induce an error during the signal handler::
 
+        >>> from sys import executable
         >>> from subprocess import *
         >>> cmd = 'from cysignals.tests import *; test_bad_str()'
-        >>> print(Popen(['python', '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))
+        >>> print(Popen([executable, '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))
         ------------------------------------------------------------------------
         ...
         ------------------------------------------------------------------------
@@ -965,8 +969,9 @@ def test_graceful_exit():
     process with ``SIGHUP``. Then the process should exit gracefully,
     running the ``atexit`` handler::
 
+        >>> from sys import executable
         >>> from subprocess import *
-        >>> A = Popen(['python'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        >>> A = Popen([executable], stdin=PIPE, stdout=PIPE, stderr=PIPE)
         >>> _ = A.stdin.write(b'from cysignals.tests import test_graceful_exit\n')
         >>> _ = A.stdin.write(b'test_graceful_exit()\n')
         >>> A.stdin.close()

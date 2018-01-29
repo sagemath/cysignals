@@ -300,6 +300,14 @@ static void setup_cysignals_handlers(void)
     sigaddset(&sigmask_with_sigint, SIGINT);
     sigaddset(&sigmask_with_sigint, SIGALRM);
 
+    /* Allocate alternate signal stack */
+    stack_t ss;
+    ss.ss_size = 1 << 14;
+    ss.ss_sp = malloc(ss.ss_size);
+    if (ss.ss_sp == NULL) {perror("malloc"); exit(1);}
+    ss.ss_flags = 0;
+    if (sigaltstack(&ss, NULL) == -1) {perror("sigaltstack"); exit(1);}
+
     /* Install signal handlers */
     struct sigaction sa;
     memset(&sa, 0, sizeof(sa));
@@ -309,14 +317,17 @@ static void setup_cysignals_handlers(void)
     sigaddset(&sa.sa_mask, SIGINT);
     sigaddset(&sa.sa_mask, SIGALRM);
 
+    /* Handlers for interrupt-like signals */
     sa.sa_handler = cysigs_interrupt_handler;
     if (sigaction(SIGHUP, &sa, NULL)) {perror("sigaction"); exit(1);}
     if (sigaction(SIGINT, &sa, NULL)) {perror("sigaction"); exit(1);}
     if (sigaction(SIGALRM, &sa, NULL)) {perror("sigaction"); exit(1);}
+
+    /* Handlers for critical signals */
     sa.sa_handler = cysigs_signal_handler;
     /* Allow signals during signal handling, we have code to deal with
      * this case. */
-    sa.sa_flags |= SA_NODEFER;
+    sa.sa_flags = SA_NODEFER | SA_ONSTACK;
     if (sigaction(SIGQUIT, &sa, NULL)) {perror("sigaction"); exit(1);}
     if (sigaction(SIGILL, &sa, NULL)) {perror("sigaction"); exit(1);}
     if (sigaction(SIGABRT, &sa, NULL)) {perror("sigaction"); exit(1);}

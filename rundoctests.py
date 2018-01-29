@@ -24,6 +24,12 @@ for typ in [AlarmInterrupt, SignalError]:
     typ.__module__ = "__main__"
 
 
+# Limit stack size to avoid errors in stack overflow doctest
+import resource
+stacksize = 1 << 20
+resource.setrlimit(resource.RLIMIT_STACK, (stacksize, stacksize))
+
+
 success = True
 for f in filenames:
     print(f)
@@ -39,10 +45,20 @@ for f in filenames:
             if not failures:
                 os._exit(0)
         finally:
-            os._exit(1)
+            os._exit(23)
 
     pid, status = os.waitpid(pid, 0)
     if status != 0:
         success = False
+        if os.WIFEXITED(status):
+            st = os.WEXITSTATUS(status)
+            if st != 23:
+                print("bad exit: {}".format(st))
+        elif os.WIFSIGNALED(status):
+            sig = os.WTERMSIG(status)
+            print("killed by signal: {}".format(sig))
+        else:
+            print("unknown status: {}".format(status))
+
 
 sys.exit(0 if success else 1)

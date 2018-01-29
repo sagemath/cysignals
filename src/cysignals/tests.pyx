@@ -46,6 +46,14 @@ cdef extern from 'tests_helper.c':
 
 cdef extern from *:
     ctypedef int volatile_int "volatile int"
+    ctypedef struct stack_t:
+        void  *ss_sp
+        int ss_flags
+        size_t ss_size
+    int sigaltstack(const stack_t *ss, stack_t *oss)
+    const size_t MINSIGSTKSZ, SIGSTKSZ
+    const int SS_DISABLE, SS_ONSTACK
+
 
 # Default delay in milliseconds before raising signals
 cdef long DEFAULT_DELAY = 200
@@ -80,8 +88,17 @@ cdef void infinite_malloc_loop() nogil:
 # systems, but on older Mac OS X and possibly other systems, this
 # signals a SIGBUS instead. In any case, this should give some signal.
 cdef void dereference_null_pointer() nogil:
-    cdef long* ptr = <long*>(0)
+    cdef volatile_int* ptr = <volatile_int*>(0)
     ptr[0] += 1
+
+
+cdef int stack_overflow(volatile_int* x=NULL) nogil:
+    cdef volatile_int a = 0
+    if x is not NULL:
+        a = x[0]
+    a += stack_overflow(&a)
+    a += stack_overflow(&a)
+    return a
 
 
 ########################################################################
@@ -136,6 +153,22 @@ def interrupt_after_delay(ms_delay=500):
 
     """
     signal_after_delay(SIGINT, ms_delay)
+
+
+def on_stack():
+    """
+    Are we currently on the alternate signal stack (see sigaltstack(2))?
+
+    EXAMPLES::
+
+        >>> from cysignals.tests import on_stack
+        >>> on_stack()
+        False
+
+    """
+    cdef stack_t oss
+    sigaltstack(NULL, &oss)
+    return (oss.ss_flags & SS_ONSTACK) != 0
 
 
 def _sig_on():
@@ -531,6 +564,8 @@ def test_dereference_null_pointer():
         Traceback (most recent call last):
         ...
         SignalError: ...
+        >>> on_stack()
+        False
 
     """
     with nogil:
@@ -574,6 +609,7 @@ def unguarded_dereference_null_pointer():
     with nogil:
         dereference_null_pointer()
 
+
 def test_abort():
     """
     TESTS::
@@ -612,6 +648,47 @@ def unguarded_abort():
     """
     with nogil:
         abort()
+
+
+def test_stack_overflow():
+    """
+    TESTS::
+
+        >>> from cysignals.tests import *
+        >>> test_stack_overflow()
+        Traceback (most recent call last):
+        ...
+        SignalError: Segmentation fault
+
+    """
+    with nogil:
+        sig_on()
+        stack_overflow()
+
+def unguarded_stack_overflow():
+    """
+    TESTS:
+
+    We run Python in a subprocess and overflow the stack::
+
+        >>> from sys import executable
+        >>> from subprocess import *
+        >>> cmd = 'from cysignals.tests import *; unguarded_stack_overflow()'
+        >>> print(Popen([executable, '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))
+        ------------------------------------------------------------------------
+        ...
+        ------------------------------------------------------------------------
+        Unhandled SIGSEGV: A segmentation fault occurred.
+        This probably occurred because a *compiled* module has a bug
+        in it and is not properly wrapped with sig_on(), sig_off().
+        Python will now terminate.
+        ------------------------------------------------------------------------
+        <BLANKLINE>
+
+    """
+    with nogil:
+        stack_overflow()
+
 
 def test_bad_str(long delay=DEFAULT_DELAY):
     """

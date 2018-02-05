@@ -1,6 +1,6 @@
 global-include README README.rst VERSION LICENSE
 global-include Makefile configure configure.ac
-global-include setup.py rundoctests.py testgdb.py *.pyx
+global-include setup.py rundoctests.py testgdb.py *.pyx winutil/patchdistutils.py
 graft src
 graft docs/source
 prune build

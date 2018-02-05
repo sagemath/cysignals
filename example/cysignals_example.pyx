@@ -1,5 +1,7 @@
 # distutils: language = c++
 # cython: language_level = 3
+# The next line works around https://github.com/python/cpython/pull/880
+# distutils: define_macros = _hypot=hypot
 
 from cysignals.signals cimport sig_check
 from cysignals.memory cimport check_allocarray

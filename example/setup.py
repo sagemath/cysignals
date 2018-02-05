@@ -1,7 +1,17 @@
 #!/usr/bin/env python
 
+import sys
+import os
 from setuptools import setup
+from setuptools.extension import Extension
 from distutils.command.build import build as _build
+
+# if on windows platform, patch distutils lib.
+if sys.platform == "win32":
+    utils_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'winutil')
+    sys.path.append(utils_path)
+    from patchdistutils import runtime_patch
+    runtime_patch()
 
 
 class build(_build):

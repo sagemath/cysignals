@@ -373,7 +373,7 @@ def test_sig_retry_and_signal(long delay=DEFAULT_DELAY):
     TESTS::
 
         >>> from cysignals.tests import *
-        >>> test_sig_retry_and_signal()
+        >>> test_sig_retry_and_signal()  # doctest: +SKIP_WINDOWS
         KeyboardInterrupt()
 
     """
@@ -548,7 +548,7 @@ def test_signal_bus(long delay=DEFAULT_DELAY):
     TESTS::
 
         >>> from cysignals.tests import *
-        >>> test_signal_bus()
+        >>> test_signal_bus()  # doctest: +SKIP_WINDOWS
         Traceback (most recent call last):
         ...
         SignalError: Bus error
@@ -567,7 +567,7 @@ def test_signal_quit(long delay=DEFAULT_DELAY):
     ``sig_on()``.  This should cause Python to exit::
 
         >>> from cysignals.tests import subpython_err
-        >>> subpython_err('from cysignals.tests import *; test_signal_quit()')
+        >>> subpython_err('from cysignals.tests import *; test_signal_quit()')  # doctest: +SKIP_WINDOWS
         ---------------------------------------------------------------------...
 
     """
@@ -652,7 +652,16 @@ def unguarded_abort():
     We run Python in a subprocess and make it call abort()::
 
         >>> from cysignals.tests import subpython_err
-        >>> subpython_err('from cysignals.tests import *; unguarded_abort()')
+        >>> subpython_err('from cysignals.tests import *; unguarded_abort()')  # doctest: +SKIP_WINDOWS
+        ---------------------------------------------------------------------...
+        Unhandled SIGABRT: An abort() occurred.
+        This probably occurred because a *compiled* module has a bug
+        in it and is not properly wrapped with sig_on(), sig_off().
+        Python will now terminate.
+        ------------------------------------------------------------------------
+        >>> subpython_err('from cysignals.tests import *; unguarded_abort()')  # doctest: +SKIP_POSIX
+        <BLANKLINE>
+        ...
         ---------------------------------------------------------------------...
         Unhandled SIGABRT: An abort() occurred.
         This probably occurred because a *compiled* module has a bug
@@ -670,7 +679,7 @@ def test_stack_overflow():
     TESTS::
 
         >>> from cysignals.tests import *
-        >>> test_stack_overflow()
+        >>> test_stack_overflow()  # doctest: +SKIP_WINDOWS
         Traceback (most recent call last):
         ...
         SignalError: Segmentation fault
@@ -687,7 +696,7 @@ def unguarded_stack_overflow():
     We run Python in a subprocess and overflow the stack::
 
         >>> from cysignals.tests import subpython_err
-        >>> subpython_err('from cysignals.tests import *; unguarded_stack_overflow()')
+        >>> subpython_err('from cysignals.tests import *; unguarded_stack_overflow()')  # doctest: +SKIP_WINDOWS
         ---------------------------------------------------------------------...
         Unhandled SIGSEGV: A segmentation fault occurred.
         This probably occurred because a *compiled* module has a bug
@@ -730,7 +739,7 @@ def test_bad_str(long delay=DEFAULT_DELAY):
     We run Python in a subprocess and induce an error during the signal handler::
 
         >>> from cysignals.tests import subpython_err
-        >>> subpython_err('from cysignals.tests import *; test_bad_str()')
+        >>> subpython_err('from cysignals.tests import *; test_bad_str()')  # doctest: +SKIP_WINDOWS
         ---------------------------------------------------------------------...
         An error occurred during signal handling.
         This probably occurred because a *compiled* module has a bug
@@ -790,7 +799,7 @@ def test_interrupt_bomb(long n=100, long p=10):
     TESTS::
 
         >>> from cysignals.tests import *
-        >>> test_interrupt_bomb()  # doctest: +SKIP_CYGWIN
+        >>> test_interrupt_bomb()  # doctest: +SKIP_WINDOWS +SKIP_CYGWIN
         Received ... interrupts
 
     """
@@ -902,8 +911,8 @@ def print_sig_occurred():
     and calling ``sys.exc_clear()`` clears it::
 
         >>> import sys
-        >>> from cysignals.alarm import alarm
-        >>> if hasattr(sys, "exc_clear"):
+        >>> from cysignals.alarm import alarm   # doctest: +SKIP_WINDOWS
+        >>> if hasattr(sys, "exc_clear"):       # doctest: +SKIP_WINDOWS
         ...     # Python 2
         ...     def testfunc():
         ...         try:
@@ -925,7 +934,7 @@ def print_sig_occurred():
         ...         except KeyboardInterrupt:
         ...             print_sig_occurred()
         ...         print_sig_occurred()
-        >>> testfunc()
+        >>> testfunc()  # doctest: +SKIP_WINDOWS
         AlarmInterrupt
         No current exception
 
@@ -1020,7 +1029,7 @@ def test_sig_block(long delay=DEFAULT_DELAY):
     TESTS::
 
         >>> from cysignals.tests import *
-        >>> test_sig_block()
+        >>> test_sig_block()  # doctest: +SKIP_WINDOWS
         42
 
     """
@@ -1046,7 +1055,7 @@ def test_sig_block_nested(long delay=DEFAULT_DELAY):
     TESTS::
 
         >>> from cysignals.tests import *
-        >>> test_sig_block_nested()
+        >>> test_sig_block_nested()  # doctest: +SKIP_WINDOWS
         42
 
     """
@@ -1169,7 +1178,7 @@ def test_sighup(long delay=DEFAULT_DELAY):
     TESTS::
 
         >>> from cysignals.tests import *
-        >>> test_sighup()
+        >>> test_sighup()  # doctest: +SKIP_WINDOWS
         SystemExit()
 
     """
@@ -1187,7 +1196,7 @@ def test_sighup_and_sigint(long delay=DEFAULT_DELAY):
     TESTS::
 
         >>> from cysignals.tests import *
-        >>> test_sighup_and_sigint()
+        >>> test_sighup_and_sigint()  # doctest: +SKIP_WINDOWS
         SystemExit()
 
     """
@@ -1211,20 +1220,20 @@ def test_graceful_exit():
 
         >>> from sys import executable
         >>> from subprocess import *
-        >>> A = Popen([executable], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        >>> _ = A.stdin.write(b'from cysignals.tests import test_graceful_exit\n')
-        >>> _ = A.stdin.write(b'test_graceful_exit()\n')
-        >>> A.stdin.close()
+        >>> A = Popen([executable], stdin=PIPE, stdout=PIPE, stderr=PIPE)  # doctest: +SKIP_WINDOWS
+        >>> _ = A.stdin.write(b'from cysignals.tests import test_graceful_exit\n')  # doctest: +SKIP_WINDOWS
+        >>> _ = A.stdin.write(b'test_graceful_exit()\n')  # doctest: +SKIP_WINDOWS
+        >>> A.stdin.close()  # doctest: +SKIP_WINDOWS
 
     Now read from the child until we read ``"GO"``.  This ensures that
     the child process has properly started before we kill it::
 
-        >>> while b'GO' not in A.stdout.readline(): pass
+        >>> while b'GO' not in A.stdout.readline(): pass  # doctest: +SKIP_WINDOWS
         >>> import os, signal, sys
-        >>> os.kill(A.pid, signal.SIGHUP)
-        >>> _ = sys.stdout.write(A.stdout.read().decode("utf-8"))
+        >>> os.kill(A.pid, signal.SIGHUP)  # doctest: +SKIP_WINDOWS
+        >>> _ = sys.stdout.write(A.stdout.read().decode("utf-8"))  # doctest: +SKIP_WINDOWS
         Goodbye!
-        >>> A.wait()
+        >>> A.wait()  # doctest: +SKIP_WINDOWS
         0
 
     """

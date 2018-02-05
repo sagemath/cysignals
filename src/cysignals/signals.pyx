@@ -7,6 +7,8 @@ See ``tests.pyx`` for extensive tests.
 
 #*****************************************************************************
 #       Copyright (C) 2011-2018 Jeroen Demeyer <J.Demeyer@UGent.be>
+#                     2016 Marc Culler and Nathan Dunfield
+#                     2018 Vincent Klein <vinklein@gmail.com>
 #
 #  cysignals is free software: you can redistribute it and/or modify it
 #  under the terms of the GNU Lesser General Public License as published
@@ -86,8 +88,8 @@ class AlarmInterrupt(KeyboardInterrupt):
     EXAMPLES::
 
         >>> from cysignals import AlarmInterrupt
-        >>> from signal import alarm
-        >>> try:
+        >>> from signal import alarm    # doctest: +SKIP_WINDOWS
+        >>> try:                        # doctest: +SKIP_WINDOWS
         ...     _ = alarm(1)
         ...     while True:
         ...         pass
@@ -96,7 +98,7 @@ class AlarmInterrupt(KeyboardInterrupt):
         alarm!
         >>> from cysignals.signals import sig_print_exception
         >>> import signal
-        >>> sig_print_exception(signal.SIGALRM)
+        >>> sig_print_exception(signal.SIGALRM)  # doctest: +SKIP_WINDOWS
         AlarmInterrupt
 
     """
@@ -188,7 +190,7 @@ def sig_print_exception(sig, msg=None):
         >>> import signal
         >>> sig_print_exception(signal.SIGFPE)
         FloatingPointError: Floating point exception
-        >>> sig_print_exception(signal.SIGBUS, "CUSTOM MESSAGE")
+        >>> sig_print_exception(signal.SIGBUS, "CUSTOM MESSAGE")  # doctest: +SKIP_WINDOWS
         SignalError: CUSTOM MESSAGE
         >>> sig_print_exception(0)
         SystemError: unknown signal number 0
@@ -197,7 +199,7 @@ def sig_print_exception(sig, msg=None):
 
         >>> sig_print_exception(signal.SIGINT, "ignored")
         KeyboardInterrupt
-        >>> sig_print_exception(signal.SIGALRM, "ignored")
+        >>> sig_print_exception(signal.SIGALRM, "ignored")  # doctest: +SKIP_WINDOWS
         AlarmInterrupt
 
     """

@@ -9,7 +9,23 @@ environment:
     # http://www.appveyor.com/docs/installed-software#python
     # The list here is complete (excluding Python 2.6, which
     # isn't covered by this document) at the time of writing.
-    - os: Cygwin
+    - OS: Windows_NT
+      PYTHON: "C:\\Python27-x64"
+      TOOLSPATH: "C:\\mingw-w64\\x86_64-7.2.0-posix-seh-rt_v5-rev1\\mingw64\\bin;C:\\MinGW\\bin;C:\\MinGW\\msys\\1.0\\bin"
+      MAKE: mingw32-make
+    - OS: Windows_NT
+      PYTHON: "C:\\Python36-x64"
+      TOOLSPATH: "C:\\mingw-w64\\x86_64-7.2.0-posix-seh-rt_v5-rev1\\mingw64\\bin;C:\\MinGW\\bin;C:\\MinGW\\msys\\1.0\\bin"
+      MAKE: mingw32-make
+    - OS: Windows_NT
+      PYTHON: "C:\\Python27"
+      TOOLSPATH: "C:\\MinGW\\bin;C:\\MinGW\\msys\\1.0\\bin"
+      MAKE: make
+    - OS: Windows_NT
+      PYTHON: "C:\\Python36"
+      TOOLSPATH: "C:\\MinGW\\bin;C:\\MinGW\\msys\\1.0\\bin"
+      MAKE: make
+    - OS: Cygwin
       CYG_ROOT: "C:\\cygwin64"
       PYTHON: "C:\\cygwin64\\bin"
       PYTHON_VERSION: "2.7"
@@ -44,5 +60,5 @@ build_script:
   - '%MAKE% -j4 install'
 
 test_script:
-  - '%MAKE% -j4 check-all'
+  - '%MAKE% -j1 check-all'
   - '%MAKE% -j4 distcheck'

@@ -5,7 +5,9 @@ Interrupt and signal handling for Cython
 /*****************************************************************************
  *       Copyright (C) 2006 William Stein <wstein@gmail.com>
  *                     2006-2016 Martin Albrecht <martinralbrecht+cysignals@gmail.com>
+ *                     2016 Marc Culler and Nathan Dunfield
  *                     2010-2018 Jeroen Demeyer <J.Demeyer@UGent.be>
+ *                     2018 Vincent Klein <vinklein@gmail.com>
  *
  * cysignals is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -67,6 +69,14 @@ static int PARI_SIGINT_pending = 0;
 #endif
 #include "struct_signals.h"
 
+// POSIX
+#ifndef POSIX
+//Windows specifics
+#ifndef __MINGW32__
+#  define inline __inline
+#endif
+#endif
+//end Windows specifics
 
 #if ENABLE_DEBUG_CYSIGNALS
 static struct timeval sigtime;  /* Time of signal */
@@ -83,6 +93,11 @@ static sigset_t default_sigmask;
 
 /* default_sigmask with SIGHUP, SIGINT, SIGALRM added. */
 static sigset_t sigmask_with_sigint;
+#else
+/* If we don't have sigprocmask(), assume that we don't have siglongjmp() either */
+#define sigjmp_buf jmp_buf
+#define sigsetjmp(env, savesigs) setjmp(env)
+#define siglongjmp longjmp
 #endif
 
 /* A trampoline to jump to after handling a signal. */
@@ -180,7 +195,17 @@ static inline void sigdie_for_sig(int sig, int inside)
  * Inside sig_on() (i.e. when cysigs.sig_on_count is positive), this
  * raises an exception and jumps back to sig_on().
  * Outside of sig_on(), we set Python's interrupt flag using
- * PyErr_SetInterrupt() */
+ * PyErr_SetInterrupt().
+ *
+ * On Windows, the way we handle an interrupt immediately is by
+ * mapping it to SIGFPE.  Specifically, we save the signal number in
+ * cysigs.sig_mapped_to_FPE and raise SIGFPE.  The handler for SIGFPE
+ * will then call longjmp.  The reason that it is done this way is
+ * that for most signals in Windows the handler is run in a separate
+ * thread, with its own stack.  This makes it impossible to call
+ * longjmp from a signal handler.  However, longjmp within a signal
+ * handler is supported for exactly one signal, namely SIGFPE.
+ */
 static void cysigs_interrupt_handler(int sig)
 {
 #if ENABLE_DEBUG_CYSIGNALS
@@ -194,15 +219,28 @@ static void cysigs_interrupt_handler(int sig)
     }
 #endif
 
+#ifndef POSIX
+    /* Since we are using signal, we must reset the handler. */
+    if (signal(sig, cysigs_interrupt_handler) == SIG_ERR)
+    {
+        perror("signal");
+        exit(1);
+    }
+#endif
     if (cysigs.sig_on_count > 0)
     {
         if (!cysigs.block_sigint && !PARI_SIGINT_block)
         {
+#ifdef POSIX
             /* Raise an exception so Python can see it */
             do_raise_exception(sig);
 
             /* Jump back to sig_on() (the first one if there is a stack) */
             siglongjmp(trampoline, sig);
+#else
+            cysigs.sig_mapped_to_FPE = sig;
+            return;
+#endif
         }
     }
     else
@@ -230,6 +268,17 @@ static void cysigs_interrupt_handler(int sig)
  * Outside of sig_on(), we terminate Python. */
 static void cysigs_signal_handler(int sig)
 {
+#ifndef POSIX
+    /*
+     * Since we are using ANSI signals, we must reset the handler.
+     */
+    if (signal(sig, cysigs_signal_handler) == SIG_ERR)
+    {
+        perror("signal");
+        exit(1);
+    }
+#endif
+
     sig_atomic_t inside = cysigs.inside_signal_handler;
     cysigs.inside_signal_handler = 1;
 
@@ -245,11 +294,58 @@ static void cysigs_signal_handler(int sig)
         }
 #endif
 
+#ifdef POSIX
         /* Raise an exception so Python can see it */
         do_raise_exception(sig);
 
         /* Jump back to sig_on() (the first one if there is a stack) */
         siglongjmp(trampoline, sig);
+#else
+        /* Any signal which needs to be handled immediately, is
+         * mapped to FPE by setting sig_mapped_to_FPE and raising
+         * SIGFPE.  SIGFPE is the only signal which supports calling
+         * longjmp within the handler.
+         */
+        if (sig == SIGFPE)
+        {
+            if (cysigs.sig_mapped_to_FPE)
+            {
+#if ENABLE_DEBUG_CYSIGNALS
+                if(cysigs.debug_level >=1)
+                    fprintf(stderr,  "Mapped from %d\n", cysigs.sig_mapped_to_FPE);
+#endif
+                sig = cysigs.sig_mapped_to_FPE;
+                cysigs.sig_mapped_to_FPE = 0;
+                do_raise_exception(sig);
+                reset_CPU();
+#if ENABLE_DEBUG_CYSIGNALS
+                if(cysigs.debug_level >=1)
+                    fprintf(stderr,  "Calling longjmp\n");
+#endif
+                longjmp(cysigs.env, sig);
+            }
+            else /* This really is a floating point exception */
+            {
+                reset_CPU();
+                do_raise_exception(SIGFPE);
+                longjmp(cysigs.env, SIGFPE);
+            }
+        }
+        else
+        {
+#if ENABLE_DEBUG_CYSIGNALS
+            if(cysigs.debug_level >=1)
+                fprintf(stderr,  "inside sig_on/sig_off\n");
+#endif
+            cysigs.sig_mapped_to_FPE = sig;
+#if ENABLE_DEBUG_CYSIGNALS
+            if(cysigs.debug_level >=1)
+                    fprintf(stderr,  "raising SIGFPE\n");
+#endif
+            cysigs.inside_signal_handler = 0;
+            raise(SIGFPE);
+        }
+#endif
     }
     else
     {
@@ -398,8 +494,7 @@ static void _sig_on_recover(void)
     cysigs.interrupt_received = 0;
     PARI_SIGINT_pending = 0;
 
-#if HAVE_SIGPROCMASK
-    /* Reset signal mask */
+#ifdef HAVE_SIGPROCMASK
     sigprocmask(SIG_SETMASK, &default_sigmask, NULL);
 #endif
 
@@ -440,6 +535,9 @@ static void setup_alt_stack(void)
 #endif
 }
 
+
+/* Posix version */
+#ifdef POSIX
 
 static void setup_cysignals_handlers(void)
 {
@@ -487,6 +585,45 @@ static void setup_cysignals_handlers(void)
     if (sigaction(SIGSEGV, &sa, NULL)) {perror("sigaction"); exit(1);}
 }
 
+#else /* Windows version */
+
+/* Handler for SIGQUIT, SIGILL, SIGABRT, SIGFPE, SIGBUS, SIGSEGV
+ *
+ * Inside sig_on() (i.e. when cysigs.sig_on_count is positive), this
+ * raises an exception and jumps back to sig_on().
+ * Outside of sig_on(), we terminate Python.
+ *
+ */
+LONG WINAPI
+SIGSEGV_generator(struct _EXCEPTION_POINTERS *ExceptionInfo)
+{
+    if (ExceptionInfo->ExceptionRecord->ExceptionCode ==
+        EXCEPTION_ACCESS_VIOLATION) {
+        raise(SIGSEGV);
+        return EXCEPTION_CONTINUE_EXECUTION;
+    } else{
+        return EXCEPTION_CONTINUE_SEARCH;
+    }
+}
+
+static void setup_cysignals_handlers(void)
+{
+    static PVOID exc_handler = NULL;
+    /* Reset the cysigs structure */
+    memset(&cysigs, 0, sizeof(cysigs));
+    if (signal(SIGINT, &cysigs_interrupt_handler) == SIG_ERR ||
+        signal(SIGFPE, cysigs_signal_handler) == SIG_ERR     ||
+        signal(SIGILL, cysigs_signal_handler) == SIG_ERR     ||
+        signal(SIGABRT, cysigs_signal_handler) == SIG_ERR    ||
+        signal(SIGSEGV, cysigs_signal_handler) == SIG_ERR    )
+    {
+        perror("signal");
+        exit(1);
+    }
+    exc_handler = AddVectoredExceptionHandler(1, SIGSEGV_generator);
+}
+
+#endif
 
 static void print_sep(void)
 {
@@ -513,6 +650,7 @@ static void print_backtrace()
 /* Print a backtrace using gdb */
 static void print_enhanced_backtrace(void)
 {
+#ifdef POSIX
     /* Bypass Linux Yama restrictions on ptrace() to allow debugging */
     /* See https://www.kernel.org/doc/Documentation/security/Yama.txt */
 #ifdef PR_SET_PTRACER
@@ -562,6 +700,7 @@ static void print_enhanced_backtrace(void)
 #endif
 
     print_sep();
+#endif
 }
 
 

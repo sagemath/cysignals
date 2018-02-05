@@ -45,6 +45,16 @@ if sys.platform == 'cygwin':
 # false positives in the longjmp() check.
 undef_macros = ["_FORTIFY_SOURCE"]
 
+scripts = []
+data_files = []
+
+# if on windows platform, patch distutils lib.
+if sys.platform == "win32":
+    utilspath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'winutil')
+    sys.path.append(utilspath)
+    from patchdistutils import runtime_patch
+    runtime_patch()
+
 kwds = dict(include_dirs=[opj("src"),
                           opj("src", "cysignals")],
             depends=depends,
@@ -53,12 +63,18 @@ kwds = dict(include_dirs=[opj("src"),
 
 extensions = [
     Extension("cysignals.signals", ["src/cysignals/signals.pyx"], **kwds),
-    Extension("cysignals.pysignals", ["src/cysignals/pysignals.pyx"], **kwds),
-    Extension("cysignals.alarm", ["src/cysignals/alarm.pyx"], **kwds),
-    Extension("cysignals.pselect", ["src/cysignals/pselect.pyx"], **kwds),
-    Extension("cysignals.tests", ["src/cysignals/tests.pyx"], **kwds),
+    Extension("cysignals.tests", ["src/cysignals/tests.pyx"], **kwds)
 ]
 
+if sys.platform != 'win32':
+    extensions.extend([
+        Extension("cysignals.pysignals", ["src/cysignals/pysignals.pyx"], **kwds),
+        Extension("cysignals.alarm", ["src/cysignals/alarm.pyx"], **kwds),
+        Extension("cysignals.pselect", ["src/cysignals/pselect.pyx"], **kwds),
+    ])
+
+    scripts = glob(opj("src", "scripts", "cysignals-CSI"))
+    data_files = [(opj("share", "cysignals"), [opj("src", "scripts", "cysignals-CSI-helper.py")])]
 
 classifiers = [
     'Development Status :: 5 - Production/Stable',
@@ -129,7 +145,7 @@ with open('README.rst') as f:
 
 setup(
     name="cysignals",
-    author=u"Martin R. Albrecht, François Bissey, Volker Braun, Jeroen Demeyer",
+    author=u"Martin R. Albrecht, François Bissey, Volker Braun, Jeroen Demeyer, Vincent Klein",
     author_email="sage-devel@googlegroups.com",
     version=VERSION,
     url="https://github.com/sagemath/cysignals",
@@ -144,7 +160,7 @@ setup(
     packages=["cysignals"],
     package_dir={"cysignals": opj("src", "cysignals")},
     package_data={"cysignals": ["*.pxi", "*.pxd", "*.h"]},
-    data_files=[(opj("share", "cysignals"), [opj("src", "scripts", "cysignals-CSI-helper.py")])],
-    scripts=glob(opj("src", "scripts", "cysignals-CSI")),
+    data_files=data_files,
+    scripts=scripts,
     cmdclass=dict(build=build, bdist_egg=no_egg),
 )

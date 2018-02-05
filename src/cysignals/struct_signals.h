@@ -74,6 +74,9 @@ typedef struct
 #if ENABLE_DEBUG_CYSIGNALS
     int debug_level;
 #endif
+#if defined(__MINGW32__) || defined(_WIN32)
+    volatile sig_atomic_t sig_mapped_to_FPE;
+#endif
 } cysigs_t;
 
 #ifdef __cplusplus

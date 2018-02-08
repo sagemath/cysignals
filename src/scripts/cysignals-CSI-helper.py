@@ -36,13 +36,16 @@ def cython_debug_files():
     """
     Cython extra debug information files
     """
-    try:
-        SAGE_SRC = os.environ['SAGE_SRC']
-    except KeyError:
-        return []
-    pattern = os.path.join(SAGE_SRC, 'build', 'cython_debug',
-                           'cython_debug_info_*')
-    return glob.glob(pattern)
+    # Search all subdirectories of sys.path directories for a
+    # "cython_debug" directory. Note that sys_path is a variable set by
+    # cysignals-CSI. It may differ from sys.path if GDB is run with a
+    # different Python interpreter.
+    files = []
+    for path in sys_path:  # noqa
+        pattern = os.path.join(path, '*', 'cython_debug', 'cython_debug_info_*')
+        files.extend(glob.glob(pattern))
+    return files
+
 
 print('\n\n')
 print('Cython backtrace')
@@ -139,4 +142,6 @@ except Exception as e:
     import traceback
     traceback.print_exc()
 
+sys.stderr.flush()
+print("")
 sys.stdout.flush()

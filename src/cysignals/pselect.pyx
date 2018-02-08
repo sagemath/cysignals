@@ -95,7 +95,7 @@ def interruptible_sleep(double seconds):
         >>> _ = signal.alarm(1)
         >>> interruptible_sleep(2)
         >>> t = time.time() - t0
-        >>> (1.0 <= t <= 1.9) or t
+        >>> (0.9 <= t <= 1.9) or t
         True
 
     TESTS::

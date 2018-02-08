@@ -88,12 +88,17 @@ try:
             else:
                 func_address = int(str(gdb_value.address).split()[0], 0)
 
-            source_desc, lineno = self.get_source_desc(frame)
             a = ', '.join('%s=%s' % (name, val) for name, val in func_args)
-            out = '#%-2d 0x%016x in %s(%s)' % (index, func_address, func_name, a)
-            if source_desc.filename is not None:
-                out += 'at %s:%s' % (source_desc.filename, lineno)
-            print(out)
+            out = '#%-2d 0x%016x in %s (%s)' % (index, func_address, func_name or "??", a)
+            try:
+                source_desc, lineno = self.get_source_desc(frame)
+                if source_desc.filename is not None:
+                    out += ' at %s:%s' % (source_desc.filename, lineno)
+            except gdb.GdbError:
+                return
+            finally:
+                print(out)
+
             try:
                 source = source_desc.get_source(lineno - 5, lineno + 5,
                                                 mark_line=lineno, lex_entire=True)

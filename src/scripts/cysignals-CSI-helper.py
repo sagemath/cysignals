@@ -25,11 +25,10 @@ import gdb
 from Cython.Debugger import libpython, libcython
 from Cython.Debugger.libcython import cy, CythonCommand
 
-try:
-    if not color:
-        libcython.pygments = None  # disable escape-sequence coloring
-except (NameError, AttributeError):
-    pass
+
+if not color:  # noqa
+    # disable escape-sequence coloring
+    libcython.pygments = None
 
 
 def cython_debug_files():

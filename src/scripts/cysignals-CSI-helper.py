@@ -73,7 +73,7 @@ try:
                 func_args = []
             elif self.is_cython_function(frame):
                 cyfunc = self.get_cython_function(frame)
-                f = lambda arg: self.cy.cy_cvalue.invoke(arg, frame=frame)  # noqa
+                # f = lambda arg: self.cy.cy_cvalue.invoke(arg, frame=frame)
 
                 func_name = cyfunc.name
                 func_cname = cyfunc.cname
@@ -90,13 +90,14 @@ try:
             else:
                 func_address = int(str(gdb_value.address).split()[0], 0)
 
-            a = ', '.join('%s=%s' % (name, val) for name, val in func_args)
-            out = '#%-2d 0x%016x in %s (%s)' % (index, func_address, func_name or "??", a)
+            out = '#%-2d 0x%016x' % (index, func_address)
             try:
+                a = ', '.join('%s=%s' % (name, val) for name, val in func_args)
+                out += ' in %s (%s)' % (func_name or "??", a)
                 source_desc, lineno = self.get_source_desc(frame)
                 if source_desc.filename is not None:
                     out += ' at %s:%s' % (source_desc.filename, lineno)
-            except gdb.GdbError:
+            except Exception:
                 return
             finally:
                 print(out)

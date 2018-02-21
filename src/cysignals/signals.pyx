@@ -31,6 +31,7 @@ from cpython.exc cimport PyErr_Occurred, PyErr_SetString
 cdef extern from "implementation.c":
     cysigs_t cysigs "cysigs"
     int _set_debug_level(int) nogil
+    void setup_alt_stack() nogil
     void setup_cysignals_handlers() nogil
     void print_backtrace() nogil
     void _sig_on_interrupt_received() nogil
@@ -192,12 +193,22 @@ def init_cysignals():
     import signal
     old = signal.signal(signal.SIGINT, python_check_interrupt)
 
+    setup_alt_stack()
     setup_cysignals_handlers()
 
     # Set debug level to 2 by default (if debugging was enabled)
     _set_debug_level(2)
 
     return old
+
+
+def _setup_alt_stack():
+    """
+    This is needed after forking on OS X because ``fork()`` disables
+    the alt stack. It is not clear to me whether this is a bug or
+    feature...
+    """
+    setup_alt_stack()
 
 
 def set_debug_level(int level):

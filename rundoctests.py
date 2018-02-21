@@ -44,6 +44,9 @@ for f in filenames:
     if not pid:
         # Child process
         try:
+            if sys.platform == 'darwin':
+                from cysignals.signals import _setup_alt_stack
+                _setup_alt_stack()
             failures, _ = doctest.testfile(f, module_relative=False, optionflags=flags)
             if not failures:
                 os._exit(0)

@@ -69,6 +69,8 @@ static sigset_t sigmask_with_sigint;
 
 static void do_raise_exception(int sig);
 static void sigdie(int sig, const char* s);
+
+#define BACKTRACELEN 1024
 static void print_backtrace(void);
 
 
@@ -286,6 +288,20 @@ static void _sig_off_warning(const char* file, int line)
 }
 
 
+static void setup_alt_stack(void)
+{
+    /* Static space for the alternate signal stack. The size should be
+     * of the form MINSIGSTKSZ + constant. The constant is chosen rather
+     * ad hoc but sufficiently large. */
+    static char alt_stack[MINSIGSTKSZ + 5120 + BACKTRACELEN * sizeof(void*)];
+
+    stack_t ss;
+    ss.ss_sp = alt_stack;
+    ss.ss_size = sizeof(alt_stack);
+    ss.ss_flags = 0;
+    if (sigaltstack(&ss, NULL) == -1) {perror("sigaltstack"); exit(1);}
+}
+
 static void setup_cysignals_handlers(void)
 {
     /* Reset the cysigs structure */
@@ -299,14 +315,6 @@ static void setup_cysignals_handlers(void)
     sigaddset(&sigmask_with_sigint, SIGHUP);
     sigaddset(&sigmask_with_sigint, SIGINT);
     sigaddset(&sigmask_with_sigint, SIGALRM);
-
-    /* Allocate alternate signal stack */
-    stack_t ss;
-    ss.ss_size = 1 << 14;
-    ss.ss_sp = malloc(ss.ss_size);
-    if (ss.ss_sp == NULL) {perror("malloc"); exit(1);}
-    ss.ss_flags = 0;
-    if (sigaltstack(&ss, NULL) == -1) {perror("sigaltstack"); exit(1);}
 
     /* Install signal handlers */
     struct sigaction sa;
@@ -339,19 +347,22 @@ static void setup_cysignals_handlers(void)
 
 static void print_sep(void)
 {
-    fprintf(stderr,
-        "------------------------------------------------------------------------\n");
+    fputs("------------------------------------------------------------------------\n",
+            stderr);
     fflush(stderr);
 }
 
 /* Print a backtrace if supported by libc */
 static void print_backtrace()
 {
-    void* backtracebuffer[1024];
+    void* backtracebuffer[BACKTRACELEN];
     fflush(stderr);
 #if HAVE_BACKTRACE
-    int btsize = backtrace(backtracebuffer, 1024);
-    backtrace_symbols_fd(backtracebuffer, btsize, 2);
+    int btsize = backtrace(backtracebuffer, BACKTRACELEN);
+    if (btsize)
+        backtrace_symbols_fd(backtracebuffer, btsize, 2);
+    else
+        fputs("(no backtrace available)\n", stderr);
     print_sep();
 #endif
 }

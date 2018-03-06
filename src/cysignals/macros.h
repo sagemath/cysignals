@@ -92,25 +92,6 @@ extern "C" {
  * if the first returns 0).
  */
 
-/*
- * Forward declarations of variables declared in cysignals.pxd.
- *
- * We need to jump through hoops here because a static variable cannot
- * be forward-declared in C++, but a function can. So we wrap
- * all these variables in an inline function.
- */
-
-static CYTHON_INLINE cysigs_t* get_cysigs(void);
-#define cysigs (*get_cysigs())
-static CYTHON_INLINE void call_print_backtrace(void);
-#define print_backtrace call_print_backtrace
-static CYTHON_INLINE void call_sig_on_interrupt_received(void);
-#define _sig_on_interrupt_received call_sig_on_interrupt_received
-static CYTHON_INLINE void call_sig_on_recover(void);
-#define _sig_on_recover call_sig_on_recover
-static CYTHON_INLINE void call_sig_off_warning(const char*, int);
-#define _sig_off_warning call_sig_off_warning
-
 #define _sig_on_(message) ( unlikely(_sig_on_prejmp(message, __FILE__, __LINE__)) || _sig_on_postjmp(cysetjmp(cysigs.env)) )
 
 /*

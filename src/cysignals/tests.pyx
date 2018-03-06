@@ -1,3 +1,4 @@
+# cython: preliminary_late_includes_cy28=True
 """
 Test interrupt and signal handling
 
@@ -33,6 +34,7 @@ from __future__ import absolute_import
 from libc.signal cimport (SIGHUP, SIGINT, SIGABRT, SIGILL, SIGSEGV,
         SIGFPE, SIGBUS, SIGQUIT)
 from libc.stdlib cimport abort
+from posix.signal cimport sigaltstack, stack_t, SS_ONSTACK
 
 from cpython cimport PyErr_SetString
 
@@ -46,13 +48,6 @@ cdef extern from 'tests_helper.c':
 
 cdef extern from *:
     ctypedef int volatile_int "volatile int"
-    ctypedef struct stack_t:
-        void  *ss_sp
-        int ss_flags
-        size_t ss_size
-    int sigaltstack(const stack_t *ss, stack_t *oss)
-    const size_t MINSIGSTKSZ, SIGSTKSZ
-    const int SS_DISABLE, SS_ONSTACK
 
 
 # Default delay in milliseconds before raising signals

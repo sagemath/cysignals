@@ -1,3 +1,4 @@
+# cython: preliminary_late_includes_cy28=True
 #*****************************************************************************
 #  cysignals is free software: you can redistribute it and/or modify it
 #  under the terms of the GNU Lesser General Public License as published
@@ -51,19 +52,16 @@ cdef inline void cython_check_exception() nogil except *:
 
 # Private stuff below, should not be used directly
 cdef nogil:
-    cysigs_t cysigs
-    void _sig_on_interrupt_received()
-    void _sig_on_recover()
-    void _sig_off_warning(const char*, int)
-    void print_backtrace()
+    cysigs_t cysigs "cysigs"
+    void _sig_on_interrupt_received "_sig_on_interrupt_received"()
+    void _sig_on_recover "_sig_on_recover"()
+    void _sig_off_warning "_sig_off_warning"(const char*, int)
+    void print_backtrace "print_backtrace"()
 
-    inline cysigs_t* get_cysigs "get_cysigs"():
-        return &cysigs
-    inline void call_print_backtrace "call_print_backtrace"():
-        print_backtrace()
-    inline void call_sig_on_interrupt_received "call_sig_on_interrupt_received"():
-        _sig_on_interrupt_received()
-    inline void call_sig_on_recover "call_sig_on_recover"():
-        _sig_on_recover()
-    inline void call_sig_off_warning "call_sig_off_warning"(const char* f, int n):
-        _sig_off_warning(f, n)
+
+cdef inline void __generate_declarations():
+    cysigs
+    _sig_on_interrupt_received
+    _sig_on_recover
+    _sig_off_warning
+    print_backtrace

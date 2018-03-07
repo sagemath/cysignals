@@ -28,8 +28,14 @@ opj = os.path.join
 
 cythonize_dir = "build"
 
-# Disable .c line numbers in exception tracebacks
-macros = [("CYTHON_CLINE_IN_TRACEBACK", 0)]
+macros = [
+    # Disable .c line numbers in exception tracebacks
+    ("CYTHON_CLINE_IN_TRACEBACK", 0),
+
+    # Disable sanity checking in GNU libc. This is required because of
+    # false positives in the longjmp() check.
+    ("_FORTIFY_SOURCE", 0),
+]
 
 if sys.platform == 'cygwin':
     # On Cygwin FD_SETSIZE defaults to a rather low 64; we set it higher

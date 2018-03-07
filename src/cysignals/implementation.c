@@ -63,6 +63,10 @@ static cysigs_t cysigs;
  * initialized by setup_cysignals_handlers(). */
 static sigset_t default_sigmask;
 
+/* A trampoline to jump to after handling a signal. */
+static sigjmp_buf trampoline;
+static char trampoline_stack[MINSIGSTKSZ];
+
 /* default_sigmask with SIGHUP, SIGINT, SIGALRM added. */
 static sigset_t sigmask_with_sigint;
 
@@ -121,8 +125,7 @@ static void cysigs_interrupt_handler(int sig)
             do_raise_exception(sig);
 
             /* Jump back to sig_on() (the first one if there is a stack) */
-            reset_CPU();
-            siglongjmp(cysigs.env, sig);
+            siglongjmp(trampoline, sig);
         }
     }
     else
@@ -169,8 +172,7 @@ static void cysigs_signal_handler(int sig)
         do_raise_exception(sig);
 
         /* Jump back to sig_on() (the first one if there is a stack) */
-        reset_CPU();
-        siglongjmp(cysigs.env, sig);
+        siglongjmp(trampoline, sig);
     }
     else
     {
@@ -216,6 +218,44 @@ static void cysigs_signal_handler(int sig)
         };
         sigdie(sig, "Unknown signal received.\n");
     }
+}
+
+
+/* A trampoline to jump to after handling a signal.
+ *
+ * The jump to sig_on() uses siglongjmp() *without* restoring the signal
+ * context (savesigs=0 in the sigsetjmp() call). This is done for
+ * efficiency, as sigsetjmp() is significantly faster this way. But in
+ * order to get away from our alt stack after handling a signal, we need
+ * an additional siglongjmp() call to restore the signal context. This
+ * is the call from the signal handler to this trampoline function.
+ *
+ * Setting this up requires some trickery:
+ * (A) create an alt stack for this trampoline function
+ * (B) setup a signal handler to call _sig_on_trampoline() on this stack
+ * (C) set a jump point on this alt stack with savesigs=0
+ * (D) return from the signal handler to the main program
+ * (E) jump to the point set at (C). Now we are on the alt stack but
+ *     the OS is not aware of that
+ * (F) set a jump point with savesigs=1. This is where we will jump to
+ *     after handling a signal
+ * (G) jump back to the main program
+ *
+ * This would have been much easier using makecontext(), but that is
+ * obsolete. */
+static void _sig_on_trampoline(int dummy)
+{
+    register int sig;
+
+    if (sigsetjmp(trampoline, 0) == 0)
+        return;
+
+    /* Ensure that SIGINT remains masked until _sig_on_recover */
+    sigprocmask(SIG_SETMASK, &sigmask_with_sigint, NULL);
+
+    sig = sigsetjmp(trampoline, 1);
+    reset_CPU();
+    siglongjmp(cysigs.env, sig);
 }
 
 
@@ -302,8 +342,12 @@ static void setup_alt_stack(void)
     if (sigaltstack(&ss, NULL) == -1) {perror("sigaltstack"); exit(1);}
 }
 
+
 static void setup_cysignals_handlers(void)
 {
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+
     /* Reset the cysigs structure */
     memset(&cysigs, 0, sizeof(cysigs));
 
@@ -316,17 +360,34 @@ static void setup_cysignals_handlers(void)
     sigaddset(&sigmask_with_sigint, SIGINT);
     sigaddset(&sigmask_with_sigint, SIGALRM);
 
-    /* Install signal handlers */
-    struct sigaction sa;
-    memset(&sa, 0, sizeof(sa));
     /* Block non-critical signals during the signal handlers */
-    sigemptyset(&sa.sa_mask);
     sigaddset(&sa.sa_mask, SIGHUP);
     sigaddset(&sa.sa_mask, SIGINT);
     sigaddset(&sa.sa_mask, SIGALRM);
 
+    /* Setup trampoline on yet another stack
+     * See _sig_on_trampoline() for documentation */
+    stack_t ss, old_ss;
+    ss.ss_sp = trampoline_stack;
+    ss.ss_size = sizeof(trampoline_stack);
+    ss.ss_flags = 0;
+    if (sigaltstack(&ss, &old_ss) == -1) {perror("sigaltstack"); exit(1);}
+    /* Use SIGFPE to jump to _sig_on_trampoline */
+    sa.sa_handler = _sig_on_trampoline;
+    sa.sa_flags = SA_ONSTACK;
+    if (sigaction(SIGFPE, &sa, NULL)) {perror("sigaction"); exit(1);}
+    if (sigsetjmp(cysigs.env, 1) == 0)
+    {
+        raise(SIGFPE);
+        siglongjmp(trampoline, 1);
+    }
+    /* Reset old alt stack (if any) */
+    if (sigaltstack(&old_ss, NULL) == -1) {perror("sigaltstack"); exit(1);}
+
+    /* Install signal handlers */
     /* Handlers for interrupt-like signals */
     sa.sa_handler = cysigs_interrupt_handler;
+    sa.sa_flags = 0;
     if (sigaction(SIGHUP, &sa, NULL)) {perror("sigaction"); exit(1);}
     if (sigaction(SIGINT, &sa, NULL)) {perror("sigaction"); exit(1);}
     if (sigaction(SIGALRM, &sa, NULL)) {perror("sigaction"); exit(1);}

@@ -16,7 +16,7 @@ a signal handler if the OS-level handler was not the Python one).
 """
 
 #*****************************************************************************
-#       Copyright (C) 2017 Jeroen Demeyer <jdemeyer@cage.ugent.be>
+#       Copyright (C) 2017 Jeroen Demeyer <J.Demeyer@UGent.be>
 #
 #  cysignals is free software: you can redistribute it and/or modify it
 #  under the terms of the GNU Lesser General Public License as published

@@ -1,6 +1,6 @@
-dnl Not sure which autoconf version we need, but 2.69 (from 2012)
+dnl Not sure which autoconf version we need, but 2.68 (from 2010)
 dnl is widely available.
-AC_PREREQ([2.69])
+AC_PREREQ([2.68])
 
 AC_DEFUN([VERSION], m4_esyscmd_s(cat VERSION))
 

@@ -21,7 +21,7 @@ install: configure
 	$(PIP) install --no-index --ignore-installed .
 
 dist: configure
-	chmod go+rX-w -R .
+	chmod -R go+rX-w .
 	umask 0022 && $(PYTHON) setup.py sdist --formats=gztar
 
 doc:

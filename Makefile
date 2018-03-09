@@ -47,6 +47,7 @@ clean-doc:
 	rm -rf docs/build
 
 distclean: clean
+	rm -rf .eggs
 	rm -rf autom4te.cache
 	rm -f config.log config.status
 

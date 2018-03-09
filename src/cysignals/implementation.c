@@ -65,7 +65,7 @@ static sigset_t default_sigmask;
 
 /* A trampoline to jump to after handling a signal. */
 static sigjmp_buf trampoline;
-static char trampoline_stack[MINSIGSTKSZ];
+static char trampoline_stack[SIGSTKSZ];
 
 /* default_sigmask with SIGHUP, SIGINT, SIGALRM added. */
 static sigset_t sigmask_with_sigint;

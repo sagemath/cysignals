@@ -248,7 +248,7 @@ static void _sig_on_trampoline(int dummy)
     register int sig;
 
     if (sigsetjmp(trampoline, 0) == 0)
-        return;
+        siglongjmp(cysigs.env, -1);
 
     /* Ensure that SIGINT remains masked until _sig_on_recover */
     sigprocmask(SIG_SETMASK, &sigmask_with_sigint, NULL);
@@ -379,6 +379,9 @@ static void setup_cysignals_handlers(void)
     if (sigsetjmp(cysigs.env, 1) == 0)
     {
         raise(SIGFPE);
+    }
+    if (sigsetjmp(cysigs.env, 1) == 0)
+    {
         siglongjmp(trampoline, 1);
     }
     /* Reset old alt stack (if any) */

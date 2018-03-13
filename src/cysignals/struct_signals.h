@@ -22,9 +22,9 @@
 #define CYSIGNALS_STRUCT_SIGNALS_H
 
 
+#include "cysignals_config.h"
 #include <setjmp.h>
 #include <signal.h>
-#include "debug.h"
 
 
 /* Declare likely() and unlikely() as in Cython */
@@ -68,9 +68,9 @@ typedef struct
      * See sig_block(), sig_unblock(). */
     volatile sig_atomic_t block_sigint;
 
-    /* A jump buffer holding where to siglongjmp() after a signal has
+    /* A jump buffer holding where to cylongjmp() after a signal has
      * been received. This is set by sig_on(). */
-    sigjmp_buf env;
+    cyjmp_buf env;
 
     /* An optional string (in UTF-8 encoding) to be used as text for
      * the exception raised by sig_raise_exception(). If this is NULL,

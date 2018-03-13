@@ -1,0 +1,30 @@
+/*
+ * Should cysignals be compiled with support for verbose debugging
+ * output? The debug level itself needs to be set using the C function
+ * _set_debug_level() or the Python function set_debug_level().
+ * Enabling this will make the code slower, even if the debug level is
+ * set to 0.
+ */
+#ifndef ENABLE_DEBUG_CYSIGNALS
+#undef ENABLE_DEBUG_CYSIGNALS
+#endif
+
+/*
+ * Should sig_on() use sigsetjmp(env, 0) instead of setjmp(env)? This
+ * is needed on BSD and OS X because setjmp() saves the signal mask.
+ * With glibc, we also use sigsetjmp because it's faster.
+ */
+#ifndef CYSIGNALS_USE_SIGSETJMP
+#undef CYSIGNALS_USE_SIGSETJMP
+#endif
+
+
+#if CYSIGNALS_USE_SIGSETJMP
+#define cyjmp_buf sigjmp_buf
+#define cysetjmp(env) sigsetjmp(env, 0)
+#define cylongjmp(env, val) siglongjmp(env, val)
+#else
+#define cyjmp_buf jmp_buf
+#define cysetjmp(env) setjmp(env)
+#define cylongjmp(env, val) longjmp(env, val)
+#endif

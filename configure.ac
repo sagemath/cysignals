@@ -7,7 +7,7 @@ AC_DEFUN([VERSION], m4_esyscmd_s(cat VERSION))
 AC_INIT([cysignals], VERSION, [https://github.com/sagemath/cysignals/issues])
 AC_COPYRIGHT([GNU Lesser General Public License version 3 or later])
 AC_CONFIG_SRCDIR([configure.ac])
-AC_CONFIG_HEADERS([build/src/config.h:src/config.h.in build/src/cysignals/debug.h:src/cysignals/debug.h.in])
+AC_CONFIG_HEADERS([build/src/config.h:src/config.h.in build/src/cysignals/cysignals_config.h:src/cysignals/cysignals_config.h.in])
 
 AC_ARG_ENABLE(debug,
         AS_HELP_STRING([--enable-debug], [enable debug output]))
@@ -38,6 +38,56 @@ AC_RUN_IFELSE([AC_LANG_PROGRAM([], [asm("leal (%eax), %eax; emms");])],
     dnl NO
     [AC_MSG_RESULT([no])]
 )
+
+AC_MSG_CHECKING([whether setjmp() saves the signal mask])
+AC_RUN_IFELSE([AC_LANG_PROGRAM(
+    [
+    #include <stdlib.h>
+    #include <setjmp.h>
+    #include <signal.h>
+    ],
+    [
+    jmp_buf env;
+    sigset_t set;
+    sigemptyset(&set);
+    if (sigprocmask(SIG_SETMASK, &set, NULL)) return 2;
+    if (setjmp(env) == 0)
+    {
+        sigaddset(&set, SIGFPE);
+        if (sigprocmask(SIG_SETMASK, &set, NULL)) return 3;
+        longjmp(env, 1);
+    }
+    if (sigprocmask(SIG_SETMASK, NULL, &set)) return 4;
+    return sigismember(&set, SIGFPE);
+    ])],
+    dnl YES
+    [AC_MSG_RESULT([yes])]
+    sigsetjmp=yes
+    ,
+    dnl NO
+    [AC_MSG_RESULT([no])]
+)
+
+AC_MSG_CHECKING([for GNU libc])
+AC_COMPILE_IFELSE([AC_LANG_SOURCE(
+    [
+    #include <features.h>
+    #ifndef __GLIBC__
+    syntax error!
+    #endif
+    ])],
+    dnl YES
+    [AC_MSG_RESULT([yes])]
+    # GNU libc implements setjmp(...) as a wrapper of sigsetjmp(..., 0)
+    # so we might as well call the latter directly
+    sigsetjmp=yes
+    ,
+    dnl NO
+    [AC_MSG_RESULT([no])]
+)
+if test x$sigsetjmp = xyes; then
+    AC_DEFINE(CYSIGNALS_USE_SIGSETJMP, 1, [Define to 1 to use sigsetjmp() in sig_on(), as opposed to setjmp().])
+fi
 
 
 AC_CONFIG_COMMANDS([build/src/cysignals/__init__.pxd],

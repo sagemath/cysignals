@@ -73,8 +73,8 @@ extern "C" {
  *
  * OUTPUT: zero if an exception occurred, non-zero otherwise.
  *
- * The function sigsetjmp() in the _sig_on_() macro can return:
- *  - zero: this happens in the actual sig_on() call. sigsetjmp() sets
+ * The function cysetjmp() in the _sig_on_() macro can return:
+ *  - zero: this happens in the actual sig_on() call. cysetjmp() sets
  *    up the address for the signal handler to jump to.  The
  *    program continues normally.
  *  - a signal number (e.g. 2 for SIGINT), assumed to be strictly
@@ -85,8 +85,8 @@ extern "C" {
  *    this case, the program continues as if nothing happened between
  *    sig_on() and sig_retry().
  *
- * We cannot simply put sigsetjmp() in a function, because when that
- * function returns, we would lose the stack frame to siglongjmp() to.
+ * We cannot simply put cysetjmp() in a function, because when that
+ * function returns, we would lose the stack frame to cylongjmp() to.
  * That's why we need this hackish macro.  We use the fact that || is
  * a short-circuiting operator (the second argument is only evaluated
  * if the first returns 0).
@@ -111,10 +111,10 @@ static CYTHON_INLINE void call_sig_on_recover(void);
 static CYTHON_INLINE void call_sig_off_warning(const char*, int);
 #define _sig_off_warning call_sig_off_warning
 
-#define _sig_on_(message) ( unlikely(_sig_on_prejmp(message, __FILE__, __LINE__)) || _sig_on_postjmp(sigsetjmp(cysigs.env,0)) )
+#define _sig_on_(message) ( unlikely(_sig_on_prejmp(message, __FILE__, __LINE__)) || _sig_on_postjmp(cysetjmp(cysigs.env)) )
 
 /*
- * Set message, return 0 if we need to sigsetjmp(), return 1 otherwise.
+ * Set message, return 0 if we need to cysetjmp(), return 1 otherwise.
  */
 static inline int _sig_on_prejmp(const char* message, const char* file, int line)
 {
@@ -143,7 +143,7 @@ static inline int _sig_on_prejmp(const char* message, const char* file, int line
 
 
 /*
- * Process the return value of sigsetjmp().
+ * Process the return value of cysetjmp().
  * Return 0 if there was an exception, 1 otherwise.
  */
 static inline int _sig_on_postjmp(int jmpret)
@@ -283,7 +283,7 @@ static inline void sig_retry(void)
         fprintf(stderr, "sig_retry() without sig_on()\n");
         abort();
     }
-    siglongjmp(cysigs.env, -1);
+    cylongjmp(cysigs.env, -1);
 }
 
 /* Used in error callbacks from C code (in particular NTL and PARI).

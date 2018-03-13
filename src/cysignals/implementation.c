@@ -22,6 +22,12 @@ Interrupt and signal handling for Cython
  *
  ****************************************************************************/
 
+
+#if __USE_FORTIFY_LEVEL
+#error "cysignals must be compiled without _FORTIFY_SOURCE"
+#endif
+
+
 #include "config.h"
 #include <stdio.h>
 #include <string.h>

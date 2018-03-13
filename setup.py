@@ -31,10 +31,6 @@ cythonize_dir = "build"
 macros = [
     # Disable .c line numbers in exception tracebacks
     ("CYTHON_CLINE_IN_TRACEBACK", 0),
-
-    # Disable sanity checking in GNU libc. This is required because of
-    # false positives in the longjmp() check.
-    ("_FORTIFY_SOURCE", 0),
 ]
 
 if sys.platform == 'cygwin':
@@ -43,11 +39,16 @@ if sys.platform == 'cygwin':
     # See https://github.com/sagemath/cysignals/pull/57
     macros.append(('FD_SETSIZE', 512))
 
+# Disable sanity checking in GNU libc. This is required because of
+# false positives in the longjmp() check.
+undef_macros = ["_FORTIFY_SOURCE"]
+
 kwds = dict(include_dirs=[opj("src", "cysignals"),
                           opj(cythonize_dir, "src"),
                           opj(cythonize_dir, "src", "cysignals")],
             depends=glob(opj("src", "cysignals", "*.h")),
-            define_macros=macros)
+            define_macros=macros,
+            undef_macros=undef_macros)
 
 extensions = [
     Extension("cysignals.signals", ["src/cysignals/signals.pyx"], **kwds),

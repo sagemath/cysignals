@@ -84,7 +84,7 @@ class build(_build):
         """
         Run ``./configure`` and Cython first.
         """
-        config_h = opj(cythonize_dir, "src", "config.h")
+        config_h = opj(cythonize_dir, "src", "cysignals", "cysignals_config.h")
         if not os.path.isfile(config_h):
             import subprocess
             subprocess.check_call(["make", "configure"])

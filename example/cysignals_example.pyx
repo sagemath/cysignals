@@ -3,15 +3,15 @@
 from cysignals.signals cimport sig_check
 from cysignals.memory cimport check_allocarray
 
-from libc.math cimport sin
 
-def sine_sum(double x, long count):
+def recip_sum(long count):
     cdef double s = 0
     cdef long i
     for i in range(count):
         sig_check()
-        s += sin(i*x)
+        s += 1 / <double>i
     return s
+
 
 cdef long* safe_range_long(long count) except? NULL:
     """

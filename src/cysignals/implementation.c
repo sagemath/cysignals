@@ -515,7 +515,7 @@ static void sigdie(int sig, const char* s)
 
 dienow:
     /* Suicide with signal ``sig`` */
-    kill(getpid(), sig);
+    raise(sig);
 
     /* We should be dead! */
     exit(128 + sig);

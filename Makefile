@@ -10,7 +10,7 @@ LS_R = ls -Ra1
 # OS X bug manifesting itself with Python 3 and old versions of GNU make.
 # This was discovered at https://github.com/sagemath/cysignals/issues/71
 # but I don't know a good analysis nor solution.
-DOCTEST = ulimit -s 1024 && $(PYTHON) -B rundoctests.py
+DOCTEST = ulimit -s 1024; $(PYTHON) -B rundoctests.py
 
 
 #####################
@@ -89,10 +89,10 @@ check-tmp:
 	$(MAKE) check-user
 
 prefix-install: configure
-	rm -rf tmp/local tmp/build
+	rm -rf tmp/local tmp/build tmp/site-packages
 	$(PYTHON) setup.py install --prefix="`pwd`/tmp/local" --root=tmp/build
 	cd tmp && mv "build/`pwd`/local" local
-	cd tmp && ln -s local/lib*/python*/site-packages site-packages
+	cd tmp && cp -R local/lib*/python*/site-packages site-packages
 
 check-prefix: check-prefix-doctest check-prefix-example
 

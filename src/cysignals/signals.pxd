@@ -19,6 +19,7 @@
 cimport cysignals.__init__
 from libc.signal cimport sig_atomic_t
 
+
 cdef extern from "struct_signals.h":
     ctypedef struct cysigs_t:
         sig_atomic_t sig_on_count
@@ -50,7 +51,9 @@ cdef inline void cython_check_exception() nogil except *:
     pass
 
 
-# Private stuff below, should not be used directly
+# Variables and functions which are implemented in implementation.c
+# and used by macros.h. We use the Cython cimport mechanism to make
+# these available to every Cython module cimporting this file.
 cdef nogil:
     cysigs_t cysigs "cysigs"
     void _sig_on_interrupt_received "_sig_on_interrupt_received"()

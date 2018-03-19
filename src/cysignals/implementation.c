@@ -514,8 +514,10 @@ static void sigdie(int sig, const char* s)
     }
 
 dienow:
-    /* Suicide with signal ``sig`` */
-    raise(sig);
+    /* Suicide with signal ``sig``. We intentionally use kill(getpid())
+     * instead of raise() because we want to kill all threads in a
+     * multi-threaded program. */
+    kill(getpid(), sig);
 
     /* We should be dead! */
     exit(128 + sig);

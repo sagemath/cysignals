@@ -294,11 +294,6 @@ static inline int _set_debug_level(int level)
 #endif
 }
 
-#undef print_backtrace
-#undef _sig_on_interrupt_received
-#undef _sig_on_recover
-#undef _sig_off_warning
-
 #ifdef __cplusplus
 }  /* extern "C" */
 #endif

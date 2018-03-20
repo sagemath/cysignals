@@ -54,6 +54,10 @@ cdef extern from *:
 cdef long DEFAULT_DELAY = 200
 
 
+import sys
+from subprocess import Popen, PIPE
+
+
 ########################################################################
 # Disable debugging while testing                                      #
 ########################################################################
@@ -99,7 +103,8 @@ cdef int stack_overflow(volatile_int* x=NULL) nogil:
 ########################################################################
 # Python helper functions                                              #
 ########################################################################
-class return_exception:
+
+class return_exception(object):
     """
     Decorator class which makes a function *return* an exception which
     is raised, to simplify doctests raising exceptions.
@@ -172,6 +177,18 @@ def _sig_on():
     for real code.
     """
     sig_on()
+
+
+def subpython_err(command, **kwds):
+    """
+    Run ``command`` in a Python subprocess and print the standard error
+    which was generated.
+    """
+    argv = [sys.executable, '-c', command]
+    (out, err) = Popen(argv, stdout=PIPE, stderr=PIPE, **kwds).communicate()
+    if not isinstance(err, str):
+        err = err.decode()
+    sys.stdout.write(err)
 
 
 ########################################################################
@@ -527,14 +544,9 @@ def test_signal_quit(long delay=DEFAULT_DELAY):
     We run Python in a subprocess and make it raise a SIGQUIT under
     ``sig_on()``.  This should cause Python to exit::
 
-        >>> from sys import executable
-        >>> from subprocess import *
-        >>> cmd = 'from cysignals.tests import *; test_signal_quit()'
-        >>> print(Popen([executable, '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))
-        ------------------------------------------------------------------------
-        ...
-        ------------------------------------------------------------------------
-        <BLANKLINE>
+        >>> from cysignals.tests import subpython_err
+        >>> subpython_err('from cysignals.tests import *; test_signal_quit()')
+        ---------------------------------------------------------------------...
 
     """
     # The sig_on() shouldn't make a difference for SIGQUIT
@@ -574,31 +586,21 @@ def unguarded_dereference_null_pointer():
     We run Python in a subprocess and dereference a NULL pointer without
     using ``sig_on()``. This will crash Python::
 
-        >>> from sys import executable
-        >>> from subprocess import *
-        >>> cmd = 'from cysignals.tests import *; unguarded_dereference_null_pointer()'
-        >>> msg = Popen([executable, '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1]
-        >>> print(msg.decode("utf-8"))
-        ------------------------------------------------------------------------
-        ...
-        ------------------------------------------------------------------------
+        >>> from cysignals.tests import subpython_err
+        >>> subpython_err('from cysignals.tests import *; unguarded_dereference_null_pointer()')
+        ---------------------------------------------------------------------...
         Unhandled SIG...
         This probably occurred because a *compiled* module has a bug
         in it and is not properly wrapped with sig_on(), sig_off().
         Python will now terminate.
         ------------------------------------------------------------------------
-        <BLANKLINE>
 
     The same but with ``CYSIGNALS_CRASH_QUIET`` set. This will crash
     Python silently::
 
-        >>> from subprocess import *
-        >>> cmd = 'from cysignals.tests import *; unguarded_dereference_null_pointer()'
         >>> env = dict(os.environ)
         >>> env["CYSIGNALS_CRASH_QUIET"] = ""
-        >>> msg = Popen([executable, '-c', cmd], stdout=PIPE, stderr=PIPE, env=env).communicate()[1]
-        >>> print(msg.decode("utf-8"))
-        <BLANKLINE>
+        >>> subpython_err('from cysignals.tests import *; unguarded_dereference_null_pointer()', env=env)
 
     """
     with nogil:
@@ -626,19 +628,14 @@ def unguarded_abort():
 
     We run Python in a subprocess and make it call abort()::
 
-        >>> from sys import executable
-        >>> from subprocess import *
-        >>> cmd = 'from cysignals.tests import *; unguarded_abort()'
-        >>> print(Popen([executable, '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))
-        ------------------------------------------------------------------------
-        ...
-        ------------------------------------------------------------------------
+        >>> from cysignals.tests import subpython_err
+        >>> subpython_err('from cysignals.tests import *; unguarded_abort()')
+        ---------------------------------------------------------------------...
         Unhandled SIGABRT: An abort() occurred.
         This probably occurred because a *compiled* module has a bug
         in it and is not properly wrapped with sig_on(), sig_off().
         Python will now terminate.
         ------------------------------------------------------------------------
-        <BLANKLINE>
 
     """
     with nogil:
@@ -666,19 +663,14 @@ def unguarded_stack_overflow():
 
     We run Python in a subprocess and overflow the stack::
 
-        >>> from sys import executable
-        >>> from subprocess import *
-        >>> cmd = 'from cysignals.tests import *; unguarded_stack_overflow()'
-        >>> print(Popen([executable, '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))
-        ------------------------------------------------------------------------
-        ...
-        ------------------------------------------------------------------------
+        >>> from cysignals.tests import subpython_err
+        >>> subpython_err('from cysignals.tests import *; unguarded_stack_overflow()')
+        ---------------------------------------------------------------------...
         Unhandled SIGSEGV: A segmentation fault occurred.
         This probably occurred because a *compiled* module has a bug
         in it and is not properly wrapped with sig_on(), sig_off().
         Python will now terminate.
         ------------------------------------------------------------------------
-        <BLANKLINE>
 
     """
     with nogil:
@@ -691,19 +683,14 @@ def test_bad_str(long delay=DEFAULT_DELAY):
 
     We run Python in a subprocess and induce an error during the signal handler::
 
-        >>> from sys import executable
-        >>> from subprocess import *
-        >>> cmd = 'from cysignals.tests import *; test_bad_str()'
-        >>> print(Popen([executable, '-c', cmd], stdout=PIPE, stderr=PIPE).communicate()[1].decode("utf-8"))
-        ------------------------------------------------------------------------
-        ...
-        ------------------------------------------------------------------------
+        >>> from cysignals.tests import subpython_err
+        >>> subpython_err('from cysignals.tests import *; test_bad_str()')
+        ---------------------------------------------------------------------...
         An error occurred during signal handling.
         This probably occurred because a *compiled* module has a bug
         in it and is not properly wrapped with sig_on(), sig_off().
         Python will now terminate.
         ------------------------------------------------------------------------
-        <BLANKLINE>
 
     """
     cdef char* s = <char*>(16)

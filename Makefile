@@ -10,7 +10,7 @@ LS_R = ls -Ra1
 # OS X bug manifesting itself with Python 3 and old versions of GNU make.
 # This was discovered at https://github.com/sagemath/cysignals/issues/71
 # but I don't know a good analysis nor solution.
-DOCTEST = ulimit -s 1024; $(PYTHON) -B rundoctests.py
+DOCTEST = ulimit 2>/dev/null -s 1024; $(PYTHON) -B rundoctests.py
 
 
 #####################

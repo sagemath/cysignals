@@ -78,7 +78,7 @@ class SignalError(BaseException):
     pass
 
 
-cdef public int sig_raise_exception "sig_raise_exception"(int sig, const char* msg) except 0 with gil:
+cdef int sig_raise_exception "sig_raise_exception"(int sig, const char* msg) except 0 with gil:
     """
     Raise an exception for signal number ``sig`` with message ``msg``
     (or a default message if ``msg`` is ``NULL``).

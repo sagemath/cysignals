@@ -54,7 +54,6 @@ static int PARI_SIGINT_block = 0;
 static int PARI_SIGINT_pending = 0;
 #endif
 #include "struct_signals.h"
-#include "signals.h"
 
 
 #if ENABLE_DEBUG_CYSIGNALS
@@ -83,6 +82,9 @@ static void sigdie(int sig, const char* s);
 
 #define BACKTRACELEN 1024
 static void print_backtrace(void);
+
+/* Implemented in signals.pyx */
+static int sig_raise_exception(int sig, const char* msg);
 
 
 /* Do whatever is needed to reset the CPU to a sane state after
@@ -262,8 +264,6 @@ static void _sig_on_trampoline(int dummy)
     cylongjmp(cysigs.env, sig);
 }
 
-
-extern int sig_raise_exception(int sig, const char* msg);
 
 /* This calls sig_raise_exception() to actually raise the exception. */
 static void do_raise_exception(int sig)

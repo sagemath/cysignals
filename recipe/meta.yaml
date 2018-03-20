@@ -1,0 +1,27 @@
+package:
+  name: cysignals
+  version: VERSION
+
+source:
+  path: ..
+
+build:
+  number: 0
+
+requirements:
+  build:
+    - toolchain
+    - python
+    - setuptools
+    - pip
+    - cython
+    - sphinx
+    - pari
+    - flake8
+  run:
+    - python
+    - pari
+
+test:
+  imports:
+    - cysignals

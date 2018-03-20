@@ -1,40 +1,55 @@
-sudo: required
-dist: xenial
-language: python
-python:
-  - "2.7"
-  - "3.4"
-  - "3.5"
-  - "3.6"
-  - "3.7"
+language: generic
+
+os:
+    - linux
+    - osx
 
 env:
-  - PARI=yes
-  - PARI=no
-
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq -y python-pip python-dev
-  - sudo apt-get install -qq -y flake8
-  - sudo apt-get install -qq -y pari-gp libpari-dev
+  matrix:
+    - PYTHON_VERSION=2.7 PARI=yes
+    - PYTHON_VERSION=3.4 PARI=yes
+    - PYTHON_VERSION=3.5 PARI=yes
+    - PYTHON_VERSION=3.6 PARI=yes
+    - PYTHON_VERSION=3.7 PARI=yes
+    - PYTHON_VERSION=2.7 PARI=no
+    - PYTHON_VERSION=3.7 PARI=no
 
 install:
-  - pip install -r requirements.txt
-  - cython --version
-  - gcc --version
-  - make configure
-  - ./configure --with-pari=$PARI
-  - make -j4 install
+    # Install Miniconda.
+    - |
+      MINICONDA_URL="https://repo.continuum.io/miniconda"
+      if [ $TRAVIS_OS_NAME = linux ]; then
+          MINICONDA_FILE="Miniconda3-latest-Linux-x86_64.sh"
+      elif [ $TRAVIS_OS_NAME = osx ]; then
+          MINICONDA_FILE="Miniconda3-latest-MacOSX-x86_64.sh"
+      fi
+      curl -L -O "${MINICONDA_URL}/${MINICONDA_FILE}"
+      bash $MINICONDA_FILE -b
+
+    # Configure conda.
+    - |
+      source $HOME/miniconda3/bin/activate root
+      conda config --remove channels defaults
+      conda config --add channels defaults
+      conda config --add channels conda-forge
+      conda config --set show_channel_urls true
+      conda info
+
+    - conda create -n test --yes --quiet python=${PYTHON_VERSION} setuptools pip cython sphinx pari flake8
+    - source activate test
+    - export LDFLAGS="-L$CONDA_PREFIX/lib"
+    - export CFLAGS="-I$CONDA_PREFIX/include"
 
 script:
-  - make -j4 check-all
-  - make -j4 distcheck
-  - flake8 --max-line-length=120 --max-complexity=16 --ignore=E22,E241,E265,E731 src
-  - python -c "from cysignals.signals import _pari_version; assert bool(_pari_version()) == ('$PARI' == 'yes')"
-
-notifications:
-  on_success: change
-  on_failure: always
+    - gcc --version
+    - cython --version
+    - make configure
+    - ./configure --with-pari=${PARI}
+    - make -j4 install
+    - make -j4 check-all
+    - make -j4 distcheck
+    - flake8 --max-line-length=88 --ignore=E265 src
+    - python -c "from cysignals.signals import _pari_version; assert bool(_pari_version()) == ('$PARI' == 'yes')"
 
 deploy:
   provider: releases

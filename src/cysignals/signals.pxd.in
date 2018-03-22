@@ -17,12 +17,18 @@
 #*****************************************************************************
 
 from libc.signal cimport sig_atomic_t
+from cpython.object cimport PyObject
+
+cdef extern from *:
+    int unlikely(int) nogil  # Defined by Cython
 
 
 cdef extern from "struct_signals.h":
     ctypedef struct cysigs_t:
         sig_atomic_t sig_on_count
         const char* s
+        PyObject* exc_value
+
 
 cdef extern from "macros.h" nogil:
     int sig_on() except 0
@@ -48,6 +54,27 @@ cdef extern from "macros.h" nogil:
 # cython_check_exception() actually raised the exception.
 cdef inline void cython_check_exception() nogil except *:
     pass
+
+
+cdef void verify_exc_value()
+
+cdef inline PyObject* sig_occurred():
+    """
+    Borrowed reference to the exception which is currently being
+    propagated from cysignals. If there is no exception or if we
+    are done handling the exception, return ``NULL``.
+
+    This is meant for Cython code to check whether objects may be in
+    an invalid state. Typically, this would be used in an ``except``
+    or ``finally`` block or in ``__dealloc__``.
+
+    The implementation is based on reference counting: it checks whether
+    the exception has been deleted. This means that it will break if the
+    exception is stored somewhere.
+    """
+    if unlikely(cysigs.exc_value is not NULL):
+        verify_exc_value()
+    return cysigs.exc_value
 
 
 # Variables and functions which are implemented in implementation.c

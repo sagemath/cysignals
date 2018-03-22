@@ -78,6 +78,10 @@ typedef struct
      * be set using sig_str() instead of sig_on(). */
     const char* s;
 
+    /* Reference to the exception object that we raised (NULL if none).
+     * This is used by the sig_occurred function. */
+    PyObject* exc_value;
+
 #if ENABLE_DEBUG_CYSIGNALS
     int debug_level;
 #endif

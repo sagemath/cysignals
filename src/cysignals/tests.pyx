@@ -846,6 +846,81 @@ def test_try_finally_return():
 
 
 ########################################################################
+# Test sig_occurred()                                                  #
+########################################################################
+
+def print_sig_occurred():
+    """
+    Print the exception which is currently being raised.
+
+    Note that we print instead of return the exception to mess as little
+    as possible with refcounts.
+
+    EXAMPLES::
+
+        >>> from cysignals.tests import *
+        >>> print_sig_occurred()
+        No current exception
+
+    """
+    exc = sig_occurred()
+    if exc is NULL:
+        print("No current exception")
+    else:
+        e = <object>exc
+        print(f"{type(e).__name__}: {e}")
+
+
+def test_sig_occurred_finally():
+    """
+    TESTS::
+
+        >>> from cysignals.tests import *
+        >>> test_sig_occurred_finally()
+        No current exception
+        RuntimeError: test_sig_occurred_finally()
+        RuntimeError: test_sig_occurred_finally()
+        No current exception
+
+    """
+    try:
+        try:
+            sig_str("test_sig_occurred_finally()")
+        finally:
+            print_sig_occurred()  # output 1 and 2
+    except RuntimeError:
+        print_sig_occurred()  # output 3
+    else:
+        abort()
+    print_sig_occurred()  # output 4
+
+
+def test_sig_occurred_dealloc():
+    """
+    TESTS::
+
+        >>> from cysignals.tests import *
+        >>> try:
+        ...     test_sig_occurred_dealloc()
+        ... except RuntimeError:
+        ...     pass
+        __dealloc__: RuntimeError: test_sig_occurred_dealloc()
+        >>> print_sig_occurred()
+        No current exception
+
+    """
+    x = DeallocDebug()
+    sig_str("test_sig_occurred_dealloc()")
+    abort()
+
+
+cdef class DeallocDebug:
+    def __dealloc__(self):
+        sys.stdout.write("__dealloc__: ")
+        print_sig_occurred()
+
+
+########################################################################
 # Test sig_block()/sig_unblock()                                       #
 ########################################################################
 def test_sig_block(long delay=DEFAULT_DELAY):

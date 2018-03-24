@@ -5,10 +5,10 @@ osx_image: xcode6.4
 
 env:
   matrix:
-    - CONDA_PY=27
-    - CONDA_PY=34
-    - CONDA_PY=35
-    - CONDA_PY=36
+    - PYTHON_VER=2.7
+    - PYTHON_VER=3.4
+    - PYTHON_VER=3.5
+    - PYTHON_VER=3.6
 
 
 install:
@@ -26,8 +26,11 @@ install:
       conda config --add channels defaults
       conda config --add channels conda-forge
       conda config --set show_channel_urls true
-      conda install --yes --quiet conda-forge-build-setup
-      source run_conda_forge_build_setup
+      conda info
+
+    - conda create -n test --yes --quiet python=${PYTHON_VER} setuptools pip cython sphinx pari flake8
+    - source activate test
 
 script:
-  - conda build ./recipe
+  - make -j4 install
+  - make -j4 check-all distcheck

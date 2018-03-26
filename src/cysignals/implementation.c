@@ -162,6 +162,12 @@ static inline void sigdie_for_sig(int sig, int inside)
 }
 
 
+/* Additional platform-specific implementation code */
+#if defined(__CYGWIN__)
+#include "implementation_cygwin.c"
+#endif
+
+
 /* Handler for SIGHUP, SIGINT, SIGALRM
  *
  * Inside sig_on() (i.e. when cysigs.sig_on_count is positive), this
@@ -406,6 +412,9 @@ static void setup_alt_stack(void)
     ss.ss_size = sizeof(alt_stack);
     ss.ss_flags = 0;
     if (sigaltstack(&ss, NULL) == -1) {perror("sigaltstack"); exit(1);}
+#if defined(__CYGWIN__) && defined(__x86_64__)
+    cygwin_setup_alt_stack();
+#endif
 }
 
 

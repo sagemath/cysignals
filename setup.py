@@ -32,11 +32,14 @@ macros = [
     ("CYTHON_CLINE_IN_TRACEBACK", 0),
 ]
 
+depends = glob(opj("src", "cysignals", "*.h"))
+
 if sys.platform == 'cygwin':
     # On Cygwin FD_SETSIZE defaults to a rather low 64; we set it higher
     # for use with PSelecter
     # See https://github.com/sagemath/cysignals/pull/57
     macros.append(('FD_SETSIZE', 512))
+    depends.append(opj("src", "cysignals", "implementation_cygwin.c"))
 
 # Disable sanity checking in GNU libc. This is required because of
 # false positives in the longjmp() check.
@@ -44,7 +47,7 @@ undef_macros = ["_FORTIFY_SOURCE"]
 
 kwds = dict(include_dirs=[opj("src"),
                           opj("src", "cysignals")],
-            depends=glob(opj("src", "cysignals", "*.h")),
+            depends=depends,
             define_macros=macros,
             undef_macros=undef_macros)
 

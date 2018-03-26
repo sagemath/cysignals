@@ -56,6 +56,9 @@ LONG WINAPI win32_altstack_handler(EXCEPTION_POINTERS *exc)
     return ExceptionContinueExecution;
 }
 
-#undef PLATFORM_SETUP_ALT_STACK
-#define PLATFORM_SETUP_ALT_STACK AddVectoredContinueHandler(0, win32_altstack_handler)
+
+static void cygwin_setup_alt_stack() {
+    AddVectoredContinueHandler(0, win32_altstack_handler);
+}
+
 #endif  /* CYGWIN && __x86_64__ */

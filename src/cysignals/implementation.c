@@ -93,7 +93,6 @@ static void print_backtrace(void);
 /* Implemented in signals.pyx */
 static int sig_raise_exception(int sig, const char* msg);
 
-
 /* Do whatever is needed to reset the CPU to a sane state after
  * handling a signals.  In particular on x86 CPUs, we need to clear
  * the FPU (this is needed after MMX instructions have been used or
@@ -163,8 +162,8 @@ static inline void sigdie_for_sig(int sig, int inside)
 
 
 /* Additional platform-specific implementation code */
-#if defined(__CYGWIN__) && defined(__x86_64__)
-#include "implementation_cygwin.h"
+#if defined(__CYGWIN__)
+#include "implementation_cygwin.c"
 #endif
 
 
@@ -412,7 +411,9 @@ static void setup_alt_stack(void)
     ss.ss_size = sizeof(alt_stack);
     ss.ss_flags = 0;
     if (sigaltstack(&ss, NULL) == -1) {perror("sigaltstack"); exit(1);}
-    PLATFORM_SETUP_ALT_STACK;
+#if defined(__CYGWIN__) && defined(__x86_64__)
+    cygwin_setup_alt_stack();
+#endif
 }
 
 

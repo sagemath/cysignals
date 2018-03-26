@@ -159,7 +159,7 @@ setup(
     description="Interrupt and signal handling for Cython",
     long_description=README,
     classifiers=classifiers,
-    setup_requires=["Cython>=0.28b1"],
+    setup_requires=["Cython>=0.28"],
 
     ext_modules=extensions,
     packages=["cysignals"],

@@ -548,8 +548,11 @@ static void sigdie(int sig, const char* s)
      * the user is probably using other debugging tools and we don't
      * want to interfere with that. */
 #else
-#ifndef __APPLE__
+#if !(defined(__APPLE__) || defined(__CYGWIN__))
     /* See http://trac.sagemath.org/13889 for how Apple screwed this up */
+    /* On Cygwin this has never quite worked, and in particular when run
+       from the altstack handler it just results in fork errors, so disable
+       this feature for now */
     if (getenv("CYSIGNALS_CRASH_NDEBUG") == NULL)
         print_enhanced_backtrace();
 #endif

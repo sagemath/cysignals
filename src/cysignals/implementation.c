@@ -114,6 +114,54 @@ static inline void reset_CPU(void)
 }
 
 
+/* Reset all signal handlers and the signal mask to their defaults. */
+static inline void sig_reset_defaults(void) {
+    signal(SIGHUP, SIG_DFL);
+    signal(SIGINT, SIG_DFL);
+    signal(SIGQUIT, SIG_DFL);
+    signal(SIGILL, SIG_DFL);
+    signal(SIGABRT, SIG_DFL);
+    signal(SIGFPE, SIG_DFL);
+    signal(SIGBUS, SIG_DFL);
+    signal(SIGSEGV, SIG_DFL);
+    signal(SIGALRM, SIG_DFL);
+    signal(SIGTERM, SIG_DFL);
+    sigprocmask(SIG_SETMASK, &default_sigmask, NULL);
+}
+
+
+/* Call sigdie() with the appropriate error message for the signal, or
+ * whether the exception occurred inside our signal handler */
+static inline void sigdie_for_sig(int sig, int inside)
+{
+    if (inside) sigdie(sig, "An error occurred during signal handling.");
+
+    /* Quit Python with an appropriate message. */
+    switch(sig)
+    {
+        case SIGQUIT:
+            sigdie(sig, NULL);
+            break;  /* This will not be reached */
+        case SIGILL:
+            sigdie(sig, "Unhandled SIGILL: An illegal instruction occurred.");
+            break;  /* This will not be reached */
+        case SIGABRT:
+            sigdie(sig, "Unhandled SIGABRT: An abort() occurred.");
+            break;  /* This will not be reached */
+        case SIGFPE:
+            sigdie(sig, "Unhandled SIGFPE: An unhandled floating point exception occurred.");
+            break;  /* This will not be reached */
+        case SIGBUS:
+            sigdie(sig, "Unhandled SIGBUS: A bus error occurred.");
+            break;  /* This will not be reached */
+        case SIGSEGV:
+            sigdie(sig, "Unhandled SIGSEGV: A segmentation fault occurred.");
+            break;  /* This will not be reached */
+    };
+    sigdie(sig, "Unknown signal received.\n");
+}
+
+
 /* Handler for SIGHUP, SIGINT, SIGALRM
  *
  * Inside sig_on() (i.e. when cysigs.sig_on_count is positive), this
@@ -196,43 +244,8 @@ static void cysigs_signal_handler(int sig)
 
         /* Reset all signals to their default behaviour and unblock
          * them in case something goes wrong as of now. */
-        signal(SIGHUP, SIG_DFL);
-        signal(SIGINT, SIG_DFL);
-        signal(SIGQUIT, SIG_DFL);
-        signal(SIGILL, SIG_DFL);
-        signal(SIGABRT, SIG_DFL);
-        signal(SIGFPE, SIG_DFL);
-        signal(SIGBUS, SIG_DFL);
-        signal(SIGSEGV, SIG_DFL);
-        signal(SIGALRM, SIG_DFL);
-        signal(SIGTERM, SIG_DFL);
-        sigprocmask(SIG_SETMASK, &default_sigmask, NULL);
-
-        if (inside) sigdie(sig, "An error occurred during signal handling.");
-
-        /* Quit Python with an appropriate message. */
-        switch(sig)
-        {
-            case SIGQUIT:
-                sigdie(sig, NULL);
-                break;  /* This will not be reached */
-            case SIGILL:
-                sigdie(sig, "Unhandled SIGILL: An illegal instruction occurred.");
-                break;  /* This will not be reached */
-            case SIGABRT:
-                sigdie(sig, "Unhandled SIGABRT: An abort() occurred.");
-                break;  /* This will not be reached */
-            case SIGFPE:
-                sigdie(sig, "Unhandled SIGFPE: An unhandled floating point exception occurred.");
-                break;  /* This will not be reached */
-            case SIGBUS:
-                sigdie(sig, "Unhandled SIGBUS: A bus error occurred.");
-                break;  /* This will not be reached */
-            case SIGSEGV:
-                sigdie(sig, "Unhandled SIGSEGV: A segmentation fault occurred.");
-                break;  /* This will not be reached */
-        };
-        sigdie(sig, "Unknown signal received.\n");
+        sig_reset_defaults();
+        sigdie_for_sig(sig, inside);
     }
 }
 

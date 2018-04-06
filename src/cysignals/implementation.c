@@ -36,6 +36,8 @@ Interrupt and signal handling for Cython
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/mman.h>
+#include <pthread.h>
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -71,7 +73,6 @@ static sigset_t default_sigmask;
 /* A trampoline to jump to after handling a signal. */
 static cyjmp_buf trampoline_setup;
 static sigjmp_buf trampoline;
-static char trampoline_stack[SIGSTKSZ];
 
 /* default_sigmask with SIGHUP, SIGINT, SIGALRM added. */
 static sigset_t sigmask_with_sigint;
@@ -240,28 +241,52 @@ static void cysigs_signal_handler(int sig)
  * handler to this trampoline function.
  *
  * Setting this up requires some trickery:
- * (A) create an alt stack for this trampoline function
- * (B) setup a signal handler to call _sig_on_trampoline() on this stack
- * (C) set a jump point on this alt stack using cysetjmp()
- * (D) return from the signal handler to the main program
- * (E) jump to the point set at (C). Now we are on the alt stack but
- *     the OS is not aware of that
+ * (A) create a separate stack for this trampoline function
+ * (B) start a new thread using this stack
+ * (C) set a jump point on the trampoline stack using cysetjmp()
+ * (D) exit the thread
+ * (E) back in the main thread, jump to the point set at (C). Now we are
+ *     on the trampoline stack
  * (F) set a jump point with savesigs=1. This is where we will jump to
  *     after handling a signal
  * (G) jump back to the main program
  *
- * This would have been much easier using makecontext(), but that
- * functionality is obsolete in POSIX. */
-static void _sig_on_trampoline(int dummy)
+ * NOTE: it may look strange to use threads for this, but there are not
+ * a lot of good ways to get code running on an arbitrary stack. In
+ * fact, POSIX recommends threads in
+ * http://pubs.opengroup.org/onlinepubs/009695299/functions/makecontext.html
+ */
+static void* _sig_on_trampoline(void* dummy)
 {
     register int sig;
 
     if (cysetjmp(trampoline_setup) == 0)
-        siglongjmp(trampoline, -1);
+        pthread_exit(NULL);
 
     sig = sigsetjmp(trampoline, 1);
     reset_CPU();
     cylongjmp(cysigs.env, sig);
+}
+
+static void setup_trampoline(void)
+{
+    pthread_t child;
+    pthread_attr_t attr;
+    size_t trampolinestacksize = 1 << 16;
+    void* trampolinestack = mmap(NULL, trampolinestacksize,
+            PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+    if (trampolinestack == MAP_FAILED) {perror("mmap");}
+
+    if (pthread_attr_init(&attr)) {perror("pthread_attr_init");}
+    if (pthread_attr_setstack(&attr, trampolinestack, trampolinestacksize)) {perror("pthread_attr_setstack");}
+    if (pthread_create(&child, &attr, _sig_on_trampoline, NULL)) {perror("pthread_create");}
+    pthread_attr_destroy(&attr);
+    if (pthread_join(child, NULL)) {perror("pthread_join");}
+
+    if (cysetjmp(cysigs.env) == 0)
+    {
+        cylongjmp(trampoline_setup, 1);
+    }
 }
 
 
@@ -349,7 +374,6 @@ static void setup_alt_stack(void)
 
 static void setup_cysignals_handlers(void)
 {
-    stack_t ss, old_ss;
     struct sigaction sa;
     memset(&sa, 0, sizeof(sa));
 
@@ -363,29 +387,10 @@ static void setup_cysignals_handlers(void)
     sigaddset(&sa.sa_mask, SIGALRM);
 
     /* Save the default signal mask and apply the signal mask with
-     * non-critical signals now to save it on the trampoline. */
+     * non-critical signals now to save it on the trampoline.
+     * After setting up the trampoline, we reset the signal mask. */
     sigprocmask(SIG_BLOCK, &sa.sa_mask, &default_sigmask);
-
-    /* Setup trampoline on yet another stack
-     * See _sig_on_trampoline() for documentation */
-    ss.ss_sp = trampoline_stack;
-    ss.ss_size = sizeof(trampoline_stack);
-    ss.ss_flags = 0;
-    if (sigaltstack(&ss, &old_ss) == -1) {perror("sigaltstack"); exit(1);}
-    /* Use SIGFPE to jump to _sig_on_trampoline */
-    sa.sa_handler = _sig_on_trampoline;
-    sa.sa_flags = SA_ONSTACK;
-    if (sigaction(SIGFPE, &sa, NULL)) {perror("sigaction"); exit(1);}
-    if (sigsetjmp(trampoline, 1) == 0)
-    {
-        raise(SIGFPE);
-    }
-    if (cysetjmp(cysigs.env) == 0)
-    {
-        cylongjmp(trampoline_setup, 1);
-    }
-    /* Reset old alt stack (if any) and signal mask */
-    if (sigaltstack(&old_ss, NULL) == -1) {perror("sigaltstack"); exit(1);}
+    setup_trampoline();
     sigprocmask(SIG_SETMASK, &default_sigmask, &sigmask_with_sigint);
 
     /* Install signal handlers */

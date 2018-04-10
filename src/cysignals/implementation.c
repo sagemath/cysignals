@@ -260,13 +260,23 @@ static void* _sig_on_trampoline(void* dummy)
 {
     register int sig;
 
+    /* Reserve some unused stack space to prevent pthread_exit() from
+     * clobbering the stack that we care about. This is in particular
+     * needed on certain older GNU/Linux systems:
+     * https://trac.sagemath.org/ticket/25092#comment:6 */
+    char stack_guard[2048];
+
     if (cysetjmp(trampoline_setup) == 0)
-        pthread_exit(NULL);
+        /* The argument to pthread_exit() does not matter. We use
+         * stack_guard to prevent GCC from optimizing away the
+         * stack_guard variable. */
+        pthread_exit(stack_guard);
 
     sig = sigsetjmp(trampoline, 1);
     reset_CPU();
     cylongjmp(cysigs.env, sig);
 }
+
 
 static void setup_trampoline(void)
 {

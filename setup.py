@@ -34,6 +34,14 @@ macros = [
 
 depends = glob(opj("src", "cysignals", "*.h"))
 
+ac_configure_flags = ""
+if "--without-pari" in sys.argv:
+	ac_configure_flags = "--without-pari"
+	sys.argv.remove("--without-pari")
+if "--with-pari" in sys.argv:
+	ac_configure_flags = "--with-pari"
+	sys.argv.remove("--with-pari")
+
 if sys.platform == 'cygwin':
     # On Cygwin FD_SETSIZE defaults to a rather low 64; we set it higher
     # for use with PSelecter
@@ -90,7 +98,7 @@ class build(_build):
         if not os.path.isfile(config_h):
             import subprocess
             subprocess.check_call(["make", "configure"])
-            subprocess.check_call(["sh", "configure"])
+            subprocess.check_call(["sh", "configure" + ac_configure_flags ])
 
         dist = self.distribution
         ext_modules = dist.ext_modules

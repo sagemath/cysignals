@@ -19,14 +19,12 @@ fi
 
 AC_LANG(C)
 
-AC_SEARCH_LIBS([pari_init], [pari])
-
 AC_CHECK_HEADERS([execinfo.h sys/prctl.h])
 AC_CHECK_FUNCS([backtrace])
 
-AC_CHECK_DECL([PARI_SIGINT_block],
-    [AC_DEFINE(HAVE_PARI, 1, [Define to 1 if PARI is fully supported.])],
-    [], [[#include <pari/pari.h>]])
+AM_PATH_PARI([2.9],
+	[AC_DEFINE(HAVE_PARI, 1, [Define to 1 if PARI is fully supported.])],
+	[AC_MSG_WARN([no suitable PARI library found])])
 
 AC_MSG_CHECKING([for emms instruction])
 # We add the "leal" instruction to reduce false positives in case some

@@ -1,1 +1,3 @@
-This is a complete working example package using cysignals.
+This is a minimal working example package using cysignals.
+
+Building this package is also part of the cysignals testsuite.

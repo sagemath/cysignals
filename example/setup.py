@@ -21,7 +21,7 @@ setup(
     name="cysignals_example",
     version='1.0',
     license='Public Domain',
-    setup_requires=["Cython>=0.28"],
+    setup_requires=["cysignals"],
     ext_modules=["cysignals_example.pyx"],
     cmdclass=dict(build=build),
 )

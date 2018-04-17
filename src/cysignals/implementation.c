@@ -33,6 +33,7 @@ Interrupt and signal handling for Cython
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <errno.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -280,18 +281,26 @@ static void* _sig_on_trampoline(void* dummy)
 
 static void setup_trampoline(void)
 {
+    int ret;
     pthread_t child;
     pthread_attr_t attr;
+    void* trampolinestack;
     size_t trampolinestacksize = 1 << 16;
-    void* trampolinestack = mmap(NULL, trampolinestacksize,
-            PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-    if (trampolinestack == MAP_FAILED) {perror("mmap");}
 
-    if (pthread_attr_init(&attr)) {perror("pthread_attr_init");}
-    if (pthread_attr_setstack(&attr, trampolinestack, trampolinestacksize)) {perror("pthread_attr_setstack");}
-    if (pthread_create(&child, &attr, _sig_on_trampoline, NULL)) {perror("pthread_create");}
+    while (trampolinestacksize < PTHREAD_STACK_MIN) trampolinestacksize *= 2;
+    trampolinestack = mmap(NULL, trampolinestacksize,
+            PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
+    if (trampolinestack == MAP_FAILED) {perror("mmap"); exit(1);}
+
+    ret = pthread_attr_init(&attr);
+    if (ret) {errno = ret; perror("pthread_attr_init"); exit(1);}
+    ret = pthread_attr_setstack(&attr, trampolinestack, trampolinestacksize);
+    if (ret) {errno = ret; perror("pthread_attr_setstack"); exit(1);}
+    ret = pthread_create(&child, &attr, _sig_on_trampoline, NULL);
+    if (ret) {errno = ret; perror("pthread_create"); exit(1);}
     pthread_attr_destroy(&attr);
-    if (pthread_join(child, NULL)) {perror("pthread_join");}
+    ret = pthread_join(child, NULL);
+    if (ret) {errno = ret; perror("pthread_join"); exit(1);}
 
     if (cysetjmp(cysigs.env) == 0)
     {

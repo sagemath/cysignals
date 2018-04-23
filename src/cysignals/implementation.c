@@ -58,6 +58,11 @@ static int PARI_SIGINT_pending = 0;
 #endif
 #include "struct_signals.h"
 
+/* Some systems have MAP_ANON but not MAP_ANONYMOUS */
+#ifndef MAP_ANONYMOUS
+#define MAP_ANONYMOUS MAP_ANON
+#endif
+
 
 #if ENABLE_DEBUG_CYSIGNALS
 static struct timeval sigtime;  /* Time of signal */

@@ -8,6 +8,7 @@ AC_INIT([cysignals], VERSION, [https://github.com/sagemath/cysignals/issues])
 AC_COPYRIGHT([GNU Lesser General Public License version 3 or later])
 AC_CONFIG_SRCDIR([configure.ac])
 AC_CONFIG_HEADERS([build/src/config.h:src/config.h.in build/src/cysignals/cysignals_config.h:src/cysignals/cysignals_config.h.in])
+AC_CONFIG_FILES([src/cysignals/signals.pxd])
 
 AC_ARG_ENABLE(debug,
         AS_HELP_STRING([--enable-debug], [enable debug output]))
@@ -88,12 +89,6 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE(
 if test x$sigsetjmp = xyes; then
     AC_DEFINE(CYSIGNALS_USE_SIGSETJMP, 1, [Define to 1 to use sigsetjmp() in sig_on(), as opposed to setjmp().])
 fi
-
-
-AC_CONFIG_COMMANDS([build/src/cysignals/__init__.pxd],
-    # Generate a file __init__.pxd to set correct compiler options.
-    [[echo "# distutils: extra_link_args = $LIBS" >build/src/cysignals/__init__.pxd]],
-    [LIBS=$LIBS])
 
 
 AC_OUTPUT()

@@ -57,8 +57,9 @@ target/
 # Ipython Notebook
 .ipynb_checkpoints
 
-# Auto-generated file
+# Auto-generated files
 /example/cysignals_example.cpp
+/src/cysignals/signals.pxd
 
 # Autotools
 configure

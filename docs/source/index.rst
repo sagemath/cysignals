@@ -1,6 +1,18 @@
 cysignals
 =========
 
+This is the documentation for cysignals, a package to allow interrupting
+Cython code. Quick links:
+
+* cysignals on the Python package index: https://pypi.org/project/cysignals/
+* cysignals repository on GitHub: https://github.com/sagemath/cysignals
+* cysignals documentation on Read the Docs: http://cysignals.readthedocs.io/
+* cysignals issue tracker on GitHub: https://github.com/sagemath/cysignals/issues
+* cysignals releases on GitHub: https://github.com/sagemath/cysignals/releases
+
+Overview of cysignals
+---------------------
+
 When writing `Cython <http://cython.org/>`_ code, special care must be
 taken to ensure that the code can be interrupted with ``CTRL-C``.
 Since Cython optimizes for speed, Cython normally does not check for

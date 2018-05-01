@@ -1,17 +1,8 @@
 cysignals
 =========
 
-This is the documentation for cysignals, a package to allow interrupting
-Cython code. Quick links:
-
-* cysignals on the Python package index: https://pypi.org/project/cysignals/
-* cysignals repository on GitHub: https://github.com/sagemath/cysignals
-* cysignals documentation on Read the Docs: http://cysignals.readthedocs.io/
-* cysignals issue tracker on GitHub: https://github.com/sagemath/cysignals/issues
-* cysignals releases on GitHub: https://github.com/sagemath/cysignals/releases
-
-Overview of cysignals
----------------------
+This is the documentation for **cysignals, a package to deal with
+interrupts and signal handling in Cython code**.
 
 When writing `Cython <http://cython.org/>`_ code, special care must be
 taken to ensure that the code can be interrupted with ``CTRL-C``.
@@ -64,3 +55,10 @@ cysignals provides further support for system calls related to signals:
 .. toctree::
     pysignals
     pselect
+
+Links
+-----
+
+* cysignals on the Python package index: https://pypi.org/project/cysignals/
+* cysignals code repository and issue tracker on GitHub: https://github.com/sagemath/cysignals
+* cysignals documentation on Read the Docs: https://cysignals.readthedocs.io

@@ -7,7 +7,7 @@ cysignals: interrupt and signal handling for Cython
 .. image:: https://readthedocs.org/projects/cysignals/badge/?version=latest
     :target: http://cysignals.readthedocs.org
 
-Overview of cysignals
+Cython and interrupts
 ---------------------
 
 When writing `Cython <http://cython.org/>`_ code, special care must be
@@ -22,8 +22,6 @@ in Cython::
 The ``cysignals`` package provides mechanisms to handle interrupts (and other
 signals and errors) in Cython code.
 
-See http://cysignals.readthedocs.org/ for the full documentation.
-
 Requirements
 ------------
 
@@ -36,7 +34,5 @@ Links
 -----
 
 * cysignals on the Python package index: https://pypi.org/project/cysignals/
-* cysignals repository on GitHub: https://github.com/sagemath/cysignals
-* cysignals documentation on Read the Docs: http://cysignals.readthedocs.io/
-* cysignals issue tracker on GitHub: https://github.com/sagemath/cysignals/issues
-* cysignals releases on GitHub: https://github.com/sagemath/cysignals/releases
+* cysignals code repository and issue tracker on GitHub: https://github.com/sagemath/cysignals
+* full cysignals documentation on Read the Docs: http://cysignals.readthedocs.io/

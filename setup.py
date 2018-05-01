@@ -42,9 +42,8 @@ if sys.platform == 'cygwin':
 # false positives in the longjmp() check.
 undef_macros = ["_FORTIFY_SOURCE"]
 
-kwds = dict(include_dirs=[opj("src", "cysignals"),
-                          opj(cythonize_dir, "src"),
-                          opj(cythonize_dir, "src", "cysignals")],
+kwds = dict(include_dirs=[opj("src"),
+                          opj("src", "cysignals")],
             depends=glob(opj("src", "cysignals", "*.h")),
             define_macros=macros,
             undef_macros=undef_macros)
@@ -84,7 +83,7 @@ class build(_build):
         """
         Run ``./configure`` and Cython first.
         """
-        config_h = opj(cythonize_dir, "src", "cysignals", "cysignals_config.h")
+        config_h = opj("src", "cysignals", "cysignals_config.h")
         if not os.path.isfile(config_h):
             import subprocess
             subprocess.check_call(["make", "configure"])
@@ -103,37 +102,6 @@ class build(_build):
                 build_dir=cythonize_dir,
                 include_path=["src", os.path.join(cythonize_dir, "src")],
                 compiler_directives=dict(binding=True))
-
-
-class build_py(_build_py):
-    """
-    Custom distutils build_py class. For every package FOO, we also
-    check package data for a "fake" FOO-cython package.
-    """
-    def get_data_files(self):
-        """Generate list of '(package,src_dir,build_dir,filenames)' tuples"""
-        data = []
-        if not self.packages:
-            return data
-        for package in self.packages:
-            for src_package in [package, package + "-cython"]:
-                # Locate package source directory
-                src_dir = self.get_package_dir(src_package)
-
-                # Compute package build directory
-                build_dir = os.path.join(*([self.build_lib] + package.split('.')))
-
-                # Length of path to strip from found files
-                plen = 0
-                if src_dir:
-                    plen = len(src_dir)+1
-
-                # Strip directory from globbed filenames
-                filenames = [
-                    file[plen:] for file in self.find_data_files(src_package, src_dir)
-                    ]
-                data.append((package, src_dir, build_dir, filenames))
-        return data
 
 
 class no_egg(_bdist_egg):
@@ -164,10 +132,8 @@ setup(
 
     ext_modules=extensions,
     packages=["cysignals"],
-    package_dir={"cysignals": opj("src", "cysignals"),
-                 "cysignals-cython": opj(cythonize_dir, "src", "cysignals")},
-    package_data={"cysignals": ["*.pxi", "*.pxd", "*.h"],
-                  "cysignals-cython": ["*.h"]},
+    package_dir={"cysignals": opj("src", "cysignals")},
+    package_data={"cysignals": ["*.pxi", "*.pxd", "*.h"]},
     scripts=glob(opj("src", "scripts", "*")),
-    cmdclass=dict(build=build, build_py=build_py, bdist_egg=no_egg),
+    cmdclass=dict(build=build, bdist_egg=no_egg),
 )

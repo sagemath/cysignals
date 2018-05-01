@@ -7,3 +7,6 @@ prune build
 prune dist
 prune tmp
 prune .*
+exclude src/config.h
+exclude src/cysignals/signals.pxd
+exclude src/cysignals/cysignals_config.h

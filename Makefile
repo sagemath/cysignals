@@ -49,7 +49,8 @@ clean-doc:
 distclean: clean
 	rm -rf .eggs example/.eggs
 	rm -rf autom4te.cache
-	rm -f config.log config.status src/cysignals/signals.pxd
+	rm -f config.log config.status
+	rm -f src/config.h src/cysignals/signals.pxd src/cysignals/cysignals_config.h
 
 
 #####################

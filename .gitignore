@@ -59,7 +59,9 @@ target/
 
 # Auto-generated files
 /example/cysignals_example.cpp
+/src/config.h
 /src/cysignals/signals.pxd
+/src/cysignals/cysignals_config.h
 
 # Autotools
 configure

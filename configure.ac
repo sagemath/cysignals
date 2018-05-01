@@ -7,7 +7,7 @@ AC_DEFUN([VERSION], m4_esyscmd_s(cat VERSION))
 AC_INIT([cysignals], VERSION, [https://github.com/sagemath/cysignals/issues])
 AC_COPYRIGHT([GNU Lesser General Public License version 3 or later])
 AC_CONFIG_SRCDIR([configure.ac])
-AC_CONFIG_HEADERS([build/src/config.h:src/config.h.in build/src/cysignals/cysignals_config.h:src/cysignals/cysignals_config.h.in])
+AC_CONFIG_HEADERS([src/config.h src/cysignals/cysignals_config.h])
 AC_CONFIG_FILES([src/cysignals/signals.pxd])
 
 AC_ARG_ENABLE(debug,

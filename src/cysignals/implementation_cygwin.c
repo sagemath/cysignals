@@ -51,7 +51,6 @@ LONG WINAPI win32_altstack_handler(EXCEPTION_POINTERS *exc)
             break;
     }
 
-    sig_reset_defaults();
     sigdie_for_sig(sig, 1);
     return ExceptionContinueExecution;
 }

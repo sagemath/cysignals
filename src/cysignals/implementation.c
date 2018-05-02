@@ -134,6 +134,7 @@ static inline void sig_reset_defaults(void) {
  * whether the exception occurred inside our signal handler */
 static inline void sigdie_for_sig(int sig, int inside)
 {
+    sig_reset_defaults();
     if (inside) sigdie(sig, "An error occurred during signal handling.");
 
     /* Quit Python with an appropriate message. */
@@ -250,7 +251,6 @@ static void cysigs_signal_handler(int sig)
 
         /* Reset all signals to their default behaviour and unblock
          * them in case something goes wrong as of now. */
-        sig_reset_defaults();
         sigdie_for_sig(sig, inside);
     }
 }

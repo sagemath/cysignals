@@ -27,6 +27,7 @@ from __future__ import absolute_import
 from libc.signal cimport *
 from libc.stdio cimport freopen, stdin
 from cpython.exc cimport PyErr_Occurred, PyErr_SetString
+cimport cython
 
 cdef extern from "implementation.c":
     cysigs_t cysigs "cysigs"
@@ -78,6 +79,7 @@ class SignalError(BaseException):
     pass
 
 
+@cython.optimize.use_switch(False)
 cdef int sig_raise_exception "sig_raise_exception"(int sig, const char* msg) except 0 with gil:
     """
     Raise an exception for signal number ``sig`` with message ``msg``

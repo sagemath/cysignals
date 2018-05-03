@@ -27,9 +27,10 @@ before_build:
           } else {
               $python = "python" + $Env:PYTHON_VERSION[0]
           }
+          $python_exe = "python" + $Env:PYTHON_VERSION
           Invoke-WebRequest "https://bootstrap.pypa.io/get-pip.py" -OutFile "C:\get-pip.py"
           & $Env:CYG_ROOT\setup-$Env:ARCH.exe -q -P $python $python-devel gcc-core
-          & $python "C:\get-pip.py"
+          & $python_exe "C:\get-pip.py"
       }
   - cd C:\projects\cysignals
   - python%PYTHON_VERSION% -m pip install -r requirements.txt

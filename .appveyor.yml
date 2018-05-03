@@ -1,0 +1,41 @@
+version: 1.0.{build}
+
+build: off
+
+environment:
+
+  matrix:
+
+    # For Python versions available on Appveyor, see
+    # http://www.appveyor.com/docs/installed-software#python
+    # The list here is complete (excluding Python 2.6, which
+    # isn't covered by this document) at the time of writing.
+    - os: Cygwin
+      CYG_ROOT: "C:\\cygwin64"
+      PYTHON: "C:\\cygwin64\\bin"
+      PYTHON_VERSION: "2.7"
+      ARCH: x86_64
+      MAKE: make
+
+before_build:
+  - ps: >-
+      if ( "$Env:OS" -ieq "Cygwin" ) {
+          if ( $Env:PYTHON[0] -ieq "2") {
+              $python = "python"
+          } else {
+              $python = "python" + $Env:PYTHON[0]
+          }
+          & $Env:CYG_ROOT\setup-$Env:ARCH.exe -q -P $python $python-devel gcc-core
+      }
+  - set PATH=%PYTHON%;%PYTHON%\\scripts;%TOOLSPATH%;%PATH%
+  - echo %PATH%
+  - cd C:\projects\cysignals
+  - pip install -r requirements.txt
+  - python --version
+  - python -m cython --version
+
+build_script:
+  - '%MAKE% -j4 install'
+
+test_script:
+  - '%MAKE% -j4 check-all distcheck'

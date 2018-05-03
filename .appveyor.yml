@@ -32,7 +32,7 @@ before_build:
               -OutFile "C:\get-pip.py"
           Start-Process -NoNewWindow -Wait `
               -FilePath $Env:CYG_ROOT\setup-$Env:ARCH.exe `
-              -ArgumentList "-q -P $python $python-devel gcc-core"
+              -ArgumentList "-q -P $python,$python-devel,gcc-core"
           & $python_exe "C:\get-pip.py"
       }
   - cd C:\projects\cysignals

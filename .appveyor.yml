@@ -3,7 +3,6 @@ version: 1.0.{build}
 build: off
 
 environment:
-
   matrix:
 
     # For Python versions available on Appveyor, see
@@ -27,6 +26,7 @@ before_build:
           }
           & $Env:CYG_ROOT\setup-$Env:ARCH.exe -q -P $python $python-devel gcc-core
       }
+  - echo "Building Cysignals for %OS%"
   - set PATH=%PYTHON%;%PYTHON%\\scripts;%TOOLSPATH%;%PATH%
   - echo %PATH%
   - cd C:\projects\cysignals

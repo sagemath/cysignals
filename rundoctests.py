@@ -9,7 +9,7 @@
 import os
 import sys
 import doctest
-from doctest import DocTestParser, OPTIONFLAGS_BY_NAME
+from doctest import DocTestParser, Example, SKIP
 from multiprocessing import Process
 if os.name != 'nt':
     import resource
@@ -19,38 +19,40 @@ timeout = 600
 
 filenames = list(sys.argv[1:])
 if os.name == 'nt':
-    notinwindows = ['src/cysignals/pysignals.pyx', 'src/cysignals/alarm.pyx', 'src/cysignals/pselect.pyx']
+    notinwindows = ['src/cysignals/pysignals.pyx',
+                    'src/cysignals/alarm.pyx',
+                    'src/cysignals/pselect.pyx']
 
     for f in list(filenames):
         if f in notinwindows:
             filenames.remove(f)
 
 # Add an option to flag doctest what should not be run on windows.
-doctest.register_optionflag("SKIP_WINDOWS")
-doctest.register_optionflag("SKIP_POSIX")
-flag_skip_windows = OPTIONFLAGS_BY_NAME["SKIP_WINDOWS"]
-flag_skip_posix = OPTIONFLAGS_BY_NAME["SKIP_POSIX"]
+SKIP_WINDOWS = doctest.register_optionflag("SKIP_WINDOWS")
+SKIP_CYGWIN = doctest.register_optionflag("SKIP_CYGWIN")
+SKIP_POSIX = doctest.register_optionflag("SKIP_POSIX")
+
+flag_map = {
+    SKIP_WINDOWS: lambda: os.name == 'nt',
+    SKIP_CYGWIN: lambda: sys.platform == 'cygwin',
+    SKIP_POSIX: lambda: os.name == 'posix'
+}
 
 
-class SkipByOsDocTestParser(DocTestParser):
+class CysignalsDocTestParser(DocTestParser):
+    def parse(self, *args, **kwargs):
+        examples = DocTestParser.parse(self, *args, **kwargs)
+        for example in examples:
+            if not isinstance(example, Example):
+                continue
+            for flag, flag_test in flag_map.items():
+                if flag in example.options and flag_test():
+                    example.options[SKIP] = True
 
-    def _find_options(self, source, name, lineno):
-        options = DocTestParser._find_options(self, source, name, lineno)
-
-        if flag_skip_windows in options.keys() and os.name == 'nt':
-            # Replace SKIP_WINDOWS with SKIP flag if we are on windows.
-            options[OPTIONFLAGS_BY_NAME["SKIP"]] = options[flag_skip_windows]
-            del options[flag_skip_windows]
-
-        if flag_skip_posix in options.keys() and os.name != 'nt':
-            # Replace SKIP_POSIX with SKIP flag if we are not on windows.
-            options[OPTIONFLAGS_BY_NAME["SKIP"]] = options[flag_skip_posix]
-            del options[flag_skip_posix]
-
-        return options
+        return examples
 
 
-parser = SkipByOsDocTestParser()
+parser = CysignalsDocTestParser()
 
 
 print("Doctesting {} files.".format(len(filenames)))

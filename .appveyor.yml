@@ -17,6 +17,9 @@ environment:
       MAKE: make
 
 before_build:
+  - echo "Building Cysignals for %OS%"
+  - set PATH=%PYTHON%;%PYTHON%\\scripts;%TOOLSPATH%;%PATH%
+  - echo %PATH%
   - ps: >-
       if ( "$Env:OS" -ieq "Cygwin" ) {
           if ( $Env:PYTHON[0] -ieq "2") {
@@ -24,15 +27,14 @@ before_build:
           } else {
               $python = "python" + $Env:PYTHON[0]
           }
+          Invoke-WebRequest "https://bootstrap.pypa.io/get-pip.py" -OutFile "C:\get-pip.py"
           & $Env:CYG_ROOT\setup-$Env:ARCH.exe -q -P $python $python-devel gcc-core
+          & $python "C:\get-pip.py"
       }
-  - echo "Building Cysignals for %OS%"
-  - set PATH=%PYTHON%;%PYTHON%\\scripts;%TOOLSPATH%;%PATH%
-  - echo %PATH%
   - cd C:\projects\cysignals
-  - pip install -r requirements.txt
-  - python --version
-  - python -m cython --version
+  - python%PYTHON_VERSION% -m pip install -r requirements.txt
+  - python%PYTHON_VERSION% --version
+  - python%PYTHON_VERSION% -m cython --version
 
 build_script:
   - '%MAKE% -j4 install'

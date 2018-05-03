@@ -22,10 +22,10 @@ before_build:
   - echo %PATH%
   - ps: >-
       if ( "$Env:OS" -ieq "Cygwin" ) {
-          if ( $Env:PYTHON[0] -ieq "2") {
+          if ( $Env:PYTHON_VERSION[0] -ieq "2") {
               $python = "python"
           } else {
-              $python = "python" + $Env:PYTHON[0]
+              $python = "python" + $Env:PYTHON_VERSION[0]
           }
           Invoke-WebRequest "https://bootstrap.pypa.io/get-pip.py" -OutFile "C:\get-pip.py"
           & $Env:CYG_ROOT\setup-$Env:ARCH.exe -q -P $python $python-devel gcc-core

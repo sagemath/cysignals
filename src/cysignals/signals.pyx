@@ -30,7 +30,7 @@ from cpython.exc cimport PyErr_Occurred, PyErr_SetString
 cimport cython
 
 cdef extern from "implementation.c":
-    cysigs_t cysigs "cysigs"
+    cysigs_t cysigs
     int _set_debug_level(int) nogil
     void setup_alt_stack() nogil
     void setup_cysignals_handlers() nogil

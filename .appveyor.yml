@@ -1,0 +1,48 @@
+version: 1.0.{build}
+
+build: off
+
+environment:
+  matrix:
+
+    # For Python versions available on Appveyor, see
+    # http://www.appveyor.com/docs/installed-software#python
+    # The list here is complete (excluding Python 2.6, which
+    # isn't covered by this document) at the time of writing.
+    - os: Cygwin
+      CYG_ROOT: "C:\\cygwin64"
+      PYTHON: "C:\\cygwin64\\bin"
+      PYTHON_VERSION: "2.7"
+      ARCH: x86_64
+      MAKE: make
+
+before_build:
+  - echo "Building Cysignals for %OS%"
+  - set PATH=%PYTHON%;%PYTHON%\\scripts;%TOOLSPATH%;%PATH%
+  - echo %PATH%
+  - ps: >-
+      if ( "$Env:OS" -ieq "Cygwin" ) {
+          if ( $Env:PYTHON_VERSION[0] -ieq "2") {
+              $python = "python"
+          } else {
+              $python = "python" + $Env:PYTHON_VERSION[0]
+          }
+          $python_exe = "python" + $Env:PYTHON_VERSION
+          Invoke-WebRequest "https://bootstrap.pypa.io/get-pip.py" `
+              -OutFile "C:\get-pip.py"
+          Start-Process -NoNewWindow -Wait `
+              -FilePath $Env:CYG_ROOT\setup-$Env:ARCH.exe `
+              -ArgumentList "-q -P $python,$python-devel,gcc-core,gcc-g++"
+          & $python_exe "C:\get-pip.py"
+      }
+  - cd C:\projects\cysignals
+  - python%PYTHON_VERSION% -m pip install -r requirements.txt
+  - python%PYTHON_VERSION% --version
+  - python%PYTHON_VERSION% -m cython --version
+
+build_script:
+  - '%MAKE% -j4 install'
+
+test_script:
+  - '%MAKE% -j4 check-all'
+  - '%MAKE% -j4 distcheck'

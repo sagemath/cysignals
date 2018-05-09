@@ -736,7 +736,8 @@ def test_sig_on_inside_try(long delay=DEFAULT_DELAY):
     except RuntimeError:
         pass
 
-def test_interrupt_bomb(int n = 100, int p = 10):
+
+def test_interrupt_bomb(long n=100, long p=10):
     """
     Have `p` processes each sending `n` interrupts in very quick
     succession and see what happens :-)
@@ -748,27 +749,28 @@ def test_interrupt_bomb(int n = 100, int p = 10):
         Received ... interrupts
 
     """
-    cdef int i
+    cdef long i
 
     # Spawn p processes, each sending n signals with an interval of 1 millisecond
-    cdef long base_delay=DEFAULT_DELAY + 5*p
+    cdef long base_delay = DEFAULT_DELAY + 5*p
     for i in range(p):
         signals_after_delay(SIGINT, base_delay, 1, n)
 
-    # Some time later (after the smoke clears up) send a SIGABRT,
-    # which will raise RuntimeError.
-    signal_after_delay(SIGABRT, base_delay + 10*n + 1000)
     i = 0
     while True:
         try:
             with nogil:
                 sig_on()
-                infinite_loop()
+                ms_sleep(1000)
+                sig_off()
+            # If 1 second passed since the last interrupt, we assume that
+            # no more interrupts are coming.
+            if i > 0:
+                break
         except KeyboardInterrupt:
-            i = i + 1
-        except RuntimeError:
-            break
-    print("Received %i/%i interrupts"%(i,n*p))
+            i += 1
+    print(f"Received {i}/{n*p} interrupts")
+
 
 # Special thanks to Robert Bradshaw for suggesting the try/finally
 # construction. -- Jeroen Demeyer

@@ -598,6 +598,7 @@ def unguarded_dereference_null_pointer():
     The same but with ``CYSIGNALS_CRASH_QUIET`` set. This will crash
     Python silently::
 
+        >>> import os
         >>> env = dict(os.environ)
         >>> env["CYSIGNALS_CRASH_QUIET"] = ""
         >>> subpython_err('from cysignals.tests import *; unguarded_dereference_null_pointer()', env=env)

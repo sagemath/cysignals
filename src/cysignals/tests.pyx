@@ -756,7 +756,7 @@ def test_interrupt_bomb(long n=100, long p=10):
     TESTS::
 
         >>> from cysignals.tests import *
-        >>> test_interrupt_bomb()
+        >>> test_interrupt_bomb()  # doctest: +SKIP_CYGWIN
         Received ... interrupts
 
     """

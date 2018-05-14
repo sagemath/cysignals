@@ -5,27 +5,24 @@
 # We add the ELLIPSIS flag by default and we run all tests even if
 # one fails.
 #
+from __future__ import print_function
 
 import os
 import sys
 import doctest
 from doctest import DocTestParser, Example, SKIP
 from multiprocessing import Process
-if os.name != 'nt':
-    import resource
 
 flags = doctest.ELLIPSIS
 timeout = 600
 
-filenames = list(sys.argv[1:])
+filenames = sys.argv[1:]
 if os.name == 'nt':
-    notinwindows = ['src/cysignals/pysignals.pyx',
-                    'src/cysignals/alarm.pyx',
-                    'src/cysignals/pselect.pyx']
+    notinwindows = set(['src/cysignals/pysignals.pyx',
+                        'src/cysignals/alarm.pyx',
+                        'src/cysignals/pselect.pyx'])
 
-    for f in list(filenames):
-        if f in notinwindows:
-            filenames.remove(f)
+    filenames = [f for f in filenames if f not in notinwindows]
 
 # Add an option to flag doctest what should not be run on windows.
 SKIP_WINDOWS = doctest.register_optionflag("SKIP_WINDOWS")
@@ -65,13 +62,16 @@ from cysignals.signals import AlarmInterrupt, SignalError
 for typ in [AlarmInterrupt, SignalError]:
     typ.__module__ = "__main__"
 
+
 if os.name != 'nt':
+    import resource
     # Limit stack size to avoid errors in stack overflow doctest
     stacksize = 1 << 20
     resource.setrlimit(resource.RLIMIT_STACK, (stacksize, stacksize))
 
     # Disable core dumps
     resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+
 
 def testfile(file):
     # Child process
@@ -101,19 +101,21 @@ if __name__ == "__main__": # Mandatory for windows cases.
 
         if p.is_alive():
             p.terminate()
-            print("Doctest {} terminated. Timeout limit exceeded (>{}s)".format(f, timeout))
+            print("Doctest {} terminated. Timeout limit exceeded "
+                  "(>{}s)".format(f, timeout), file=sys.stderr)
             success = False
         elif status != 0:
             success = False
             if os.name != 'nt':
-                if os.WIFEXITED(status):
-                    st = os.WEXITSTATUS(status)
-                    if st != 23:
-                        print("bad exit: {}".format(st))
-                elif os.WIFSIGNALED(status):
-                    sig = os.WTERMSIG(status)
-                    print("killed by signal: {}".format(sig))
+                if status < 0:
+                    print("killed by signal: {}".format(abs(status)),
+                          file=sys.stderr)
+                elif status != 23:
+                    print("bad exit: {}".format(status), file=sys.stderr)
                 else:
-                    print("unknown status: {}".format(status))
+                    print("unknown status: {}".format(status), file=sys.stderr)
+            else:
+                print("doctest exited with error status: {}".format(status),
+                      file=sys.stderr)
 
     sys.exit(0 if success else 1)

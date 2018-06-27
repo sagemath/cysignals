@@ -85,7 +85,7 @@ def testfile(file):
     finally:
         os._exit(23)
 
-if __name__ == "__main__": # Mandatory for windows cases.
+if __name__ == "__main__":
     success = True
     for f in filenames:
         print(f)
@@ -106,16 +106,9 @@ if __name__ == "__main__": # Mandatory for windows cases.
             success = False
         elif status != 0:
             success = False
-            if os.name != 'nt':
-                if status < 0:
-                    print("killed by signal: {}".format(abs(status)),
-                          file=sys.stderr)
-                elif status != 23:
-                    print("bad exit: {}".format(status), file=sys.stderr)
-                else:
-                    print("unknown status: {}".format(status), file=sys.stderr)
-            else:
-                print("doctest exited with error status: {}".format(status),
-                      file=sys.stderr)
+            if status < 0:
+                print("killed by signal: {}".format(abs(status)), file=sys.stderr)
+            elif status != 23:
+                print("bad exit: {}".format(status), file=sys.stderr)
 
     sys.exit(0 if success else 1)

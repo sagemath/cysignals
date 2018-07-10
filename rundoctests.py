@@ -24,16 +24,21 @@ if os.name == 'nt':
 
     filenames = [f for f in filenames if f not in notinwindows]
 
-# Add an option to flag doctest what should not be run on windows.
+
+# Add an option to flag doctests which should be skipped depending on
+# the platform
 SKIP_WINDOWS = doctest.register_optionflag("SKIP_WINDOWS")
 SKIP_CYGWIN = doctest.register_optionflag("SKIP_CYGWIN")
 SKIP_POSIX = doctest.register_optionflag("SKIP_POSIX")
 
-flag_map = {
-    SKIP_WINDOWS: lambda: os.name == 'nt',
-    SKIP_CYGWIN: lambda: sys.platform == 'cygwin',
-    SKIP_POSIX: lambda: os.name == 'posix'
-}
+skipflags = set()
+
+if os.name == 'posix':
+    skipflags.add(SKIP_POSIX)
+elif os.name == 'nt':
+    skipflags.add(SKIP_WINDOWS)
+if sys.platform == 'cygwin':
+    skipflags.add(SKIP_CYGWIN)
 
 
 class CysignalsDocTestParser(DocTestParser):
@@ -42,9 +47,8 @@ class CysignalsDocTestParser(DocTestParser):
         for example in examples:
             if not isinstance(example, Example):
                 continue
-            for flag, flag_test in flag_map.items():
-                if flag in example.options and flag_test():
-                    example.options[SKIP] = True
+            if any(flag in example.options for flag in skipflags):
+                example.options[SKIP] = True
 
         return examples
 
@@ -82,8 +86,11 @@ def testfile(file):
         failures, _ = doctest.testfile(file, module_relative=False, optionflags=flags, parser=parser)
         if not failures:
             os._exit(0)
+    except BaseException as E:
+        print(E)
     finally:
         os._exit(23)
+
 
 if __name__ == "__main__":
     success = True

@@ -9,6 +9,14 @@ We disable crash debugging for this test run::
     >>> import os
     >>> os.environ["CYSIGNALS_CRASH_NDEBUG"] = ""
 
+Verify that the doctester was set up correctly::
+
+    >>> import os
+    >>> os.name == "posix"  # doctest: +SKIP_POSIX
+    False
+    >>> os.name == "nt"     # doctest: +SKIP_WINDOWS
+    False
+
 """
 
 #*****************************************************************************

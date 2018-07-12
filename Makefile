@@ -143,8 +143,7 @@ distcheck: dist
 #####################
 
 configure: configure.ac
-	autoconf
-	autoheader
+	autoreconf -if
 	@rm -f src/config.h.in~
 
 .PHONY: all build doc install dist doc clean clean-build clean-doc \

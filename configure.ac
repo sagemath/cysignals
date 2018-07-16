@@ -24,7 +24,7 @@ AC_CHECK_FUNCS([backtrace])
 
 AC_ARG_WITH([pari], AS_HELP_STRING([--without-pari], [Build without PARI support]))
 
-AS_IF([test "x$with_pari" != "xno"],
+AS_IF([test "$with_pari" != "no"],
       AC_SEARCH_LIBS([pari_init], [pari], [
         AC_CHECK_DECL([PARI_SIGINT_block],
          [have_pari=yes],
@@ -33,9 +33,9 @@ AS_IF([test "x$with_pari" != "xno"],
         [have_pari=no]),
       [have_pari=no])
 
-AS_IF([test "x$have_pari" = "xyes"],
+AS_IF([test "$have_pari" = "yes"],
       [AC_DEFINE(HAVE_PARI, 1, [Define to 1 if PARI is fully supported.])],
-      [AS_IF([test "x$with_pari" = "xyes"],
+      [AS_IF([test "$with_pari" = "yes"],
              [AC_MSG_ERROR([PARI support requested but PARI was not found])])])
 
 AC_MSG_CHECKING([for emms instruction])

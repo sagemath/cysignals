@@ -122,18 +122,20 @@ class return_exception(object):
         >>> from cysignals.tests import return_exception
         >>> @return_exception
         ... def raise_interrupt():
-        ...     raise KeyboardInterrupt("just testing")
+        ...     raise KeyboardInterrupt("just", "testing")
         >>> raise_interrupt()
-        KeyboardInterrupt('just testing',)
+        KeyboardInterrupt('just', 'testing')
 
     """
     def __init__ (self, func):
         self.func = func
+
     def __call__ (self, *args):
         try:
             return self.func(*args)
         except BaseException as e:
             return e
+
 
 def interrupt_after_delay(ms_delay=500):
     """
@@ -374,14 +376,15 @@ def test_sig_retry_and_signal(long delay=DEFAULT_DELAY):
         signal_after_delay(SIGINT, delay)
         infinite_loop()
 
-@return_exception
 def test_sig_error():
     """
     TESTS::
 
         >>> from cysignals.tests import *
         >>> test_sig_error()
-        ValueError('some error',)
+        Traceback (most recent call last):
+        ...
+        ValueError: some error
 
     """
     sig_on()

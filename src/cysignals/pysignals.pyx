@@ -38,10 +38,15 @@ from __future__ import absolute_import
 import signal
 from signal import getsignal
 from libc.string cimport memcpy
-from libc.signal cimport SIG_IGN, SIG_DFL
+from libc.signal cimport SIG_IGN, SIG_DFL, SIGKILL, SIGSTOP
 from posix.signal cimport *
 from cpython.object cimport Py_EQ, Py_NE
 from cpython.exc cimport PyErr_SetFromErrno, PyErr_CheckSignals
+
+
+# Fix https://github.com/cython/cython/pull/2756
+cdef extern from "<signal.h>" nogil:
+    int sigismember(const sigset_t *, int)
 
 
 cdef class SigAction:
@@ -76,7 +81,7 @@ cdef class SigAction:
         TypeError: cannot initialize SigAction from <... 'int'>
 
     """
-    def __init__(self, action=signal.SIG_DFL):
+    def __cinit__(self, action=signal.SIG_DFL):
         sigemptyset(&self.act.sa_mask)
         self.act.sa_flags = 0
         if action is signal.SIG_DFL:
@@ -107,7 +112,7 @@ cdef class SigAction:
     def __richcmp__(self, other, int op):
         """
         Compare two ``SigAction`` instances for equality, where two
-        instances are considers equal if they have the same handler
+        instances are considered equal if they have the same handler
         function and the same flags.
 
         EXAMPLES::
@@ -306,7 +311,7 @@ def setsignal(int sig, action, osaction=None):
     return old
 
 
-class changesignal(object):
+cdef class changesignal:
     """
     Context to temporarily change a signal handler.
 
@@ -324,7 +329,8 @@ class changesignal(object):
 
         >>> from cysignals.pysignals import changesignal
         >>> import os, signal
-        >>> def handler(*args): print("got signal")
+        >>> def handler(*args):
+        ...     print("got signal")
         >>> _ = signal.signal(signal.SIGQUIT, signal.SIG_IGN)
         >>> with changesignal(signal.SIGQUIT, handler):
         ...     os.kill(os.getpid(), signal.SIGQUIT)
@@ -339,6 +345,9 @@ class changesignal(object):
         >>> os.kill(os.getpid(), signal.SIGQUIT)
 
     """
+    cdef public int sig
+    cdef public action, old, osold
+
     def __init__(self, sig, action):
         self.sig = sig
         self.action = action
@@ -350,3 +359,115 @@ class changesignal(object):
 
     def __exit__(self, *args):
         setsignal(self.sig, self.old, self.osold)
+
+
+cdef class containsignals:
+    """
+    Context to revert any changes to given signal handlers and block
+    those signals.
+
+    This should be used as follows::
+
+        with containsignals(signals):
+            ...
+
+    where ``signals`` is a list of signals (by default, all signals
+    numbered from 1 to 31 except for ``SIGKILL`` and ``SIGSTOP``,
+    which cannot be handled).
+
+    When entering the context, the current handlers of those signals are
+    saved. They are restored when exiting the context. This is mainly
+    meant to prevent unwanted changes to signal handlers that other code
+    may make. Both the Python-level and OS-level signal handlers are
+    saved and restored.
+
+    Also, the signals from the list ``signals`` are blocked. So any
+    newly-installed signal handlers are prevented from being triggered.
+
+    EXAMPLES::
+
+        >>> from cysignals.pysignals import containsignals
+        >>> import os, signal
+        >>> def handler(*args):
+        ...     print("got signal")
+        >>> _ = signal.signal(signal.SIGBUS, handler)
+        >>> with containsignals([signal.SIGBUS]):
+        ...     _ = signal.signal(signal.SIGBUS, signal.SIG_DFL)
+        ...     # This signal is delivered when exiting the context
+        ...     os.kill(os.getpid(), signal.SIGBUS)
+        ...     print("no signal yet")
+        no signal yet
+        got signal
+
+    The same example but now containing all signals::
+
+        >>> with containsignals() as C:
+        ...     print("blocked {0} signals".format(len(C.oldhandlers)))
+        ...     _ = signal.signal(signal.SIGBUS, signal.SIG_DFL)
+        ...     # This signal is delivered when exiting the context
+        ...     os.kill(os.getpid(), signal.SIGBUS)
+        ...     print("no signal yet")
+        blocked 29 signals
+        no signal yet
+        got signal
+
+    This time, we send a signal which is not contained. We set a new
+    handler, which is not blocked or changed by the context::
+
+        >>> def fancyhandler(*args):
+        ...     print("fancy!")
+        >>> with containsignals([signal.SIGINT]):
+        ...     _ = signal.signal(signal.SIGBUS, fancyhandler)
+        ...     os.kill(os.getpid(), signal.SIGBUS)
+        fancy!
+        >>> os.kill(os.getpid(), signal.SIGBUS)
+        fancy!
+
+    """
+    cdef public list signals
+    cdef public dict oldhandlers
+    cdef sigset_t unblock
+
+    def __init__(self, signals=None):
+        cdef int s
+        if signals is None:
+            self.signals = [s for s in range(1, 32) if s != SIGKILL and s != SIGSTOP]
+        else:
+            self.signals = [s for s in signals]
+        self.oldhandlers = {}
+
+    def __enter__(self):
+        old = {}
+        for sig in self.signals:
+            try:
+                h1 = signal.getsignal(sig)
+                h2 = getossignal(sig)
+            except (OSError, RuntimeError):
+                pass
+            else:
+                old[sig] = (h1, h2)
+        self.oldhandlers = old
+
+        # Block all signals in self.signals during this context
+        cdef sigset_t sigmask, oldmask
+        sigemptyset(&sigmask)
+        cdef int s
+        for s in self.signals:
+            sigaddset(&sigmask, s)
+        if sigprocmask(SIG_BLOCK, &sigmask, &oldmask): PyErr_SetFromErrno(OSError)
+
+        # Define self.unblock to be the sigmask corresponding to all
+        # signals from self.signals which were not blocked before.
+        # These signals will be unblocked again in __exit__.
+        sigemptyset(&self.unblock)
+        for s in self.signals:
+            if not sigismember(&oldmask, s):
+                sigaddset(&self.unblock, s)
+        return self
+
+    def __exit__(self, *args):
+        try:
+            for sig, (h1, h2) in self.oldhandlers.items():
+                setsignal(sig, h1, h2)
+        finally:
+            if sigprocmask(SIG_UNBLOCK, &self.unblock, NULL): PyErr_SetFromErrno(OSError)

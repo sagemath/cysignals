@@ -104,7 +104,7 @@ class build(_build):
         return cythonize(extensions,
                 build_dir=cythonize_dir,
                 include_path=["src", os.path.join(cythonize_dir, "src")],
-                compiler_directives=dict(binding=True))
+                compiler_directives=dict(binding=True, language_level=2))
 
 
 class no_egg(_bdist_egg):

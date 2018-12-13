@@ -8,20 +8,29 @@ python:
   - "3.6"
   - "3.7"
 
+env:
+  - PARI=yes
+  - PARI=no
+
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq -y python-pip python-dev
   - sudo apt-get install -qq -y flake8
+  - sudo apt-get install -qq -y pari-gp libpari-dev
 
 install:
   - pip install -r requirements.txt
   - cython --version
   - gcc --version
+  - make configure
+  - ./configure --with-pari=$PARI
   - make -j4 install
 
 script:
-  - make -j4 check-all distcheck
+  - make -j4 check-all
+  - make -j4 distcheck
   - flake8 --max-line-length=120 --max-complexity=16 --ignore=E22,E241,E265,E731 src
+  - python -c "from cysignals.signals import _pari_version; assert bool(_pari_version()) == ('$PARI' == 'yes')"
 
 notifications:
   on_success: change

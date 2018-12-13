@@ -55,6 +55,7 @@ Interrupt and signal handling for Cython
 /* Fake PARI variables */
 static int PARI_SIGINT_block = 0;
 static int PARI_SIGINT_pending = 0;
+#define paricfg_version NULL
 #endif
 #include "struct_signals.h"
 

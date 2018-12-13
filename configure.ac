@@ -21,8 +21,8 @@ fi
 
 AC_LANG(C)
 
-AC_CHECK_HEADERS([execinfo.h sys/prctl.h])
-AC_CHECK_FUNCS([backtrace])
+AC_CHECK_HEADERS([execinfo.h sys/prctl.h sys/time.h sys/wait.h])
+AC_CHECK_FUNCS([backtrace sigprocmask])
 
 have_pari=no
 if test "$with_pari" != "no"; then

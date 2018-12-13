@@ -34,11 +34,16 @@ Interrupt and signal handling for Cython
 #include <stdlib.h>
 #include <limits.h>
 #include <errno.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/mman.h>
 #include <pthread.h>
+#if HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+#if HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
+#if HAVE_SYS_WAIT_H
+#include <sys/wait.h>
+#endif
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -73,16 +78,18 @@ static struct timeval sigtime;  /* Time of signal */
  * Cython modules using cysignals) */
 static cysigs_t cysigs;
 
+#if HAVE_SIGPROCMASK
 /* The default signal mask during normal operation,
  * initialized by setup_cysignals_handlers(). */
 static sigset_t default_sigmask;
 
+/* default_sigmask with SIGHUP, SIGINT, SIGALRM added. */
+static sigset_t sigmask_with_sigint;
+#endif
+
 /* A trampoline to jump to after handling a signal. */
 static cyjmp_buf trampoline_setup;
 static sigjmp_buf trampoline;
-
-/* default_sigmask with SIGHUP, SIGINT, SIGALRM added. */
-static sigset_t sigmask_with_sigint;
 
 
 static void do_raise_exception(int sig);
@@ -127,7 +134,9 @@ static inline void sig_reset_defaults(void) {
     signal(SIGSEGV, SIG_DFL);
     signal(SIGALRM, SIG_DFL);
     signal(SIGTERM, SIG_DFL);
+#if HAVE_SIGPROCMASK
     sigprocmask(SIG_SETMASK, &default_sigmask, NULL);
+#endif
 }
 
 
@@ -312,10 +321,11 @@ static void setup_trampoline(void)
     void* trampolinestack;
     size_t trampolinestacksize = 1 << 16;
 
+#ifdef PTHREAD_STACK_MIN
     while (trampolinestacksize < PTHREAD_STACK_MIN) trampolinestacksize *= 2;
-    trampolinestack = mmap(NULL, trampolinestacksize,
-            PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-    if (trampolinestack == MAP_FAILED) {perror("mmap"); exit(1);}
+#endif
+    trampolinestack = malloc(trampolinestacksize);
+    if (!trampolinestack) {perror("malloc"); exit(1);}
 
     ret = pthread_attr_init(&attr);
     if (ret) {errno = ret; perror("pthread_attr_init"); exit(1);}
@@ -359,16 +369,20 @@ static void do_raise_exception(int sig)
  * received *before* the call to sig_on(). */
 static void _sig_on_interrupt_received(void)
 {
+#if HAVE_SIGPROCMASK
     /* Momentarily block signals to avoid race conditions */
     sigset_t oldset;
     sigprocmask(SIG_BLOCK, &sigmask_with_sigint, &oldset);
+#endif
 
     do_raise_exception(cysigs.interrupt_received);
     cysigs.sig_on_count = 0;
     cysigs.interrupt_received = 0;
     PARI_SIGINT_pending = 0;
 
+#if HAVE_SIGPROCMASK
     sigprocmask(SIG_SETMASK, &oldset, NULL);
+#endif
 }
 
 /* Cleanup after cylongjmp() (reset signal mask to the default, set
@@ -381,8 +395,11 @@ static void _sig_on_recover(void)
     cysigs.interrupt_received = 0;
     PARI_SIGINT_pending = 0;
 
+#if HAVE_SIGPROCMASK
     /* Reset signal mask */
     sigprocmask(SIG_SETMASK, &default_sigmask, NULL);
+#endif
+
     cysigs.inside_signal_handler = 0;
 }
 
@@ -427,6 +444,7 @@ static void setup_cysignals_handlers(void)
     /* Reset the cysigs structure */
     memset(&cysigs, 0, sizeof(cysigs));
 
+#if HAVE_SIGPROCMASK
     /* Block non-critical signals during the signal handlers and while
      * cleaning up after handling a signal */
     sigaddset(&sa.sa_mask, SIGHUP);
@@ -437,8 +455,11 @@ static void setup_cysignals_handlers(void)
      * non-critical signals now to save it on the trampoline.
      * After setting up the trampoline, we reset the signal mask. */
     sigprocmask(SIG_BLOCK, &sa.sa_mask, &default_sigmask);
+#endif
     setup_trampoline();
+#if HAVE_SIGPROCMASK
     sigprocmask(SIG_SETMASK, &default_sigmask, &sigmask_with_sigint);
+#endif
 
     /* Install signal handlers */
     /* Handlers for interrupt-like signals */
@@ -472,9 +493,9 @@ static void print_sep(void)
 /* Print a backtrace if supported by libc */
 static void print_backtrace()
 {
-    void* backtracebuffer[BACKTRACELEN];
     fflush(stderr);
 #if HAVE_BACKTRACE
+    void* backtracebuffer[BACKTRACELEN];
     int btsize = backtrace(backtracebuffer, BACKTRACELEN);
     if (btsize)
         backtrace_symbols_fd(backtracebuffer, btsize, 2);

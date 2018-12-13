@@ -262,7 +262,7 @@ static inline void sig_retry(void)
     if (unlikely(cysigs.sig_on_count <= 0))
     {
         fprintf(stderr, "sig_retry() without sig_on()\n");
-        abort();
+        raise(SIGABRT);
     }
     cylongjmp(cysigs.env, -1);
 }
@@ -276,7 +276,7 @@ static inline void sig_error(void)
     {
         fprintf(stderr, "sig_error() without sig_on()\n");
     }
-    abort();
+    raise(SIGABRT);
 }
 
 

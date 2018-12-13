@@ -11,7 +11,9 @@ AC_CONFIG_HEADERS([src/config.h src/cysignals/cysignals_config.h])
 AC_CONFIG_FILES([src/cysignals/signals.pxd])
 
 AC_ARG_ENABLE(debug,
-        AS_HELP_STRING([--enable-debug], [enable debug output]))
+    AS_HELP_STRING([--enable-debug], [enable debug output]))
+AC_ARG_WITH(pari,
+    AS_HELP_STRING([--without-pari], [build without PARI support]))
 
 if test "$enable_debug" = yes; then
     AC_DEFINE([ENABLE_DEBUG_CYSIGNALS], 1, [Enable debug output])
@@ -22,21 +24,19 @@ AC_LANG(C)
 AC_CHECK_HEADERS([execinfo.h sys/prctl.h])
 AC_CHECK_FUNCS([backtrace])
 
-AC_ARG_WITH([pari], AS_HELP_STRING([--without-pari], [Build without PARI support]))
-
-AS_IF([test "$with_pari" != "no"],
-      AC_SEARCH_LIBS([pari_init], [pari], [
+have_pari=no
+if test "$with_pari" != "no"; then
+    AC_SEARCH_LIBS([pari_init], [pari], [
         AC_CHECK_DECL([PARI_SIGINT_block],
-         [have_pari=yes],
-         [have_pari=no],
-         [[#include <pari/pari.h>]])],
-        [have_pari=no]),
-      [have_pari=no])
+            [have_pari=yes], [],
+            [[#include <pari/pari.h>]])])
+fi
 
-AS_IF([test "$have_pari" = "yes"],
-      [AC_DEFINE(HAVE_PARI, 1, [Define to 1 if PARI is fully supported.])],
-      [AS_IF([test "$with_pari" = "yes"],
-             [AC_MSG_ERROR([PARI support requested but PARI was not found])])])
+if test "$have_pari" = "yes"; then
+    AC_DEFINE([HAVE_PARI], 1, [Define to 1 if PARI is fully supported.])
+elif test "$with_pari" = "yes"; then
+    AC_MSG_ERROR([PARI support requested but PARI was not found])
+fi
 
 AC_MSG_CHECKING([for emms instruction])
 # We add the "leal" instruction to reduce false positives in case some

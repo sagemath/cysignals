@@ -1,4 +1,5 @@
 # distutils: language = c++
+# distutils: language_level = 3
 
 from cysignals.signals cimport sig_check
 from cysignals.memory cimport check_allocarray

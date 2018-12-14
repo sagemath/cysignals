@@ -322,10 +322,17 @@ static void setup_trampoline(void)
     size_t trampolinestacksize = 1 << 16;
 
 #ifdef PTHREAD_STACK_MIN
-    while (trampolinestacksize < PTHREAD_STACK_MIN) trampolinestacksize *= 2;
+    if (trampolinestacksize < PTHREAD_STACK_MIN)
+        trampolinestacksize = PTHREAD_STACK_MIN;
 #endif
-    trampolinestack = malloc(trampolinestacksize);
+    trampolinestack = malloc(trampolinestacksize + 4096);
     if (!trampolinestack) {perror("malloc"); exit(1);}
+
+    /* Align trampolinestack on a multiple of 4096 bytes.
+     * This seems to be needed in particular on OS X. */
+    uintptr_t addr = (uintptr_t)trampolinestack;
+    addr = ((addr - 1) | 4095) + 1;
+    trampolinestack = (void*)addr;
 
     ret = pthread_attr_init(&attr);
     if (ret) {errno = ret; perror("pthread_attr_init"); exit(1);}

@@ -145,31 +145,24 @@ static inline void sig_reset_defaults(void) {
 static inline void sigdie_for_sig(int sig, int inside)
 {
     sig_reset_defaults();
-    if (inside) sigdie(sig, "An error occurred during signal handling.");
 
     /* Quit Python with an appropriate message. */
-    switch(sig)
-    {
-        case SIGQUIT:
-            sigdie(sig, NULL);
-            break;  /* This will not be reached */
-        case SIGILL:
-            sigdie(sig, "Unhandled SIGILL: An illegal instruction occurred.");
-            break;  /* This will not be reached */
-        case SIGABRT:
-            sigdie(sig, "Unhandled SIGABRT: An abort() occurred.");
-            break;  /* This will not be reached */
-        case SIGFPE:
-            sigdie(sig, "Unhandled SIGFPE: An unhandled floating point exception occurred.");
-            break;  /* This will not be reached */
-        case SIGBUS:
-            sigdie(sig, "Unhandled SIGBUS: A bus error occurred.");
-            break;  /* This will not be reached */
-        case SIGSEGV:
-            sigdie(sig, "Unhandled SIGSEGV: A segmentation fault occurred.");
-            break;  /* This will not be reached */
-    };
-    sigdie(sig, "Unknown signal received.\n");
+    if (inside)
+        sigdie(sig, "An error occurred during signal handling.");
+    else if (sig == SIGILL)
+        sigdie(sig, "Unhandled SIGILL: An illegal instruction occurred.");
+    else if (sig == SIGABRT)
+        sigdie(sig, "Unhandled SIGABRT: An abort() occurred.");
+    else if (sig == SIGFPE)
+        sigdie(sig, "Unhandled SIGFPE: An unhandled floating point exception occurred.");
+    else if (sig == SIGSEGV)
+        sigdie(sig, "Unhandled SIGSEGV: A segmentation fault occurred.");
+    else if (sig == SIGBUS)
+        sigdie(sig, "Unhandled SIGBUS: A bus error occurred.");
+    else if (sig == SIGQUIT)
+        sigdie(sig, NULL);
+    else
+        sigdie(sig, "Unknown signal received.");
 }
 
 

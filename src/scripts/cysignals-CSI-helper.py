@@ -73,11 +73,9 @@ try:
                 func_args = []
             elif self.is_cython_function(frame):
                 cyfunc = self.get_cython_function(frame)
-                # f = lambda arg: self.cy.cy_cvalue.invoke(arg, frame=frame)
-
                 func_name = cyfunc.name
                 func_cname = cyfunc.cname
-                func_args = []  # [(arg, f(arg)) for arg in cyfunc.arguments]
+                func_args = []
             else:
                 func_name = frame.name()
                 func_cname = func_name
@@ -137,10 +135,10 @@ try:
     trace = Backtrace.register()
     trace.invoke(None, None)
 
-
-except Exception as e:
+except Exception:
     import traceback
     traceback.print_exc()
+
 
 sys.stderr.flush()
 print("")

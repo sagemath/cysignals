@@ -334,20 +334,19 @@ cdef void verify_exc_value():
     # disabled by a PyErr_Fetch/PyErr_Restore pair. This happens for
     # example in Cython's __dealloc__ functions.
 
-    # There is one exception on Python 2: when an exception is
-    # referenced in sys.last_value, we know that it has been handled.
+    # There is one exception: when an exception is referenced in
+    # sys.last_value, we know that it has been handled.
     # We need to check this because sys.last_value "leaks" a reference
     # to the exception.
-    if PY_MAJOR_VERSION < 3:
-        try:
-            handled = sys.last_value
-        except AttributeError:
-            pass
-        else:
-            if <PyObject*>handled is cysigs.exc_value:
-                Py_XDECREF(cysigs.exc_value)
-                cysigs.exc_value = NULL
-                return
+    try:
+        handled = sys.last_value
+    except AttributeError:
+        pass
+    else:
+        if <PyObject*>handled is cysigs.exc_value:
+            Py_XDECREF(cysigs.exc_value)
+            cysigs.exc_value = NULL
+            return
 
     # To be safe, we run the garbage collector because it may clear
     # references to our exception.

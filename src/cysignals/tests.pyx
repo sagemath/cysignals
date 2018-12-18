@@ -870,7 +870,7 @@ def print_sig_occurred():
         >>> import sys
         >>> from cysignals.alarm import alarm
         >>> if hasattr(sys, "exc_clear"):
-        ..      # Python 2
+        ...     # Python 2
         ...     def testfunc():
         ...         try:
         ...             alarm(0.1)
@@ -882,7 +882,7 @@ def print_sig_occurred():
         ...         sys.exc_clear()
         ...         print_sig_occurred()
         ... else:
-        ..      # Python 3
+        ...     # Python 3
         ...     def testfunc():
         ...         try:
         ...             alarm(0.1)

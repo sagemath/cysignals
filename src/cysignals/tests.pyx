@@ -851,7 +851,7 @@ def test_try_finally_return():
 
 def print_sig_occurred():
     """
-    Print the exception which is currently being raised.
+    Print the exception which is currently being handled.
 
     Note that we print instead of return the exception to mess as little
     as possible with refcounts.
@@ -862,13 +862,52 @@ def print_sig_occurred():
         >>> print_sig_occurred()
         No current exception
 
+    In Python 3 and in Cython, the exception remains alive only inside
+    the ``except`` clause handling the exception. In Python 2, it stays
+    alive as long as the stack frame where it was raised is still running
+    and calling ``sys.exc_clear()`` clears it::
+
+        >>> import sys
+        >>> from cysignals.alarm import alarm
+        >>> if hasattr(sys, "exc_clear"):
+        ..      # Python 2
+        ...     def testfunc():
+        ...         try:
+        ...             alarm(0.1)
+        ...             while True:
+        ...                pass
+        ...         except KeyboardInterrupt:
+        ...             pass
+        ...         print_sig_occurred()
+        ...         sys.exc_clear()
+        ...         print_sig_occurred()
+        ... else:
+        ..      # Python 3
+        ...     def testfunc():
+        ...         try:
+        ...             alarm(0.1)
+        ...             while True:
+        ...                pass
+        ...         except KeyboardInterrupt:
+        ...             print_sig_occurred()
+        ...         print_sig_occurred()
+        >>> testfunc()
+        AlarmInterrupt
+        No current exception
+
     """
     exc = sig_occurred()
-    if exc is NULL:
-        print("No current exception")
-    else:
-        e = <object>exc
-        print(f"{type(e).__name__}: {e}")
+    try:
+        cython_check_exception()
+    finally:
+        if exc is NULL:
+            print("No current exception")
+        else:
+            e = <object>exc
+            t = str(e)
+            if t:
+                t = ": " + t
+            print(type(e).__name__ + t)
 
 
 def test_sig_occurred_finally():
@@ -893,6 +932,25 @@ def test_sig_occurred_finally():
     else:
         abort()
     print_sig_occurred()  # output 4
+
+
+def test_sig_occurred_live_exception():
+    """
+    TESTS::
+
+        >>> from cysignals.tests import *
+        >>> try:
+        ...     test_sig_occurred_live_exception()
+        ... except RuntimeError:
+        ...     pass
+        RuntimeError: Aborted
+        >>> print_sig_occurred()
+        No current exception
+
+    """
+    if not sig_on_no_except():
+        print_sig_occurred()
+    sig_error()
 
 
 def test_sig_occurred_dealloc():

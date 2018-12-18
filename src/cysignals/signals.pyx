@@ -328,6 +328,18 @@ cdef void verify_exc_value():
         cysigs.exc_value = NULL
         return
 
+    if PyErr_Occurred() is not NULL:
+        # We are being called with a live exception. Cython would never
+        # call a function like that, but it could happen in
+        # manually-written C code. Normally, we expect PyErr_Occurred()
+        # to be the same as cysigs.exc_value. If it is a different
+        # exception, it is not so clear what to do: we choose to assume
+        # that the exception from cysignals has not been dealt with
+        # (so there is no need to check whether the exceptions match).
+        # In any case, we must avoid executing further Python code
+        # (such as the collect() call below) with a live exception.
+        return
+
     # We consider the exception in cysigs.exc_value active, even if
     # there is no actual exception (as returned by PyErr_Occurred).
     # This is to support the case where the exception is temporarily
@@ -350,7 +362,12 @@ cdef void verify_exc_value():
 
     # To be safe, we run the garbage collector because it may clear
     # references to our exception.
-    collect()
+    try:
+        collect()
+    except Exception:
+        # This can happen when Python is shutting down and the gc module
+        # is not functional anymore.
+        pass
 
     if cysigs.exc_value.ob_refcnt == 1:
         Py_XDECREF(cysigs.exc_value)

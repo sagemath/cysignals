@@ -194,9 +194,8 @@ def subpython_err(command, **kwds):
     which was generated.
     """
     argv = [sys.executable, '-c', command]
-    (out, err) = Popen(argv, stdout=PIPE, stderr=PIPE, **kwds).communicate()
-    if not isinstance(err, str):
-        err = err.decode()
+    P = Popen(argv, stdout=PIPE, stderr=PIPE, universal_newlines=True, **kwds)
+    (out, err) = P.communicate()
     sys.stdout.write(err)
 
 

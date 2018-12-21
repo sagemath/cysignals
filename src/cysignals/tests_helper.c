@@ -20,24 +20,48 @@
  *
  ****************************************************************************/
 
+#include "config.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <unistd.h>
 #include <signal.h>
-#include <sys/select.h>
+#if HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#if HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+#if HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
+#if HAVE_SYS_WAIT_H
 #include <sys/wait.h>
+#endif
+#if HAVE_WINDOWS_H
+#include <windows.h>
+#endif
+
+
+static int on_alt_stack(void)
+{
+#if HAVE_SIGALTSTACK
+    stack_t oss;
+    sigaltstack(NULL, &oss);
+    return oss.ss_flags & SS_ONSTACK;
+#else
+    return 0;
+#endif
+}
 
 
 /* Wait ``ms`` milliseconds */
-void ms_sleep(long ms)
+static void ms_sleep(long ms)
 {
-    struct timeval t;
-    t.tv_sec = (ms / 1000);
-    t.tv_usec = (ms % 1000) * 1000;
-    select(0, NULL, NULL, NULL, &t);
+#if HAVE_UNISTD_H
+    usleep(1000 * ms);
+#else
+    Sleep(ms);
+#endif
 }
 
 
@@ -54,7 +78,7 @@ void ms_sleep(long ms)
  *    and continues running Python code
  *  - the second child process does the actual waiting and signalling
  */
-void signal_pid_after_delay(int signum, pid_t killpid, long ms, long interval, int n)
+static void signal_pid_after_delay(int signum, pid_t killpid, long ms, long interval, int n)
 {
     /* Flush all buffers before forking (otherwise we end up with two
      * copies of each buffer). */

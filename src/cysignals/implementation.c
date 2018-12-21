@@ -53,6 +53,9 @@ Interrupt and signal handling for Cython
 #if HAVE_SYS_PRCTL_H
 #include <sys/prctl.h>
 #endif
+#if HAVE_WINDOWS_H
+#include <windows.h>
+#endif
 #include <Python.h>
 #if HAVE_PARI
 #include <pari/pari.h>
@@ -418,6 +421,7 @@ static void _sig_off_warning(const char* file, int line)
 
 static void setup_alt_stack(void)
 {
+#if HAVE_SIGALTSTACK
     /* Static space for the alternate signal stack. The size should be
      * of the form MINSIGSTKSZ + constant. The constant is chosen rather
      * ad hoc but sufficiently large. */
@@ -428,6 +432,7 @@ static void setup_alt_stack(void)
     ss.ss_size = sizeof(alt_stack);
     ss.ss_flags = 0;
     if (sigaltstack(&ss, NULL) == -1) {perror("sigaltstack"); exit(1);}
+#endif
 #if defined(__CYGWIN__) && defined(__x86_64__)
     cygwin_setup_alt_stack();
 #endif

@@ -49,10 +49,11 @@ from cpython cimport PyErr_SetString
 from .signals cimport *
 from .memory cimport *
 
-cdef extern from 'tests_helper.c':
-    void ms_sleep(long ms) nogil
-    void signal_after_delay(int signum, long ms) nogil
-    void signals_after_delay(int signum, long ms, long interval, int n) nogil
+cdef extern from "tests_helper.c" nogil:
+    bint on_alt_stack()
+    void ms_sleep(long ms)
+    void signal_after_delay(int signum, long ms)
+    void signals_after_delay(int signum, long ms, long interval, int n)
 
 cdef extern from *:
     ctypedef int volatile_int "volatile int"
@@ -176,9 +177,7 @@ def on_stack():
         False
 
     """
-    cdef stack_t oss
-    sigaltstack(NULL, &oss)
-    return (oss.ss_flags & SS_ONSTACK) != 0
+    return on_alt_stack()
 
 
 def _sig_on():

@@ -521,6 +521,8 @@ static void print_enhanced_backtrace(void)
     fflush(stdout);
     fflush(stderr);
 
+    /* Enhanced backtraces are only supported on POSIX systems */
+#if HAVE_FORK
     pid_t parent_pid = getpid();
     pid_t pid = fork();
 
@@ -555,6 +557,7 @@ static void print_enhanced_backtrace(void)
     }
     /* Wait for cysignals-CSI to finish */
     waitpid(pid, NULL, 0);
+#endif
 
     print_sep();
 }

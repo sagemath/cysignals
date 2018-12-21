@@ -147,7 +147,9 @@ static inline void sigdie_for_sig(int sig, int inside)
 {
     sig_reset_defaults();
 
-    /* Quit Python with an appropriate message. */
+    /* Quit Python with an appropriate message.
+       Make sure to check the standard signals from the C standard first,
+       in case systems alias some of these constants. */
     if (inside)
         sigdie(sig, "An error occurred during signal handling.");
     else if (sig == SIGILL)

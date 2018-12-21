@@ -128,16 +128,9 @@ cdef int sig_raise_exception "sig_raise_exception"(int sig, const char* msg) exc
     if PyErr_Occurred():
         return 0
 
-    if sig == SIGHUP or sig == SIGTERM:
-        # Redirect stdin from /dev/null to close interactive sessions
-        _ = freopen("/dev/null", "r", stdin)
-        # This causes Python to exit
-        PyErr_SetNone(SystemExit)
-    elif sig == SIGINT:
-        PyErr_SetNone(KeyboardInterrupt)
-    elif sig == SIGALRM:
-        PyErr_SetNone(AlarmInterrupt)
-    elif sig == SIGILL:
+    # Make sure to check the standard signals from the C standard first,
+    # in case systems alias some of these constants.
+    if sig == SIGILL:
         if msg is NULL:
             msg = "Illegal instruction"
         PyErr_SetString(SignalError, msg)
@@ -149,13 +142,22 @@ cdef int sig_raise_exception "sig_raise_exception"(int sig, const char* msg) exc
         if msg is NULL:
             msg = "Floating point exception"
         PyErr_SetString(FloatingPointError, msg)
-    elif sig == SIGBUS:
-        if msg is NULL:
-            msg = "Bus error"
-        PyErr_SetString(SignalError, msg)
     elif sig == SIGSEGV:
         if msg is NULL:
             msg = "Segmentation fault"
+        PyErr_SetString(SignalError, msg)
+    elif sig == SIGINT:
+        PyErr_SetNone(KeyboardInterrupt)
+    elif sig == SIGTERM or sig == SIGHUP:
+        # Redirect stdin from /dev/null to close interactive sessions
+        _ = freopen("/dev/null", "r", stdin)
+        # This causes Python to exit
+        PyErr_SetNone(SystemExit)
+    elif sig == SIGALRM:
+        PyErr_SetNone(AlarmInterrupt)
+    elif sig == SIGBUS:
+        if msg is NULL:
+            msg = "Bus error"
         PyErr_SetString(SignalError, msg)
     else:
         PyErr_Format(SystemError, "unknown signal number %i", sig)

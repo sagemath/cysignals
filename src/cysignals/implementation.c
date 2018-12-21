@@ -86,6 +86,9 @@ static sigset_t sigmask_with_sigint;
 static cyjmp_buf trampoline_setup;
 static sigjmp_buf trampoline;
 
+static void setup_cysignals_handlers(void);
+static void cysigs_interrupt_handler(int sig);
+static void cysigs_signal_handler(int sig);
 
 static void do_raise_exception(int sig);
 static void sigdie(int sig, const char* s);

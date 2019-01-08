@@ -27,17 +27,6 @@
 #include <signal.h>
 
 
-/* Declare likely() and unlikely() as in Cython */
-/* Test for GCC > 2.95 */
-#if defined(__GNUC__)     && (__GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95)))
-  #define likely(x)   __builtin_expect(!!(x), 1)
-  #define unlikely(x) __builtin_expect(!!(x), 0)
-#else /* !__GNUC__ or GCC < 2.95 */
-  #define likely(x)   (x)
-  #define unlikely(x) (x)
-#endif /* __GNUC__ */
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -85,6 +85,14 @@ static void signal_pid_after_delay(int signum, pid_t killpid, long ms, long inte
     fflush(stdout);
     fflush(stderr);
 
+#if !HAVE_FORK
+    /* On Windows, we just send the signal right away. This is because
+     * there is no way to send a signal to an arbitrary process
+     * (or thread). Raising the signal here decreases slightly the
+     * usefulness of the tests, but it should work anyway. */
+    raise(signum);
+    return;
+#else
     pid_t child1 = fork();
     if (child1 == -1) {perror("fork"); exit(1);}
 
@@ -129,6 +137,7 @@ static void signal_pid_after_delay(int signum, pid_t killpid, long ms, long inte
     /* Main Python process, continue when child 1 finishes */
     int wait_status;
     waitpid(child1, &wait_status, 0);
+#endif
 }
 
 /* Signal the Python process */

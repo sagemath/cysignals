@@ -65,7 +65,7 @@ static void ms_sleep(long ms)
 }
 
 
-/* Signal process ``killpid`` with signal ``signum`` after ``ms``
+/* Signal the running process with signal ``signum`` after ``ms``
  * milliseconds.  Wait ``interval`` milliseconds, then signal again.
  * Repeat this until ``n`` signals have been sent.
  *
@@ -78,7 +78,7 @@ static void ms_sleep(long ms)
  *    and continues running Python code
  *  - the second child process does the actual waiting and signalling
  */
-static void signal_pid_after_delay(int signum, pid_t killpid, long ms, long interval, int n)
+static void signals_after_delay(int signum, long ms, long interval, int n)
 {
     /* Flush all buffers before forking (otherwise we end up with two
      * copies of each buffer). */
@@ -93,6 +93,8 @@ static void signal_pid_after_delay(int signum, pid_t killpid, long ms, long inte
     raise(signum);
     return;
 #else
+    pid_t killpid = getpid();
+
     pid_t child1 = fork();
     if (child1 == -1) {perror("fork"); exit(1);}
 
@@ -140,8 +142,5 @@ static void signal_pid_after_delay(int signum, pid_t killpid, long ms, long inte
 #endif
 }
 
-/* Signal the Python process */
-#define signal_after_delay(signum, ms) signal_pid_after_delay(signum, getpid(), ms, 0, 1)
-
-/* The same as above, but sending ``n`` signals */
-#define signals_after_delay(signum, ms, interval, n) signal_pid_after_delay(signum, getpid(), ms, interval, n)
+/* Send just one signal */
+#define signal_after_delay(signum, ms) signals_after_delay(signum, ms, 0, 1)

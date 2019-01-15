@@ -85,7 +85,7 @@ static void signal_pid_after_delay(int signum, pid_t killpid, long ms, long inte
     fflush(stdout);
     fflush(stderr);
 
-#if !HAVE_FORK
+#if !HAVE_KILL
     /* On Windows, we just send the signal right away. This is because
      * there is no way to send a signal to an arbitrary process
      * (or thread). Raising the signal here decreases slightly the

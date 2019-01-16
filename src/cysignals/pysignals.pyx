@@ -38,7 +38,7 @@ from __future__ import absolute_import
 import signal
 from signal import getsignal
 from libc.string cimport memcpy
-from libc.signal cimport SIG_IGN, SIG_DFL, SIGKILL, SIGSTOP
+from libc.signal cimport SIG_IGN, SIG_DFL, SIGKILL, SIGSTOP, SIGFPE
 from posix.signal cimport *
 from cpython.object cimport Py_EQ, Py_NE
 from cpython.exc cimport PyErr_SetFromErrno, PyErr_CheckSignals
@@ -173,6 +173,17 @@ def getossignal(int sig):
         >>> _ = signal.signal(signal.SIGUSR1, handler)
         >>> getossignal(signal.SIGUSR1)
         <SigAction with sa_handler=0x...>
+
+    Check whether a signal is handled by the Python signal handler::
+
+        >>> from cysignals.pysignals import python_os_handler
+        >>> getossignal(signal.SIGUSR1) == python_os_handler
+        True
+        >>> _ = signal.signal(signal.SIGUSR1, signal.SIG_IGN)
+        >>> getossignal(signal.SIGUSR1) == python_os_handler
+        False
+        >>> getossignal(signal.SIGABRT) == python_os_handler
+        False
 
     TESTS::
 
@@ -471,3 +482,8 @@ cdef class containsignals:
                 setsignal(sig, h1, h2)
         finally:
             if sigprocmask(SIG_UNBLOCK, &self.unblock, NULL): PyErr_SetFromErrno(OSError)
+
+
+# Save Python's signal handler
+with changesignal(SIGFPE, signal.default_int_handler):
+    python_os_handler = getossignal(SIGFPE)

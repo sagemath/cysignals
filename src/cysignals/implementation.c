@@ -315,7 +315,7 @@ static void setup_trampoline(void)
     pthread_t child;
     pthread_attr_t attr;
     void* trampolinestack;
-    size_t trampolinestacksize = 1 << 16;
+    size_t trampolinestacksize = 1 << 17;
 
 #ifdef PTHREAD_STACK_MIN
     if (trampolinestacksize < PTHREAD_STACK_MIN)

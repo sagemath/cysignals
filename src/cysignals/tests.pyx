@@ -1010,7 +1010,7 @@ def test_sig_block_nested(long delay=DEFAULT_DELAY):
     TESTS::
 
         >>> from cysignals.tests import *
-        >>> test_sig_block()
+        >>> test_sig_block_nested()
         42
 
     """

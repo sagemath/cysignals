@@ -322,7 +322,7 @@ static void setup_trampoline(void)
         trampolinestacksize = PTHREAD_STACK_MIN;
 #endif
     trampolinestack = malloc(trampolinestacksize + 4096);
-    if (!trampolinestack) {perror("malloc"); exit(1);}
+    if (!trampolinestack) {perror("cysignals malloc"); exit(1);}
 
     /* Align trampolinestack on a multiple of 4096 bytes.
      * This seems to be needed in particular on OS X. */
@@ -331,14 +331,14 @@ static void setup_trampoline(void)
     trampolinestack = (void*)addr;
 
     ret = pthread_attr_init(&attr);
-    if (ret) {errno = ret; perror("pthread_attr_init"); exit(1);}
+    if (ret) {errno = ret; perror("cysignals pthread_attr_init"); exit(1);}
     ret = pthread_attr_setstack(&attr, trampolinestack, trampolinestacksize);
-    if (ret) {errno = ret; perror("pthread_attr_setstack"); exit(1);}
+    if (ret) {errno = ret; perror("cysignals pthread_attr_setstack"); exit(1);}
     ret = pthread_create(&child, &attr, _sig_on_trampoline, NULL);
-    if (ret) {errno = ret; perror("pthread_create"); exit(1);}
+    if (ret) {errno = ret; perror("cysignals pthread_create"); exit(1);}
     pthread_attr_destroy(&attr);
     ret = pthread_join(child, NULL);
-    if (ret) {errno = ret; perror("pthread_join"); exit(1);}
+    if (ret) {errno = ret; perror("cysignals pthread_join"); exit(1);}
 
     if (cysetjmp(cysigs.env) == 0)
     {
@@ -433,7 +433,7 @@ static void setup_alt_stack(void)
     ss.ss_sp = alt_stack;
     ss.ss_size = sizeof(alt_stack);
     ss.ss_flags = 0;
-    if (sigaltstack(&ss, NULL) == -1) {perror("sigaltstack"); exit(1);}
+    if (sigaltstack(&ss, NULL) == -1) {perror("cysignals sigaltstack"); exit(1);}
 #endif
 #if defined(__CYGWIN__) && defined(__x86_64__)
     cygwin_setup_alt_stack();
@@ -470,21 +470,21 @@ static void setup_cysignals_handlers(void)
     /* Handlers for interrupt-like signals */
     sa.sa_handler = cysigs_interrupt_handler;
     sa.sa_flags = 0;
-    if (sigaction(SIGHUP, &sa, NULL)) {perror("sigaction"); exit(1);}
-    if (sigaction(SIGINT, &sa, NULL)) {perror("sigaction"); exit(1);}
-    if (sigaction(SIGALRM, &sa, NULL)) {perror("sigaction"); exit(1);}
+    if (sigaction(SIGHUP, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
+    if (sigaction(SIGINT, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
+    if (sigaction(SIGALRM, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
 
     /* Handlers for critical signals */
     sa.sa_handler = cysigs_signal_handler;
     /* Allow signals during signal handling, we have code to deal with
      * this case. */
     sa.sa_flags = SA_NODEFER | SA_ONSTACK;
-    if (sigaction(SIGQUIT, &sa, NULL)) {perror("sigaction"); exit(1);}
-    if (sigaction(SIGILL, &sa, NULL)) {perror("sigaction"); exit(1);}
-    if (sigaction(SIGABRT, &sa, NULL)) {perror("sigaction"); exit(1);}
-    if (sigaction(SIGFPE, &sa, NULL)) {perror("sigaction"); exit(1);}
-    if (sigaction(SIGBUS, &sa, NULL)) {perror("sigaction"); exit(1);}
-    if (sigaction(SIGSEGV, &sa, NULL)) {perror("sigaction"); exit(1);}
+    if (sigaction(SIGQUIT, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
+    if (sigaction(SIGILL, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
+    if (sigaction(SIGABRT, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
+    if (sigaction(SIGFPE, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
+    if (sigaction(SIGBUS, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
+    if (sigaction(SIGSEGV, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
 }
 
 
@@ -531,7 +531,7 @@ static void print_enhanced_backtrace(void)
     if (pid < 0)
     {
         /* Failed to fork: no problem, just ignore */
-        perror("fork");
+        perror("cysignals fork");
         return;
     }
 
@@ -554,7 +554,7 @@ static void print_enhanced_backtrace(void)
         argv[3] = pid_str;
         argv[4] = NULL;
         execvp(path, argv);
-        perror("Failed to execute cysignals-CSI");
+        perror("cysignals failed to execute cysignals-CSI");
         exit(2);
     }
     /* Wait for cysignals-CSI to finish */

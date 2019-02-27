@@ -53,9 +53,6 @@ Interrupt and signal handling for Cython
 #if HAVE_SYS_PRCTL_H
 #include <sys/prctl.h>
 #endif
-#if HAVE_WINDOWS_H
-#include <windows.h>
-#endif
 #include <Python.h>
 #if HAVE_PARI
 #include <pari/pari.h>
@@ -64,6 +61,11 @@ Interrupt and signal handling for Cython
 static int PARI_SIGINT_block = 0;
 static int PARI_SIGINT_pending = 0;
 #define paricfg_version NULL
+#endif
+#if HAVE_WINDOWS_H
+/* We must include <windows.h> after <pari.h>
+ * See https://github.com/sagemath/cysignals/issues/107 */
+#include <windows.h>
 #endif
 #include "struct_signals.h"
 

@@ -36,8 +36,8 @@ before_build:
           & $python_exe "C:\get-pip.py"
       }
   - cd C:\projects\cysignals
+  - python%PYTHON_VERSION% -c "import sys; print(sys.version); print(sys.platform); print(sys.path)"
   - python%PYTHON_VERSION% -m pip install -r requirements.txt
-  - python%PYTHON_VERSION% --version
   - python%PYTHON_VERSION% -m cython --version
 
 build_script:

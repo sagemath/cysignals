@@ -5,6 +5,20 @@
 LONG WINAPI win32_altstack_handler(EXCEPTION_POINTERS *exc)
 {
     int sig = 0;
+    /* If we're not handling a signal there is no reason to execute the
+     * following code; otherwise it can be run in inappropriate contexts
+     * such as when a STATUS_ACCESS_VIOLATION is raised when accessing
+     * uncommitted memory in an mmap created with MAP_NORESERVE. See
+     * discussion at https://trac.sagemath.org/ticket/27214#comment:11
+     *
+     * Unfortunately, when handling an exception that occurred while
+     * handling another signal, there is currently no way (through Cygwin)
+     * to distinguish this case from a legitimate segfault.
+     */
+    if (!cysigs.inside_signal_handler) {
+        return ExceptionContinueExecution;
+    }
+
     /* Logic cribbed from Cygwin for mapping common Windows exception
      * codes to the relevant signal numbers:
      * https://cygwin.com/git/gitweb.cgi?p=newlib-cygwin.git;a=blob;f=winsup/cygwin/exceptions.cc;h=77eff05707f95f7277974fadbccf0e74223d8d1c;hb=HEAD#l650

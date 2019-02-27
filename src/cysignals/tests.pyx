@@ -42,6 +42,7 @@ from __future__ import absolute_import
 from libc.signal cimport (SIGHUP, SIGINT, SIGABRT, SIGILL, SIGSEGV,
         SIGFPE, SIGBUS, SIGQUIT)
 from libc.stdlib cimport abort
+from libc.errno cimport errno
 from posix.signal cimport sigaltstack, stack_t, SS_ONSTACK
 
 from cpython cimport PyErr_SetString
@@ -54,6 +55,8 @@ cdef extern from "tests_helper.c" nogil:
     void ms_sleep(long ms)
     void signal_after_delay(int signum, long ms)
     void signals_after_delay(int signum, long ms, long interval, int n)
+    void* map_noreserve()
+    int unmap_noreserve(void* addr)
 
 cdef extern from *:
     ctypedef int volatile_int "volatile int"
@@ -616,6 +619,28 @@ def unguarded_dereference_null_pointer():
     with nogil:
         dereference_null_pointer()
 
+def test_access_mmap_noreserve():
+    """
+    TESTS:
+
+    Regression test for https://github.com/sagemath/cysignals/pull/108; if
+    the issue is fixed then ``test_access_mmap_noreserve()`` should have no
+    output.  Otherwise the subprocess will exit and report an error occurred
+    during signal handling::
+
+        >>> from cysignals.tests import test_access_mmap_noreserve
+        >>> subpython_err('from cysignals.tests import *; test_access_mmap_noreserve()')
+
+    """
+
+    cdef int* ptr = <int*>map_noreserve()
+    if ptr == NULL:
+        raise RuntimeError(f"map_noreserve() failed; errno: {errno}")
+
+    ptr[0] += 1  # Should just work
+
+    if unmap_noreserve(ptr) != 0:
+        raise RuntimeError(f"uname_noreserve() failed; errno: {errno}")
 
 def test_abort():
     """

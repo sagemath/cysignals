@@ -28,6 +28,9 @@
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#if HAVE_SYS_MMAN_H
+#include <sys/mman.h>
+#endif
 #if HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -63,6 +66,39 @@ static void ms_sleep(long ms)
     Sleep(ms);
 #endif
 }
+
+
+/* Calls mmap if available with the MAP_NORESERVE flag; if neither is
+ * available just mmap without MAP_NORESERVE or malloc--this is used currently
+ * just to test a regression on Cygwin (see test_read_mmap_noreserve),
+ * so if the required functionality is not available then the test should pass
+ * trivially.
+ */
+#define MAP_NORESERVE_LEN 4096
+#if HAVE_SYS_MMAN_H
+#ifndef MAP_NORESERVE
+#define MAP_NORESERVE 0
+#endif
+static void* map_noreserve(void)
+{
+    return mmap(NULL, MAP_NORESERVE_LEN, PROT_READ|PROT_WRITE,
+                MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+}
+
+static int unmap_noreserve(void* addr) {
+    return munmap(addr, MAP_NORESERVE_LEN);
+}
+#else
+static void* map_noreserve(void)
+{
+    return malloc(MAP_NORESERVE_LEN);
+}
+
+static int unmap_noreserve(void* addr) {
+    free(addr);
+    return 0;
+}
+#endif
 
 
 /* Signal the running process with signal ``signum`` after ``ms``

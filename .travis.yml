@@ -35,7 +35,10 @@ install:
       conda config --set show_channel_urls true
       conda info
 
-    - conda create -n test --yes --quiet python=${PYTHON_VERSION} setuptools pip cython sphinx pari flake8
+    # We need the toolchain stuff to work around
+    # https://github.com/conda/conda/issues/6030
+    - if [ "$TRAVIS_OS_NAME" = linux ]; then export TOOLCHAIN="binutils gcc_linux-64 gxx_linux-64"; fi
+    - conda create -n test --yes --quiet $TOOLCHAIN python=${PYTHON_VERSION} setuptools pip cython sphinx pari flake8
     - source activate test
     - export LDFLAGS="-L$CONDA_PREFIX/lib"
     - export CFLAGS="-I$CONDA_PREFIX/include"

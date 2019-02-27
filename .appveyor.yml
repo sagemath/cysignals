@@ -28,7 +28,7 @@ before_build:
               -ArgumentList "-q -P $python,$python-devel,$python-pip,gcc-core,gcc-g++"
       }
   - cd C:\projects\cysignals
-  - python%PYTHON_VERSION% --version
+  - python%PYTHON_VERSION% -c "import sys; print(sys.version); print(sys.platform); print(sys.path)"
   - python%PYTHON_VERSION% -m pip install -r requirements.txt
   - python%PYTHON_VERSION% -m cython --version
 

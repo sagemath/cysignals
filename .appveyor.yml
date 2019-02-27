@@ -22,7 +22,7 @@ before_build:
   - echo %PATH%
   - ps: >-
       if ( "$Env:OS" -ieq "Cygwin" ) {
-          $python = "python" + $Env:PYTHON_VERSION[0]
+          $python = "python" + $Env:PYTHON_VERSION[0] + $Env:PYTHON_VERSION[2]
           Start-Process -NoNewWindow -Wait `
               -FilePath $Env:CYG_ROOT\setup-$Env:ARCH.exe `
               -ArgumentList "-q -P $python,$python-devel,$python-pip,gcc-core,gcc-g++"

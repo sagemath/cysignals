@@ -41,8 +41,8 @@ before_build:
   - python%PYTHON_VERSION% -m cython --version
 
 build_script:
-  - '%MAKE% -j4 install'
+  - '%MAKE% install'
 
 test_script:
-  - '%MAKE% -j4 check-all'
-  - '%MAKE% -j4 distcheck'
+  - '%MAKE% check-all'
+  - '%MAKE% distcheck'

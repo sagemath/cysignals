@@ -22,18 +22,10 @@ before_build:
   - echo %PATH%
   - ps: >-
       if ( "$Env:OS" -ieq "Cygwin" ) {
-          if ( $Env:PYTHON_VERSION[0] -ieq "2") {
-              $python = "python"
-          } else {
-              $python = "python" + $Env:PYTHON_VERSION[0]
-          }
-          $python_exe = "python" + $Env:PYTHON_VERSION
-          Invoke-WebRequest "https://bootstrap.pypa.io/get-pip.py" `
-              -OutFile "C:\get-pip.py"
+          $python = "python" + $Env:PYTHON_VERSION[0] + $Env:PYTHON_VERSION[2]
           Start-Process -NoNewWindow -Wait `
               -FilePath $Env:CYG_ROOT\setup-$Env:ARCH.exe `
-              -ArgumentList "-q -P $python,$python-devel,gcc-core,gcc-g++"
-          & $python_exe "C:\get-pip.py"
+              -ArgumentList "-q -P $python,$python-devel,$python-pip,gcc-core,gcc-g++,libcrypt-devel"
       }
   - cd C:\projects\cysignals
   - python%PYTHON_VERSION% -c "import sys; print(sys.version); print(sys.platform); print(sys.path)"

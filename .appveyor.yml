@@ -25,7 +25,7 @@ before_build:
           $python = "python" + $Env:PYTHON_VERSION[0] + $Env:PYTHON_VERSION[2]
           Start-Process -NoNewWindow -Wait `
               -FilePath $Env:CYG_ROOT\setup-$Env:ARCH.exe `
-              -ArgumentList "-q -P $python,$python-devel,$python-pip,gcc-core,gcc-g++"
+              -ArgumentList "-q -P $python,$python-devel,$python-pip,gcc-core,gcc-g++,libcrypt-devel"
       }
   - cd C:\projects\cysignals
   - python%PYTHON_VERSION% -c "import sys; print(sys.version); print(sys.platform); print(sys.path)"

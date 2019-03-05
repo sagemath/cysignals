@@ -68,21 +68,18 @@ static void ms_sleep(long ms)
 }
 
 
-/* Calls mmap if available with the MAP_NORESERVE flag; if neither is
- * available just mmap without MAP_NORESERVE or malloc--this is used currently
- * just to test a regression on Cygwin (see test_read_mmap_noreserve),
- * so if the required functionality is not available then the test should pass
- * trivially.
+/* Calls mmap if available with the MAP_NORESERVE flag (if this is not
+ * supported, just use malloc). This is used currently just to test a
+ * regression on Cygwin (see test_access_mmap_noreserve).
  */
-#define MAP_NORESERVE_LEN 4096
-#if HAVE_SYS_MMAN_H
-#ifndef MAP_NORESERVE
-#define MAP_NORESERVE 0
-#endif
+#define MAP_NORESERVE_LEN (1 << 22)
+#if defined(MAP_NORESERVE)
 static void* map_noreserve(void)
 {
-    return mmap(NULL, MAP_NORESERVE_LEN, PROT_READ|PROT_WRITE,
-                MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+    void* addr = mmap(NULL, MAP_NORESERVE_LEN, PROT_READ|PROT_WRITE,
+                      MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+    if (addr == MAP_FAILED) return NULL;
+    return addr;
 }
 
 static int unmap_noreserve(void* addr) {

@@ -619,28 +619,6 @@ def unguarded_dereference_null_pointer():
     with nogil:
         dereference_null_pointer()
 
-def test_access_mmap_noreserve():
-    """
-    TESTS:
-
-    Regression test for https://github.com/sagemath/cysignals/pull/108; if
-    the issue is fixed then ``test_access_mmap_noreserve()`` should have no
-    output.  Otherwise the subprocess will exit and report an error occurred
-    during signal handling::
-
-        >>> from cysignals.tests import test_access_mmap_noreserve
-        >>> subpython_err('from cysignals.tests import *; test_access_mmap_noreserve()')
-
-    """
-
-    cdef int* ptr = <int*>map_noreserve()
-    if ptr == NULL:
-        raise RuntimeError(f"map_noreserve() failed; errno: {errno}")
-
-    ptr[0] += 1  # Should just work
-
-    if unmap_noreserve(ptr) != 0:
-        raise RuntimeError(f"uname_noreserve() failed; errno: {errno}")
 
 def test_abort():
     """
@@ -710,6 +688,29 @@ def unguarded_stack_overflow():
     """
     with nogil:
         stack_overflow()
+
+
+def test_access_mmap_noreserve():
+    """
+    TESTS:
+
+    Regression test for https://github.com/sagemath/cysignals/pull/108; if
+    the issue is fixed then ``test_access_mmap_noreserve()`` should have no
+    output.  Otherwise the subprocess will exit and report an error occurred
+    during signal handling::
+
+        >>> from cysignals.tests import test_access_mmap_noreserve
+        >>> test_access_mmap_noreserve()
+
+    """
+    cdef int* ptr = <int*>map_noreserve()
+    if ptr is NULL:
+        raise RuntimeError(f"mmap() failed; errno: {errno}")
+
+    ptr[0] += 1  # Should just work
+
+    if unmap_noreserve(ptr) != 0:
+        raise RuntimeError(f"munmap() failed; errno: {errno}")
 
 
 def test_bad_str(long delay=DEFAULT_DELAY):

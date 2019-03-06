@@ -95,12 +95,10 @@ def get_msvcr():
         elif msc_ver == '1800':
             # Visual Studio 2013 / Visual C++ 12.0
             return ['msvcr120']
-        elif msc_ver == '1900':
-            # Visual Studio 2015 / Visual C++ 14.0
+        else:
+            # Anything more recent
             # "msvcr140.dll no longer exists" http://blogs.msdn.com/b/vcblog/archive/2014/06/03/visual-studio-14-ctp.aspx
             return []
-        else:
-            raise ValueError("Unknown MS Compiler version %s " % msc_ver)
 
 
 def runtime_patch():

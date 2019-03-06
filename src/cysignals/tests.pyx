@@ -58,6 +58,16 @@ cdef extern from "tests_helper.c" nogil:
     void* map_noreserve()
     int unmap_noreserve(void* addr)
 
+
+cdef extern from "<pthread.h>" nogil:
+    ctypedef unsigned long pthread_t
+    ctypedef struct pthread_attr_t:
+        pass
+    int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
+                       void *(*start_routine) (void *), void *arg)
+    int pthread_join(pthread_t thread, void **retval)
+
+
 cdef extern from *:
     ctypedef int volatile_int "volatile int"
 
@@ -1231,3 +1241,41 @@ def test_graceful_exit():
     # Wait to be killed...
     sig_on()
     infinite_loop()
+
+
+########################################################################
+# Test thread safety                                                   #
+########################################################################
+
+def test_thread_sig_block(long delay=DEFAULT_DELAY):
+    """
+    Test that calling ``sig_block``/``sig_unblock`` is thread-safe.
+
+    TESTS::
+
+        >>> from cysignals.tests import *
+        >>> test_thread_sig_block()
+
+    """
+    cdef pthread_t t1, t2
+    with nogil:
+        sig_on()
+        if pthread_create(&t1, NULL, func_thread_sig_block, NULL):
+            sig_error()
+        if pthread_create(&t2, NULL, func_thread_sig_block, NULL):
+            sig_error()
+        if pthread_join(t1, NULL):
+            sig_error()
+        if pthread_join(t2, NULL):
+            sig_error()
+        sig_off()
+
+
+cdef void* func_thread_sig_block(void* ignored) nogil:
+    # This is executed by the two threads spawned by test_thread_sig_block()
+    cdef int n
+    for n in range(1000000):
+        sig_block()
+        if not (1 <= cysigs.block_sigint <= 2):
+            sig_error()
+        sig_unblock()

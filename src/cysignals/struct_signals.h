@@ -27,6 +27,32 @@
 #include <signal.h>
 
 
+/* Choose sigjmp/longjmp variant */
+#if CYSIGNALS_USE_SIGSETJMP
+#define cyjmp_buf sigjmp_buf
+#define cysetjmp(env) sigsetjmp(env, 0)
+#define cylongjmp(env, val) siglongjmp(env, val)
+#else
+#define cyjmp_buf jmp_buf
+#define cysetjmp(env) setjmp(env)
+#define cylongjmp(env, val) longjmp(env, val)
+#endif
+
+
+/* Define an atomic_int type for atomic operations */
+#if HAVE_ATOMIC
+/* This header defines std::atomic_int */
+#include <atomic>
+using std::atomic_int;
+#elif HAVE_STDATOMIC_H
+/* This header defines atomic_int */
+#include <stdatomic.h>
+#else
+/* The type sig_atomic_t is not really atomic, but it's the best we have */
+typedef sig_atomic_t atomic_int;
+#endif
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -36,7 +62,7 @@ typedef struct
 {
     /* Reference counter for sig_on().
      * If this is strictly positive, we are inside a sig_on(). */
-    volatile sig_atomic_t sig_on_count;
+    volatile atomic_int sig_on_count;
 
     /* If this is nonzero, it is a signal number of a non-critical
      * signal (e.g. SIGINT) which happened during a time when it could
@@ -44,18 +70,18 @@ typedef struct
      * outside of sig_on() or inside sig_block().  To avoid race
      * conditions, this value may only be changed when all
      * interrupt-like signals are masked. */
-    volatile sig_atomic_t interrupt_received;
+    volatile atomic_int interrupt_received;
 
     /* Are we currently handling a signal inside cysigs_signal_handler()?
      * This is set to 1 on entry in cysigs_signal_handler (not in
      * cysigs_interrupt_handler) and 0 in _sig_on_postjmp.  This is
      * needed to check for signals raised within the signal handler. */
-    volatile sig_atomic_t inside_signal_handler;
+    volatile atomic_int inside_signal_handler;
 
     /* Non-zero if we currently are in a function such as malloc()
      * which blocks interrupts, zero normally.
      * See sig_block(), sig_unblock(). */
-    volatile sig_atomic_t block_sigint;
+    volatile atomic_int block_sigint;
 
     /* A jump buffer holding where to cylongjmp() after a signal has
      * been received. This is set by sig_on(). */

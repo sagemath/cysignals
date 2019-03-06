@@ -19,10 +19,17 @@ if test "$enable_debug" = yes; then
     AC_DEFINE([ENABLE_DEBUG_CYSIGNALS], 1, [Enable debug output])
 fi
 
-AC_LANG(C)
 
-AC_CHECK_HEADERS([execinfo.h sys/mman.h sys/prctl.h sys/time.h sys/wait.h windows.h])
+AC_CHECK_HEADERS([execinfo.h sys/mman.h sys/prctl.h sys/time.h sys/wait.h windows.h stdatomic.h])
+AC_LANG(C++)
+dnl For C++, check the <atomic> header. We use the C compiler for C++ to
+dnl emulate the Python bug https://bugs.python.org/issue1222585
+CXX=$CC
+AC_CHECK_HEADERS([atomic])
+
+AC_LANG(C)
 AC_CHECK_FUNCS([fork kill sigprocmask sigaltstack backtrace])
+
 
 have_pari=no
 if test "$with_pari" != "no"; then

@@ -118,12 +118,14 @@ static inline int _sig_on_prejmp(const char* message, const char* file, int line
 #if ENABLE_DEBUG_CYSIGNALS
     if (cysigs.debug_level >= 4)
     {
-        fprintf(stderr, "sig_on (count = %i) at %s:%i\n", cysigs.sig_on_count+1, file, line);
+        fprintf(stderr, "sig_on (count = %i) at %s:%i\n",
+                (int)cysigs.sig_on_count+1, file, line);
         fflush(stderr);
     }
     if (cysigs.block_sigint && cysigs.sig_on_count <= 0)
     {
-        fprintf(stderr, "\n*** ERROR *** sig_on() with sig_on_count = %i, block_sigint = %i\n", cysigs.sig_on_count, cysigs.block_sigint);
+        fprintf(stderr, "\n*** ERROR *** sig_on() with sig_on_count = %i, block_sigint = %i\n",
+                (int)cysigs.sig_on_count, (int)cysigs.block_sigint);
         print_backtrace();
     }
 #endif
@@ -180,7 +182,8 @@ static inline void _sig_off_(const char* file, int line)
 #if ENABLE_DEBUG_CYSIGNALS
     if (cysigs.debug_level >= 4)
     {
-        fprintf(stderr, "sig_off (count = %i) at %s:%i\n", cysigs.sig_on_count, file, line);
+        fprintf(stderr, "sig_off (count = %i) at %s:%i\n",
+                (int)cysigs.sig_on_count, file, line);
         fflush(stderr);
     }
 #endif
@@ -233,7 +236,7 @@ static inline int sig_check(void)
  *   interrupts behave as usual.  This is because we can't propagate
  *   Python exceptions from low-level C code.
  * - Despite the above note, it is still legal to use sig_block()
- *   outside of sig_block().
+ *   outside of sig_on().
  * - Other signals still go through, because we can't really ignore
  *   SIGSEGV for example.
  * - It is NOT allowed to have an outer call of sig_on() inside
@@ -254,7 +257,8 @@ static inline void sig_unblock(void)
 #if ENABLE_DEBUG_CYSIGNALS
     if (cysigs.block_sigint < 1)
     {
-        fprintf(stderr, "\n*** ERROR *** sig_unblock() with sig_on_count = %i, block_sigint = %i\n", cysigs.sig_on_count, cysigs.block_sigint);
+        fprintf(stderr, "\n*** ERROR *** sig_unblock() with sig_on_count = %i, block_sigint = %i\n",
+                (int)cysigs.sig_on_count, (int)cysigs.block_sigint);
         print_backtrace();
     }
 #endif

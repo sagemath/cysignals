@@ -232,7 +232,7 @@ static void cysigs_interrupt_handler(int sig)
  * Outside of sig_on(), we terminate Python. */
 static void cysigs_signal_handler(int sig)
 {
-    sig_atomic_t inside = cysigs.inside_signal_handler;
+    int inside = cysigs.inside_signal_handler;
     cysigs.inside_signal_handler = 1;
 
     if (inside == 0 && cysigs.sig_on_count > 0 && sig != SIGQUIT)

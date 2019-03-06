@@ -16,7 +16,6 @@
 #
 #*****************************************************************************
 
-from libc.signal cimport sig_atomic_t
 from cpython.object cimport PyObject
 
 cdef extern from *:
@@ -24,8 +23,11 @@ cdef extern from *:
 
 
 cdef extern from "struct_signals.h":
+    ctypedef int atomic_int
+
     ctypedef struct cysigs_t:
-        sig_atomic_t sig_on_count
+        atomic_int sig_on_count
+        atomic_int block_sigint
         const char* s
         PyObject* exc_value
 

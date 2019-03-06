@@ -19,12 +19,10 @@
 #endif
 
 
-#if CYSIGNALS_USE_SIGSETJMP
-#define cyjmp_buf sigjmp_buf
-#define cysetjmp(env) sigsetjmp(env, 0)
-#define cylongjmp(env, val) siglongjmp(env, val)
+#ifdef __cplusplus
+/* Define to 1 if you have the <atomic> header file. */
+#undef HAVE_ATOMIC
 #else
-#define cyjmp_buf jmp_buf
-#define cysetjmp(env) setjmp(env)
-#define cylongjmp(env, val) longjmp(env, val)
+/* Define to 1 if you have the <stdatomic.h> header file. */
+#undef HAVE_STDATOMIC_H
 #endif

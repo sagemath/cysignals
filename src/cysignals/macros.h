@@ -55,6 +55,21 @@ extern "C" {
 
 
 /**********************************************************************
+ * HELPER FUNCTIONS                                                   *
+ **********************************************************************/
+
+/* Send a signal to the calling process. The POSIX raise() function
+ * sends a signal to the calling thread, while kill() typically sends
+ * a signal to the main thread (although this is not guaranteed by the
+ * POSIX standard) */
+#if HAVE_KILL
+#define proc_raise(sig)  kill(getpid(), sig)
+#else
+/* On Windows, raise() actually signals the process */
+#define proc_raise(sig)  raise(sig)
+#endif
+
+/**********************************************************************
  * IMPLEMENTATION OF SIG_ON/SIG_OFF                                   *
  **********************************************************************/
 
@@ -248,7 +263,7 @@ static inline void sig_unblock(void)
     if (unlikely(cysigs.interrupt_received))
         /* Re-raise the signal if we can handle it now */
         if (cysigs.sig_on_count > 0 && cysigs.block_sigint == 0)
-            raise(cysigs.interrupt_received);
+            proc_raise(cysigs.interrupt_received);
 }
 
 
@@ -262,7 +277,7 @@ static inline void sig_retry(void)
     if (unlikely(cysigs.sig_on_count <= 0))
     {
         fprintf(stderr, "sig_retry() without sig_on()\n");
-        raise(SIGABRT);
+        proc_raise(SIGABRT);
     }
     cylongjmp(cysigs.env, -1);
 }
@@ -276,7 +291,7 @@ static inline void sig_error(void)
     {
         fprintf(stderr, "sig_error() without sig_on()\n");
     }
-    raise(SIGABRT);
+    proc_raise(SIGABRT);
 }
 
 

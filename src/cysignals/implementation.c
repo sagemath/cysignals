@@ -600,14 +600,8 @@ static void sigdie(int sig, const char* s)
     }
 
 dienow:
-    /* Suicide with signal ``sig``. The goal is to kill all threads in
-     * a multi-threaded program. This is most likely to work with
-     * kill(getpid(), sig) instead of raise(sig) */
-#if HAVE_KILL
-    kill(getpid(), sig);
-#else
+    /* Suicide with signal ``sig``. */
     raise(sig);
-#endif
 
     /* We should be dead! */
     exit(128 + sig);

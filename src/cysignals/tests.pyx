@@ -1270,7 +1270,6 @@ def test_thread_sig_block(long delay=DEFAULT_DELAY):
             sig_error()
         sig_off()
 
-
 cdef void* func_thread_sig_block(void* ignored) nogil:
     # This is executed by the two threads spawned by test_thread_sig_block()
     cdef int n
@@ -1279,3 +1278,37 @@ cdef void* func_thread_sig_block(void* ignored) nogil:
         if not (1 <= cysigs.block_sigint <= 2):
             sig_error()
         sig_unblock()
+
+
+def test_thread_nullptr():
+    """
+    Test ``dereference_null_pointer`` called from a thread.
+
+    TESTS::
+
+        >>> from cysignals.tests import *
+        >>> test_thread_nullptr()
+        Traceback (most recent call last):
+        ...
+        SignalError: ...
+
+    """
+    cdef pthread_t t1 = 0, t2 = 0
+    try:
+        with nogil:
+            sig_on()
+            if pthread_create(&t1, NULL, func_thread_wait, NULL):
+                sig_error()
+            if pthread_create(&t2, NULL, func_thread_nullptr, NULL):
+                sig_error()
+            func_thread_wait(NULL)
+    finally:
+        pthread_join(t1, NULL)
+        pthread_join(t2, NULL)
+
+cdef void* func_thread_nullptr(void* ignored) nogil:
+    dereference_null_pointer()
+
+cdef void* func_thread_wait(void* ignored) nogil:
+    while True:
+        ms_sleep(1000)

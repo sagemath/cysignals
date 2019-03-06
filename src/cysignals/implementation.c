@@ -177,6 +177,105 @@ static inline void sigdie_for_sig(int sig, int inside)
 #endif
 
 
+/* This is used to deal with multi-threaded programs. We make a difference
+ * between the Python thread (where PyGILState_GetThisThreadState() is not
+ * NULL) and non-Python threads. We assume that there is exactly one
+ * Python thread. This assumption is true in the typical case that Python
+ * threads are not used, but the code guarded by sig_on() might be
+ * spawning threads.
+ *
+ * There are two problems that need to be solved:
+ * - A non-Python thread receives a signal like SIGSEGV, but only the
+ *   Python thread can actually raise Python exceptions.
+ * - Whenever any thread receives a signal, all non-Python threads
+ *   should exit.
+ *
+ * We solve both problems using the following mechanism, using the global
+ * value cysigs.thread_signal.
+ * (A) If a non-Python thread receives a signal and thread_signal == 0,
+ *     it sets thread_signal = sig and then sends a SIGFPE to the process.
+ * (B) Whenever the Python thread receives SIGFPE, it checks thread_signal
+ *     to see whether it's actually a signal coming from a thread. If so,
+ *     it uses thread_signal instead.
+ * (C) Whenever the Python thread is about to raise any Python exception,
+ *     it sets thread_signal = -1, blocks SIGFPE and raises a SIGFPE in
+ *     the process.
+ * (D) This SIGFPE will be caught by a random non-Python thread (not by the
+ *     Python thread because it's blocked there). That thread sends again a
+ *     SIGFPE and exists.
+ * (E) As long as non-Python threads are running, a SIGFPE will be caught
+ *     and sent by each thread.
+ * (F) In the mean time, the main thread waits for SIGFPE to become
+ *     pending. When that happens, it means that there are no other threads
+ *     alive (assuming that those threads don't block SIGFPE).
+ *
+ * The rationale for choosing SIGFPE as special signal:
+ * - it's one the six C89 signals
+ * - it's unlikely to be raised from within the signal handler itself
+ * - it works well on Windows (as proved by the cypari project)
+ *
+ * NOTE: supporting multiple Python threads looks impossible since there
+ * is no parent/child relationship between threads: if a random thread
+ * receives a signal, it wouldn't know which Python parent thread should
+ * handle it.
+ */
+static void check_thread(int sig)
+{
+    /* Called whenever we are about to raise a Python exception for a signal.
+     * If we are running a thread which is unknown to Python, then it's
+     * probably a thread created by whatever C code was guarded by sig_on().
+     * We send a SIGFPE to the main thread and exit from this thread. */
+    if (!PyGILState_GetThisThreadState()) {
+        if (cysigs.thread_signal == 0)
+        {
+            /* The signal originated in this thread */
+            cysigs.thread_signal = sig;
+        }
+        proc_raise(SIGFPE);
+        pthread_exit(NULL);
+    }
+}
+
+
+static int handle_threads(int sig)
+{
+    /* Called from Python thread to check signals raised from other
+     * threads: replace sig by thread_signal if applicable */
+    int tsig = cysigs.thread_signal;
+    if (sig == SIGFPE && tsig)
+    {
+#if ENABLE_DEBUG_CYSIGNALS
+        if (cysigs.debug_level >= 1) {
+            fprintf(stderr, "\n>>> Internal SIG %i is actually SIG %i raised by thread ***\n", sig, tsig);
+            fflush(stderr);
+        }
+#endif
+        sig = tsig;
+    }
+
+#if HAVE_SIGPROCMASK
+    /* Ensure that other threads will exit when they get a SIGFPE.
+     * The actual signal number does not matter here */
+    cysigs.thread_signal = -1;
+
+    /* Block SIGFPE, raise a SIGFPE to the process and wait for a
+     * SIGFPE to become pending. */
+    int dummy;
+    sigset_t fpe;
+    sigemptyset(&fpe);
+    sigaddset(&fpe, SIGFPE);
+    sigprocmask(SIG_BLOCK, &fpe, NULL);
+    proc_raise(SIGFPE);
+    sigwait(&fpe, &dummy);
+
+    /* We are done handling threads */
+    cysigs.thread_signal = 0;
+#endif
+
+    return sig;
+}
+
+
 /* Handler for SIGHUP, SIGINT, SIGALRM
  *
  * Inside sig_on() (i.e. when cysigs.sig_on_count is positive), this
@@ -185,6 +284,8 @@ static inline void sigdie_for_sig(int sig, int inside)
  * PyErr_SetInterrupt() */
 static void cysigs_interrupt_handler(int sig)
 {
+    check_thread(sig);
+
 #if ENABLE_DEBUG_CYSIGNALS
     if (cysigs.debug_level >= 1) {
         fprintf(stderr, "\n*** SIG %i *** %s sig_on\n", sig, (cysigs.sig_on_count > 0) ? "inside" : "outside");
@@ -200,6 +301,8 @@ static void cysigs_interrupt_handler(int sig)
     {
         if (!cysigs.block_sigint && !PARI_SIGINT_block)
         {
+            sig = handle_threads(sig);
+
             /* Raise an exception so Python can see it */
             do_raise_exception(sig);
 
@@ -232,6 +335,8 @@ static void cysigs_interrupt_handler(int sig)
  * Outside of sig_on(), we terminate Python. */
 static void cysigs_signal_handler(int sig)
 {
+    check_thread(sig);
+
     int inside = cysigs.inside_signal_handler;
     cysigs.inside_signal_handler = 1;
 
@@ -246,6 +351,7 @@ static void cysigs_signal_handler(int sig)
             gettimeofday(&sigtime, NULL);
         }
 #endif
+        sig = handle_threads(sig);
 
         /* Raise an exception so Python can see it */
         do_raise_exception(sig);
@@ -484,9 +590,13 @@ static void setup_cysignals_handlers(void)
     if (sigaction(SIGQUIT, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
     if (sigaction(SIGILL, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
     if (sigaction(SIGABRT, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
-    if (sigaction(SIGFPE, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
     if (sigaction(SIGBUS, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
     if (sigaction(SIGSEGV, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
+
+    /* Because of the special handling of SIGFPE, it is safer not to use the
+     * alternate stack. */
+    sa.sa_flags = SA_NODEFER;
+    if (sigaction(SIGFPE, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
 }
 
 

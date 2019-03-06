@@ -72,6 +72,9 @@ typedef struct
      * interrupt-like signals are masked. */
     volatile atomic_int interrupt_received;
 
+    /* Signal raised by non-Python thread. */
+    volatile atomic_int thread_signal;
+
     /* Are we currently handling a signal inside cysigs_signal_handler()?
      * This is set to 1 on entry in cysigs_signal_handler (not in
      * cysigs_interrupt_handler) and 0 in _sig_on_postjmp.  This is

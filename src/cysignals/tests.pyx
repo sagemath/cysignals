@@ -407,7 +407,7 @@ def test_sig_on_no_except(long delay=DEFAULT_DELAY):
     """
     if not sig_on_no_except():
         # We should never get here, because this sig_on_no_except()
-        # will not catch a signals.
+        # will not catch any signal.
         print("Unexpected zero returned from sig_on_no_except()")
     sig_off()
 

@@ -45,6 +45,7 @@ install:
 
 script:
     - gcc --version
+    - g++ --version
     - cython --version
     - make configure
     - ./configure --with-pari=${PARI}

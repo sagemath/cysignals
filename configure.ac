@@ -20,11 +20,24 @@ if test "$enable_debug" = yes; then
 fi
 
 
+AC_PROG_CC()
+
+dnl On OS X, set -mmacosx-version-min=10.9
+dnl This is needed because distutils sets MACOSX_DEPLOYMENT_TARGET
+dnl to a lower value than the default, causing build failures.
+if test x`uname` = xDarwin; then
+    EXTRAFLAGS="-mmacosx-version-min=10.9"
+    CFLAGS="$CFLAGS $EXTRAFLAGS"
+fi
+AC_SUBST([EXTRAFLAGS])
+
+
 AC_CHECK_HEADERS([execinfo.h sys/mman.h sys/prctl.h sys/time.h sys/wait.h windows.h stdatomic.h])
 AC_LANG(C++)
 dnl For C++, check the <atomic> header. We use the C compiler for C++ to
 dnl emulate the Python bug https://bugs.python.org/issue1222585
-CXX=$CC
+CXX="$CC"
+CXXFLAGS="$CFLAGS"
 AC_CHECK_HEADERS([atomic])
 
 AC_LANG(C)

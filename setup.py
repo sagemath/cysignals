@@ -49,7 +49,9 @@ kwds = dict(include_dirs=[opj("src"),
                           opj("src", "cysignals")],
             depends=depends,
             define_macros=macros,
-            undef_macros=undef_macros)
+            undef_macros=undef_macros,
+            extra_compile_args=["-pthread"],
+            extra_link_args=["-pthread"],)
 
 extensions = [
     Extension("cysignals.signals", ["src/cysignals/signals.pyx"], **kwds),

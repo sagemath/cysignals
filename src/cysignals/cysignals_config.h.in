@@ -19,10 +19,9 @@
 #endif
 
 
-#ifdef __cplusplus
-/* Define to 1 if you have the <atomic> header file. */
-#undef HAVE_ATOMIC
+#ifndef __cplusplus
+#undef CYSIGNALS_C_STDATOMIC_H
 #else
-/* Define to 1 if you have the <stdatomic.h> header file. */
-#undef HAVE_STDATOMIC_H
+#undef CYSIGNALS_CXX_STDATOMIC_H
+#undef CYSIGNALS_CXX_ATOMIC
 #endif

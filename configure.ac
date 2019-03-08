@@ -21,24 +21,24 @@ fi
 
 
 AC_PROG_CC()
+AC_CHECK_HEADERS([execinfo.h sys/mman.h sys/prctl.h sys/time.h sys/wait.h windows.h])
+AC_CHECK_HEADER([stdatomic.h], [
+    AC_DEFINE(CYSIGNALS_C_STDATOMIC_H, 1, [Define to 1 if you have the <stdatomic.h> header file for C code.])
+])
 
-dnl On OS X, set -mmacosx-version-min=10.9
-dnl This is needed because distutils sets MACOSX_DEPLOYMENT_TARGET
-dnl to a lower value than the default, causing build failures.
-if test x`uname` = xDarwin; then
-    EXTRAFLAGS="-mmacosx-version-min=10.9"
-    CFLAGS="$CFLAGS $EXTRAFLAGS"
-fi
-AC_SUBST([EXTRAFLAGS])
-
-
-AC_CHECK_HEADERS([execinfo.h sys/mman.h sys/prctl.h sys/time.h sys/wait.h windows.h stdatomic.h])
+dnl For C++, check both the <stdatomic.h> and <atomic> headers.
+dnl We use the C compiler for C++ to emulate the Python bug
+dnl https://bugs.python.org/issue1222585
 AC_LANG(C++)
-dnl For C++, check the <atomic> header. We use the C compiler for C++ to
-dnl emulate the Python bug https://bugs.python.org/issue1222585
 CXX="$CC"
 CXXFLAGS="$CFLAGS"
-AC_CHECK_HEADERS([atomic])
+AC_CHECK_HEADER([atomic], [
+    AC_DEFINE(CYSIGNALS_CXX_ATOMIC, 1, [Define to 1 if you have the <atomic> header file for C++ code.])
+])
+AS_UNSET([ac_cv_header_stdatomic_h]);  dnl Reset cached check
+AC_CHECK_HEADER([stdatomic.h], [
+    AC_DEFINE(CYSIGNALS_CXX_STDATOMIC_H, 1, [Define to 1 if you have the <stdatomic.h> header file for C++ code.])
+])
 
 AC_LANG(C)
 AC_CHECK_FUNCS([fork kill sigprocmask sigaltstack backtrace])

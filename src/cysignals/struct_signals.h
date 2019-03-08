@@ -40,13 +40,13 @@
 
 
 /* Define an atomic_int type for atomic operations */
-#if HAVE_ATOMIC
+#if CYSIGNALS_C_STDATOMIC_H || CYSIGNALS_CXX_STDATOMIC_H
+/* This header defines atomic_int */
+#include <stdatomic.h>
+#elif CYSIGNALS_CXX_ATOMIC
 /* This header defines std::atomic_int */
 #include <atomic>
 using std::atomic_int;
-#elif HAVE_STDATOMIC_H
-/* This header defines atomic_int */
-#include <stdatomic.h>
 #else
 /* The type sig_atomic_t is not really atomic, but it's the best we have */
 typedef sig_atomic_t atomic_int;

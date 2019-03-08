@@ -1,5 +1,4 @@
 # cython: preliminary_late_includes_cy28=True
-# distutils: extra_compile_args = @EXTRAFLAGS@
 # distutils: extra_link_args = @LIBS@
 #*****************************************************************************
 #  cysignals is free software: you can redistribute it and/or modify it

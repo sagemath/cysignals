@@ -240,8 +240,8 @@ def test_sig_on(long delay=DEFAULT_DELAY):
 
     """
     with nogil:
-        signal_after_delay(SIGINT, delay)
         sig_on()
+        signal_after_delay(SIGINT, delay)
         infinite_loop()
 
 def test_sig_str(long delay=DEFAULT_DELAY):

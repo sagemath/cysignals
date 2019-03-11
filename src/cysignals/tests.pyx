@@ -1015,7 +1015,7 @@ def test_sig_block(long delay=DEFAULT_DELAY):
     TESTS::
 
         >>> from cysignals.tests import *
-        >>> test_sig_block()  # doctest: +SKIP_WINDOWS
+        >>> test_sig_block()
         42
 
     """
@@ -1041,7 +1041,7 @@ def test_sig_block_nested(long delay=DEFAULT_DELAY):
     TESTS::
 
         >>> from cysignals.tests import *
-        >>> test_sig_block_nested()  # doctest: +SKIP_WINDOWS
+        >>> test_sig_block_nested()
         42
 
     """

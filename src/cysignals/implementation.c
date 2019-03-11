@@ -241,6 +241,7 @@ static void cysigs_interrupt_handler(int sig)
             siglongjmp(trampoline, sig);
 #else
             cysigs.sig_mapped_to_FPE = sig;
+            proc_raise(SIGFPE);
             return;
 #endif
         }

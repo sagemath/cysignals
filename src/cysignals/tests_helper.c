@@ -77,7 +77,7 @@ static void ms_sleep(long ms)
 static void* map_noreserve(void)
 {
     void* addr = mmap(NULL, MAP_NORESERVE_LEN, PROT_READ|PROT_WRITE,
-                      MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+                      MAP_ANON|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
     if (addr == MAP_FAILED) return NULL;
     return addr;
 }

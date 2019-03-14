@@ -53,10 +53,6 @@ typedef sig_atomic_t atomic_int;
 #endif
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* All the state of the signal handler is in this struct. */
 typedef struct
 {
@@ -101,9 +97,5 @@ typedef struct
     int debug_level;
 #endif
 } cysigs_t;
-
-#ifdef __cplusplus
-}  /* extern "C" */
-#endif
 
 #endif  /* ifndef CYSIGNALS_STRUCT_SIGNALS_H */

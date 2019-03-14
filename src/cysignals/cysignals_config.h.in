@@ -20,8 +20,8 @@
 
 
 #ifndef __cplusplus
-#undef CYSIGNALS_C_STDATOMIC_H
+#undef CYSIGNALS_C_ATOMIC
 #else
-#undef CYSIGNALS_CXX_STDATOMIC_H
 #undef CYSIGNALS_CXX_ATOMIC
+#undef CYSIGNALS_STD_ATOMIC
 #endif

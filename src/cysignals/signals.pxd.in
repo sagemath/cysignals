@@ -23,11 +23,11 @@ cdef extern from *:
 
 
 cdef extern from "struct_signals.h":
-    ctypedef int atomic_int
+    ctypedef int cy_atomic_int
 
     ctypedef struct cysigs_t:
-        atomic_int sig_on_count
-        atomic_int block_sigint
+        cy_atomic_int sig_on_count
+        cy_atomic_int block_sigint
         const char* s
         PyObject* exc_value
 

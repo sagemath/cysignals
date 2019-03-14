@@ -21,26 +21,13 @@ fi
 
 
 AC_PROG_CC()
-AC_CHECK_HEADERS([execinfo.h sys/mman.h sys/prctl.h sys/time.h sys/wait.h windows.h])
-AC_CHECK_HEADER([stdatomic.h], [
-    AC_DEFINE(CYSIGNALS_C_STDATOMIC_H, 1, [Define to 1 if you have the <stdatomic.h> header file for C code.])
-],, [AC_INCLUDES_DEFAULT])
-
-dnl For C++, check both the <stdatomic.h> and <atomic> headers.
 dnl We use the C compiler for C++ to emulate the Python bug
 dnl https://bugs.python.org/issue1222585
-AC_LANG(C++)
 CXX="$CC"
 CXXFLAGS="$CFLAGS"
-AS_UNSET([ac_cv_header_stdatomic_h]);  dnl Reset cached check
-AC_CHECK_HEADER([stdatomic.h], [
-    AC_DEFINE(CYSIGNALS_CXX_STDATOMIC_H, 1, [Define to 1 if you have the <stdatomic.h> header file for C++ code.])
-],, [AC_INCLUDES_DEFAULT])
-AC_CHECK_HEADER([atomic], [
-    AC_DEFINE(CYSIGNALS_CXX_ATOMIC, 1, [Define to 1 if you have the <atomic> header file for C++ code.])
-],, [AC_INCLUDES_DEFAULT])
+AC_PROG_CXX()
 
-AC_LANG(C)
+AC_CHECK_HEADERS([execinfo.h sys/mman.h sys/prctl.h sys/time.h sys/wait.h windows.h])
 AC_CHECK_FUNCS([fork kill sigprocmask sigaltstack backtrace])
 
 
@@ -120,6 +107,47 @@ if test x$sigsetjmp = xyes; then
     AC_DEFINE(CYSIGNALS_USE_SIGSETJMP, 1, [Define to 1 to use sigsetjmp() in sig_on(), as opposed to setjmp().])
 fi
 
+dnl Check for atomic operations
+AC_MSG_CHECKING([for _Atomic in C code])
+AC_COMPILE_IFELSE([AC_LANG_SOURCE(
+    [
+    static _Atomic int x;
+    ])],
+    dnl YES
+    [AC_MSG_RESULT([yes])]
+    AC_DEFINE(CYSIGNALS_C_ATOMIC, 1, [Define to 1 if your C compiler supports _Atomic.])
+    ,
+    dnl NO
+    [AC_MSG_RESULT([no])]
+)
+
+AC_LANG(C++)
+AC_MSG_CHECKING([for _Atomic in C++ code])
+AC_COMPILE_IFELSE([AC_LANG_SOURCE(
+    [
+    static _Atomic int x;
+    ])],
+    dnl YES
+    [AC_MSG_RESULT([yes])]
+    AC_DEFINE(CYSIGNALS_CXX_ATOMIC, 1, [Define to 1 if your C++ compiler supports _Atomic.])
+    ,
+    dnl NO
+    [AC_MSG_RESULT([no])]
+)
+
+AC_MSG_CHECKING([for std::atomic])
+AC_COMPILE_IFELSE([AC_LANG_SOURCE(
+    [
+    #include <atomic>
+    static std::atomic<int> x;
+    ])],
+    dnl YES
+    [AC_MSG_RESULT([yes])]
+    AC_DEFINE(CYSIGNALS_STD_ATOMIC, 1, [Define to 1 if your C++ compiler supports std::atomic.])
+    ,
+    dnl NO
+    [AC_MSG_RESULT([no])]
+)
 
 AC_OUTPUT()
 

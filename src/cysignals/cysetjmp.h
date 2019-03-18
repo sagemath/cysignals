@@ -30,16 +30,18 @@
 #ifdef __x86_64__
 /*
  * x86_64 assembly implementation of cysetjmp(): we store the registers
- * rsp and rbp and the instruction pointer.
+ * rsp and rbp and the instruction pointer. We also store the value passed
+ * to cylongjmp (this is not performance-critical and storing it in memory
+ * is safer).
  *
- * rbx is used to pass a pointer to a cyjmp_struct,
- * rdx is the value passed to cylongjmp().
+ * The rbx register is used to pass a pointer to a cyjmp_struct.
  */
 struct cyjmp_struct
 {
     size_t rsp;
     size_t rbp;
     size_t rip;
+    int longjmp_val;
 };
 
 typedef struct cyjmp_struct cyjmp_buf[1];
@@ -47,7 +49,6 @@ typedef struct cyjmp_struct cyjmp_buf[1];
 static inline int __attribute__((always_inline))
 cysetjmp(struct cyjmp_struct* env)
 {
-    int res;
     __asm__ goto("\n"
         "\tleaq %l1(%%rip), %%rcx\n"
         "\tmovq %%rsp, 0(%0)\n"
@@ -76,20 +77,19 @@ cysetjmp(struct cyjmp_struct* env)
       "%zmm24", "%zmm25", "%zmm26", "%zmm27", "%zmm28", "%zmm29", "%zmm30", "%zmm31",
 #endif
       "cc", "memory"
-    : res_in_rdx);
-
+    : after_longjmp);
     return 0;
 
-res_in_rdx:
+after_longjmp:
     __attribute__((cold));
-    __asm__ volatile("": "=d" (res));
-    return res;
+    return env->longjmp_val;
 }
 
 static void __attribute__((noreturn))
-cylongjmp(const struct cyjmp_struct* env, int val)
+cylongjmp(struct cyjmp_struct* env, int val)
 {
     if (val == 0) val = 1;
+    env->longjmp_val = val;
 
     __asm__ volatile("\n"
         "\tmovq 16(%0), %%rcx\n"
@@ -97,7 +97,7 @@ cylongjmp(const struct cyjmp_struct* env, int val)
         "\tmovq 0(%0), %%rsp\n"
         "\tjmp *%%rcx\n"
     :
-    : "b" (env), "d" (val));
+    : "b" (env));
     __builtin_unreachable();
 }
 #else

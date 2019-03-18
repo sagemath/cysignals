@@ -1,7 +1,7 @@
 /*****************************************************************************
  *       Copyright (C) 2006 William Stein <wstein@gmail.com>
  *                     2006 Martin Albrecht <martinralbrecht+cysignals@gmail.com>
- *                     2010-2016 Jeroen Demeyer <J.Demeyer@UGent.be>
+ *                     2010-2019 Jeroen Demeyer <J.Demeyer@UGent.be>
  *
  * cysignals is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,21 +23,9 @@
 
 
 #include "cysignals_config.h"
-#include <setjmp.h>
+#include "cysetjmp.h"
 #include <signal.h>
 #include <Python.h>
-
-
-/* Choose sigjmp/longjmp variant */
-#if CYSIGNALS_USE_SIGSETJMP
-#define cyjmp_buf sigjmp_buf
-#define cysetjmp(env) sigsetjmp(env, 0)
-#define cylongjmp(env, val) siglongjmp(env, val)
-#else
-#define cyjmp_buf jmp_buf
-#define cysetjmp(env) setjmp(env)
-#define cylongjmp(env, val) longjmp(env, val)
-#endif
 
 
 /* Define a cy_atomic_int type for atomic operations */
@@ -96,5 +84,6 @@ typedef struct
     int debug_level;
 #endif
 } cysigs_t;
+
 
 #endif  /* ifndef CYSIGNALS_STRUCT_SIGNALS_H */

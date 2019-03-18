@@ -107,6 +107,20 @@ if test x$sigsetjmp = xyes; then
     AC_DEFINE(CYSIGNALS_USE_SIGSETJMP, 1, [Define to 1 to use sigsetjmp() in sig_on(), as opposed to setjmp().])
 fi
 
+AC_MSG_CHECKING([for assembly implementation of cysetjmp])
+AC_COMPILE_IFELSE([AC_LANG_SOURCE(
+    [
+    #define CYSIGNALS_ASM_CYSETJMP 1
+    #include "src/cysignals/cysetjmp.h"
+    ])],
+    dnl YES
+    [AC_MSG_RESULT([yes])]
+    AC_DEFINE(CYSIGNALS_ASM_CYSETJMP, 1, [Define to 1 to use an assembly implementation of cysetjmp().])
+    ,
+    dnl NO
+    [AC_MSG_RESULT([no])]
+)
+
 dnl Check for atomic operations
 AC_MSG_CHECKING([for _Atomic in C code])
 AC_COMPILE_IFELSE([AC_LANG_SOURCE(

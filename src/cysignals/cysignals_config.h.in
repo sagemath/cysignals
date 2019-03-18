@@ -9,6 +9,7 @@
 #undef ENABLE_DEBUG_CYSIGNALS
 #endif
 
+
 /*
  * Should sig_on() use sigsetjmp(env, 0) instead of setjmp(env)? This
  * is needed on BSD and OS X because setjmp() saves the signal mask.
@@ -19,6 +20,13 @@
 #endif
 
 
+/* Should we use an assembly implementation of cysetjmp()? */
+#ifndef CYSIGNALS_ASM_CYSETJMP
+#undef CYSIGNALS_ASM_CYSETJMP
+#endif
+
+
+/* Which implementation of atomic variables (if any) to use? */
 #ifndef __cplusplus
 #undef CYSIGNALS_C_ATOMIC
 #else

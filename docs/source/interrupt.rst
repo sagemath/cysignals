@@ -117,7 +117,9 @@ In practice your function will probably look like::
 
 It is possible to put ``sig_on()`` and ``sig_off()`` in different functions,
 provided that ``sig_off()`` is called before the function which calls
-``sig_on()`` returns. The following code is *invalid*::
+``sig_on()`` returns. The reason is that ``sig_on()`` is implemented using
+``setjmp()``, which requires that the stack frame is kept alive.
+Therefore, the following code is *invalid*::
 
     # INVALID code because we return from function foo()
     # without calling sig_off() first.

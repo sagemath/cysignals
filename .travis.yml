@@ -27,19 +27,20 @@ install:
       bash $MINICONDA_FILE -b
 
     # Configure conda.
-    - |
-      source $HOME/miniconda3/bin/activate root
-      conda config --remove channels defaults
-      conda config --add channels defaults
-      conda config --add channels conda-forge
-      conda config --set show_channel_urls true
-      conda info
+    - source $HOME/miniconda3/bin/activate root
+    - conda config --remove channels defaults
+    - conda config --add channels defaults
+    - conda config --add channels conda-forge
+    - conda config --set show_channel_urls true
+    - conda config --set always_yes True
+    - conda info
 
+    - conda create --name test python=${PYTHON_VERSION}
+    - conda activate test
     # We need the toolchain stuff to work around
     # https://github.com/conda/conda/issues/6030
-    - if [ "$TRAVIS_OS_NAME" = linux ]; then export TOOLCHAIN="binutils gcc_linux-64 gxx_linux-64"; fi
-    - conda create -n test --yes --quiet $TOOLCHAIN python=${PYTHON_VERSION} setuptools pip cython sphinx pari flake8
-    - source activate test
+    - if [ "$TRAVIS_OS_NAME" = linux ]; then conda install binutils gcc_linux-64 gxx_linux-64; fi
+    - conda install setuptools pip cython sphinx pari flake8
     - export LDFLAGS="-L$CONDA_PREFIX/lib"
     - export CFLAGS="-I$CONDA_PREFIX/include"
 

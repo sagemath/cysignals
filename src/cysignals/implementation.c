@@ -152,22 +152,38 @@ static inline void sigdie_for_sig(int sig, int inside)
     /* Quit Python with an appropriate message.
        Make sure to check the standard signals from the C standard first,
        in case systems alias some of these constants. */
-    if (inside)
-        sigdie(sig, "An error occurred during signal handling.");
-    else if (sig == SIGILL)
-        sigdie(sig, "Unhandled SIGILL: An illegal instruction occurred.");
-    else if (sig == SIGABRT)
-        sigdie(sig, "Unhandled SIGABRT: An abort() occurred.");
-    else if (sig == SIGFPE)
-        sigdie(sig, "Unhandled SIGFPE: An unhandled floating point exception occurred.");
-    else if (sig == SIGSEGV)
-        sigdie(sig, "Unhandled SIGSEGV: A segmentation fault occurred.");
-    else if (sig == SIGBUS)
-        sigdie(sig, "Unhandled SIGBUS: A bus error occurred.");
-    else if (sig == SIGQUIT)
-        sigdie(sig, NULL);
-    else
-        sigdie(sig, "Unknown signal received.");
+    if (inside) {
+        if (sig == SIGILL)
+            sigdie(sig, "Unhandled SIGILL during signal handling.");
+        else if (sig == SIGABRT)
+            sigdie(sig, "Unhandled SIGABRT during signal handling.");
+        else if (sig == SIGFPE)
+            sigdie(sig, "Unhandled SIGFPE during signal handling.");
+        else if (sig == SIGSEGV)
+            sigdie(sig, "Unhandled SIGSEGV during signal handling.");
+        else if (sig == SIGBUS)
+            sigdie(sig, "Unhandled SIGBUS during signal handling.");
+        else if (sig == SIGQUIT)
+            sigdie(sig, NULL);
+        else
+            sigdie(sig, "Unknown signal during signal handling.");
+    }
+    else {
+        if (sig == SIGILL)
+            sigdie(sig, "Unhandled SIGILL: An illegal instruction occurred.");
+        else if (sig == SIGABRT)
+            sigdie(sig, "Unhandled SIGABRT: An abort() occurred.");
+        else if (sig == SIGFPE)
+            sigdie(sig, "Unhandled SIGFPE: An unhandled floating point exception occurred.");
+        else if (sig == SIGSEGV)
+            sigdie(sig, "Unhandled SIGSEGV: A segmentation fault occurred.");
+        else if (sig == SIGBUS)
+            sigdie(sig, "Unhandled SIGBUS: A bus error occurred.");
+        else if (sig == SIGQUIT)
+            sigdie(sig, NULL);
+        else
+            sigdie(sig, "Unknown signal received.");
+    }
 }
 
 

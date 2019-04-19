@@ -732,7 +732,7 @@ def test_bad_str(long delay=DEFAULT_DELAY):
         >>> from cysignals.tests import subpython_err
         >>> subpython_err('from cysignals.tests import *; test_bad_str()')
         ---------------------------------------------------------------------...
-        An error occurred during signal handling.
+        Unhandled SIGSEGV during signal handling.
         This probably occurred because a *compiled* module has a bug
         in it and is not properly wrapped with sig_on(), sig_off().
         Python will now terminate.

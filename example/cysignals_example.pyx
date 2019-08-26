@@ -8,7 +8,7 @@ from cysignals.memory cimport check_allocarray
 def recip_sum(long count):
     cdef double s = 0
     cdef long i
-    for i in range(count):
+    for i in range(1, count + 1):
         sig_check()
         s += 1 / <double>i
     return s

@@ -19,7 +19,6 @@ if test "$enable_debug" = yes; then
     AC_DEFINE([ENABLE_DEBUG_CYSIGNALS], 1, [Enable debug output])
 fi
 
-
 AC_PROG_CC()
 dnl We use the C compiler for C++ to emulate the Python bug
 dnl https://bugs.python.org/issue1222585

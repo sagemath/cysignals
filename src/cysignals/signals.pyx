@@ -372,6 +372,9 @@ cdef void verify_exc_value():
         # is not functional anymore.
         pass
 
-    if cysigs.exc_value.ob_refcnt == 1:
+    # Make sure we still have cysigs.exc_value at all; if this function was
+    # called again during garbage collection it might have already been set
+    # to NULL; see https://github.com/sagemath/cysignals/issues/126
+    if cysigs.exc_value != NULL and cysigs.exc_value.ob_refcnt == 1:
         Py_XDECREF(cysigs.exc_value)
         cysigs.exc_value = NULL

@@ -1006,6 +1006,49 @@ def test_sig_occurred_dealloc():
     abort()
 
 
+def test_sig_occurred_dealloc_in_gc():
+    """
+    Regression test for https://github.com/sagemath/cysignals/issues/126
+
+    TESTS:
+
+    The first part of this is similar to ``test_sig_occurred_dealloc()`` but we
+    keep a reference to the exception so it doesn't go away right away::
+
+        >>> from cysignals.tests import *
+        >>> e = None
+        >>> try:
+        ...     test_sig_occurred_dealloc_in_gc()
+        ... except RuntimeError as exc:
+        ...     e = exc
+        >>> print_sig_occurred()
+        RuntimeError: test_sig_occurred_dealloc_in_gc()
+
+    Put the exception into a dict containing a reference to itself, so that
+    when the garbage collector runs (in ``verify_exc_value``) its reference
+    count drops to 1.  Also include a ``DeallocDebug`` so that
+    ``sig_occurred()`` is called during GC.
+
+    We also temporarily disable automatic GC to ensure that the garbage
+    collector is not called except by ``verify_exc_value()``::
+
+        >>> import gc
+        >>> d = {'e': e, 'x': DeallocDebug()}
+        >>> d['d'] = d
+        >>> gc.disable()
+        >>> try:
+        ...     del d, e
+        ...     print_sig_occurred()
+        ... finally:
+        ...     gc.enable()
+        __dealloc__: No current exception
+        No current exception
+
+    """
+    sig_str("test_sig_occurred_dealloc_in_gc()")
+    abort()
+
+
 cdef class DeallocDebug:
     def __dealloc__(self):
         sys.stdout.write("__dealloc__: ")

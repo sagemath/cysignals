@@ -40,7 +40,13 @@ install:
     # We need the toolchain stuff to work around
     # https://github.com/conda/conda/issues/6030
     - if [ "$TRAVIS_OS_NAME" = linux ]; then conda install binutils gcc_linux-64 gxx_linux-64; fi
-    - conda install setuptools pip cython sphinx pari flake8
+    - conda install setuptools pip cython sphinx pari
+    # The 'pip' package for Python 3.4 on conda is broken for newer versions
+    - if [ "$PYTHON_VERSION" = "3.4" ]; then conda install 'pip<20.0'; fi
+    # The flake8 package on conda is quite broken on Python 2.7 and 3.4;
+    # use pip to install it instead.  After support for these older versions
+    # dropped we can can go back to the conda package.
+    - pip install flake8
     - export LDFLAGS="-L$CONDA_PREFIX/lib"
     - export CFLAGS="-I$CONDA_PREFIX/include"
 

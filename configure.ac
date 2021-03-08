@@ -116,6 +116,22 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE(
     dnl YES
     [AC_MSG_RESULT([yes])]
     AC_DEFINE(CYSIGNALS_C_ATOMIC, 1, [Define to 1 if your C compiler supports _Atomic.])
+
+    AC_MSG_CHECKING([for _Atomic with OpenMP in C code])
+    saved_CFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS -fopenmp"
+    AC_COMPILE_IFELSE([AC_LANG_SOURCE(
+        [
+        static _Atomic int x;
+        ])],
+        dnl YES
+        [AC_MSG_RESULT([yes])]
+        AC_DEFINE(CYSIGNALS_C_ATOMIC_WITH_OPENMP, 1, [Define to 1 if your C compiler supports _Atomic with OpenMP])
+        ,
+        dnl NO
+        [AC_MSG_RESULT([no])]
+    )
+    CFLAGS="$saved_CFLAGS"
     ,
     dnl NO
     [AC_MSG_RESULT([no])]
@@ -130,6 +146,22 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE(
     dnl YES
     [AC_MSG_RESULT([yes])]
     AC_DEFINE(CYSIGNALS_CXX_ATOMIC, 1, [Define to 1 if your C++ compiler supports _Atomic.])
+
+    AC_MSG_CHECKING([for _Atomic with OpenMP in C++ code])
+    saved_CXXFLAGS="$CXXFLAGS"
+    CXXFLAGS="$CXXFLAGS -fopenmp"
+    AC_COMPILE_IFELSE([AC_LANG_SOURCE(
+        [
+        static _Atomic int x;
+        ])],
+        dnl YES
+        [AC_MSG_RESULT([yes])]
+        AC_DEFINE(CYSIGNALS_CXX_ATOMIC_WITH_OPENMP, 1, [Define to 1 if your C++ compiler supports _Atomic with OpenMP])
+        ,
+        dnl NO
+        [AC_MSG_RESULT([no])]
+    )
+    CXXFLAGS="$saved_CXXFLAGS"
     ,
     dnl NO
     [AC_MSG_RESULT([no])]
@@ -144,6 +176,23 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE(
     dnl YES
     [AC_MSG_RESULT([yes])]
     AC_DEFINE(CYSIGNALS_STD_ATOMIC, 1, [Define to 1 if your C++ compiler supports std::atomic.])
+
+    AC_MSG_CHECKING([for std::atomic with OpenMP in C++ code])
+    saved_CXXFLAGS="$CXXFLAGS"
+    CXXFLAGS="$CXXFLAGS -fopenmp"
+    AC_COMPILE_IFELSE([AC_LANG_SOURCE(
+        [
+        #include <atomic>
+        static std::atomic<int> x;
+        ])],
+        dnl YES
+        [AC_MSG_RESULT([yes])]
+        AC_DEFINE(CYSIGNALS_STD_ATOMIC_WITH_OPENMP, 1, [Define to 1 if your C++ compiler supports std::atomic with OpenMP])
+        ,
+        dnl NO
+        [AC_MSG_RESULT([no])]
+    )
+    CXXFLAGS="$saved_CXXFLAGS"
     ,
     dnl NO
     [AC_MSG_RESULT([no])]

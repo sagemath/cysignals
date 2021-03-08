@@ -46,6 +46,8 @@ Changelog
 1.10.3 (unreleased)
 ^^^^^^^^^^^^^^^^^^^
 
+* Fixed compilation of OpenMP modules that also use cysignals. [#128]
+
 * Fixed segmentation fault that could occur when ``sig_occurred()`` is
   called recursively during garbage collection. [#127]
 

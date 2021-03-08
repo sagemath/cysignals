@@ -1016,6 +1016,7 @@ def test_sig_occurred_dealloc_in_gc():
     keep a reference to the exception so it doesn't go away right away::
 
         >>> from cysignals.tests import *
+        >>> import sys
         >>> e = None
         >>> try:
         ...     test_sig_occurred_dealloc_in_gc()
@@ -1024,7 +1025,12 @@ def test_sig_occurred_dealloc_in_gc():
         >>> print_sig_occurred()
         RuntimeError: test_sig_occurred_dealloc_in_gc()
 
-    Put the exception into a dict containing a reference to itself, so that
+    Python 2 keeps the target of the "except as" in local scope, so make sure
+    to delete it as well::
+
+        >>> if sys.version_info[0] < 3: del exc
+
+    Put the exception into a list containing a reference to itself, so that
     when the garbage collector runs (in ``verify_exc_value``) its reference
     count drops to 1.  Also include a ``DeallocDebug`` so that
     ``sig_occurred()`` is called during GC.
@@ -1033,11 +1039,11 @@ def test_sig_occurred_dealloc_in_gc():
     collector is not called except by ``verify_exc_value()``::
 
         >>> import gc
-        >>> d = {'e': e, 'x': DeallocDebug()}
-        >>> d['d'] = d
+        >>> l = [DeallocDebug(), e]
+        >>> l.append(l)
         >>> gc.disable()
         >>> try:
-        ...     del d, e
+        ...     del l, e
         ...     print_sig_occurred()
         ... finally:
         ...     gc.enable()

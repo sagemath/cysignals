@@ -39,3 +39,17 @@ Links
 * cysignals on the Python package index: https://pypi.org/project/cysignals/
 * cysignals code repository and issue tracker on GitHub: https://github.com/sagemath/cysignals
 * full cysignals documentation on Read the Docs: http://cysignals.readthedocs.io/
+
+Changelog
+---------
+
+1.10.3 (unreleased)
+^^^^^^^^^^^^^^^^^^^
+
+* Improved error reporting of signals that occurred inside ``sig_on()`` as
+  opposed to outside them.
+
+* Fixed bug in the ``cysignals_example`` package. [#113]
+
+For changes in previous releases, see the best source available is to
+compare git tags: https://github.com/sagemath/cysignals/tags

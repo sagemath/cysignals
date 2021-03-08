@@ -41,6 +41,8 @@ install:
     # https://github.com/conda/conda/issues/6030
     - if [ "$TRAVIS_OS_NAME" = linux ]; then conda install binutils gcc_linux-64 gxx_linux-64; fi
     - conda install setuptools pip cython sphinx pari flake8
+    # The flake8 package for Python 2.7 is missing some dependencies
+    - if [ "$PYTHON_VERSION" = "2.7" ]; then conda install functools32 enum34; fi
     - export LDFLAGS="-L$CONDA_PREFIX/lib"
     - export CFLAGS="-I$CONDA_PREFIX/include"
 

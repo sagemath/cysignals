@@ -46,6 +46,9 @@ Changelog
 1.10.3 (unreleased)
 ^^^^^^^^^^^^^^^^^^^
 
+* Fixed segmentation fault that could occur when ``sig_occurred()`` is
+  called recursively during garbage collection. [#127]
+
 * Improved error reporting of signals that occurred inside ``sig_on()`` as
   opposed to outside them.
 

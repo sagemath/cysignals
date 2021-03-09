@@ -46,6 +46,8 @@ Changelog
 1.10.3 (unreleased)
 ^^^^^^^^^^^^^^^^^^^
 
+* Improved installation of cysignals with ``pip install -e``. [#130]
+
 * Fixed compilation of OpenMP modules that also use cysignals. [#128]
 
 * Fixed segmentation fault that could occur when ``sig_occurred()`` is

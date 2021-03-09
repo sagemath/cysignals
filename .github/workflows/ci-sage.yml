@@ -47,7 +47,7 @@ on:
 
 env:
   # Ubuntu packages to install so that the project's "setup.py sdist" can succeed
-  DIST_PREREQ: python3-setuptools
+  DIST_PREREQ: python3-setuptools autoconf
   # Name of this project in the Sage distribution
   SPKG:        cysignals
   # Sage distribution packages to build
@@ -78,7 +78,7 @@ jobs:
           sudo DEBIAN_FRONTEND=noninteractive apt-get install $DIST_PREREQ
       - name: Run make dist, prepare upstream artifact
         run: |
-          (cd build/pkgs/${{ env.SPKG }}/src && python3 setup.py sdist) \
+          (cd build/pkgs/${{ env.SPKG }}/src && autoreconf -fi && python3 setup.py sdist) \
           && mkdir -p upstream && cp build/pkgs/${{ env.SPKG }}/src/dist/*.tar.gz upstream/${{ env.SPKG }}-git.tar.gz \
           && echo "sage-package create ${{ env.SPKG }} --version git --tarball ${{ env.SPKG }}-git.tar.gz --type=standard" > upstream/update-pkgs.sh \
           && if [ -n "${{ env.REMOVE_PATCHES }}" ]; then echo "(cd ../build/pkgs/${{ env.SPKG }}/patches && rm -f ${{ env.REMOVE_PATCHES }}; :)" >> upstream/update-pkgs.sh; fi \

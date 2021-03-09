@@ -50,7 +50,7 @@ install:
     # The flake8 package on conda is quite broken on Python 2.7 and 3.4;
     # use pip to install it instead.  After support for these older versions
     # dropped we can can go back to the conda package.
-    - pip install flake8
+    - pip install flake8 twine
     - export LDFLAGS="-L$CONDA_PREFIX/lib"
     - export CFLAGS="-I$CONDA_PREFIX/include"
 
@@ -63,6 +63,7 @@ script:
     - make -j4 install
     - make -j4 check-all
     - make -j4 distcheck
+    - twine check dist/*
     - flake8 --max-line-length=88 --ignore=E265 src
     - python -c "from cysignals.signals import _pari_version; assert bool(_pari_version()) == ('$PARI' == 'yes')"
 

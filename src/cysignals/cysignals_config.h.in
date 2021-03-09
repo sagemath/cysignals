@@ -34,16 +34,16 @@
 /* Which implementation of atomic variables (if any) to use? */
 #ifndef __cplusplus
 
-#if defined(CYSIGNALS_C_ATOMIC_WITH_OPENMP) || !_OPENMP
+#if defined(CYSIGNALS_C_ATOMIC_WITH_OPENMP) || !defined(_OPENMP)
 #undef CYSIGNALS_C_ATOMIC
 #endif
 
 #else
 
-#if defined(CYSIGNALS_CXX_ATOMIC_WITH_OPENMP) || !_OPENMP
+#if defined(CYSIGNALS_CXX_ATOMIC_WITH_OPENMP) || !defined(_OPENMP)
 #undef CYSIGNALS_CXX_ATOMIC
 #endif
-#if defined(CYSIGNALS_STD_ATOMIC_WITH_OPENMP) || !_OPENMP
+#if defined(CYSIGNALS_STD_ATOMIC_WITH_OPENMP) || !defined(_OPENMP)
 #undef CYSIGNALS_STD_ATOMIC
 #endif
 

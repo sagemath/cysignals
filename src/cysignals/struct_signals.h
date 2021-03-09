@@ -29,9 +29,9 @@
 
 
 /* Define a cy_atomic_int type for atomic operations */
-#if CYSIGNALS_C_ATOMIC || CYSIGNALS_CXX_ATOMIC
+#if defined(CYSIGNALS_C_ATOMIC) || defined(CYSIGNALS_CXX_ATOMIC)
 typedef volatile _Atomic int cy_atomic_int;
-#elif CYSIGNALS_STD_ATOMIC
+#elif defined(CYSIGNALS_STD_ATOMIC)
 #include <atomic>
 typedef volatile std::atomic<int> cy_atomic_int;
 #else
@@ -80,7 +80,7 @@ typedef struct
      * This is used by the sig_occurred function. */
     PyObject* exc_value;
 
-#if ENABLE_DEBUG_CYSIGNALS
+#ifdef ENABLE_DEBUG_CYSIGNALS
     int debug_level;
 #endif
 } cysigs_t;

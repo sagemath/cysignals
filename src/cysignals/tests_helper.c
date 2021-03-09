@@ -25,29 +25,29 @@
 #include <stdio.h>
 #include <string.h>
 #include <signal.h>
-#if HAVE_UNISTD_H
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#if HAVE_SYS_MMAN_H
+#ifdef HAVE_SYS_MMAN_H
 #include <sys/mman.h>
 #endif
-#if HAVE_SYS_TYPES_H
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
-#if HAVE_SYS_TIME_H
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
-#if HAVE_SYS_WAIT_H
+#ifdef HAVE_SYS_WAIT_H
 #include <sys/wait.h>
 #endif
-#if HAVE_WINDOWS_H
+#ifdef HAVE_WINDOWS_H
 #include <windows.h>
 #endif
 
 
 static int on_alt_stack(void)
 {
-#if HAVE_SIGALTSTACK
+#ifdef HAVE_SIGALTSTACK
     stack_t oss;
     sigaltstack(NULL, &oss);
     return oss.ss_flags & SS_ONSTACK;
@@ -60,7 +60,7 @@ static int on_alt_stack(void)
 /* Wait ``ms`` milliseconds */
 static void ms_sleep(long ms)
 {
-#if HAVE_UNISTD_H
+#ifdef HAVE_UNISTD_H
     usleep(1000 * ms);
 #else
     Sleep(ms);
@@ -118,7 +118,7 @@ static void signals_after_delay(int signum, long ms, long interval, int n)
     fflush(stdout);
     fflush(stderr);
 
-#if !HAVE_KILL
+#ifndef HAVE_KILL
     /* On Windows, we just send the signal right away. This is because
      * there is no way to send a signal to an arbitrary process
      * (or thread). Raising the signal here decreases slightly the

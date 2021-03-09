@@ -23,7 +23,7 @@ Interrupt and signal handling for Cython
  ****************************************************************************/
 
 
-#if __USE_FORTIFY_LEVEL
+#ifdef __USE_FORTIFY_LEVEL
 #error "cysignals must be compiled without _FORTIFY_SOURCE"
 #endif
 
@@ -35,26 +35,26 @@ Interrupt and signal handling for Cython
 #include <limits.h>
 #include <errno.h>
 #include <pthread.h>
-#if HAVE_SYS_TYPES_H
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
-#if HAVE_SYS_TIME_H
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
-#if HAVE_SYS_WAIT_H
+#ifdef HAVE_SYS_WAIT_H
 #include <sys/wait.h>
 #endif
-#if HAVE_UNISTD_H
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#if HAVE_EXECINFO_H
+#ifdef HAVE_EXECINFO_H
 #include <execinfo.h>
 #endif
-#if HAVE_SYS_PRCTL_H
+#ifdef HAVE_SYS_PRCTL_H
 #include <sys/prctl.h>
 #endif
 #include <Python.h>
-#if HAVE_PARI
+#ifdef HAVE_PARI
 #include <pari/pari.h>
 #else
 /* Fake PARI variables */
@@ -62,7 +62,7 @@ static int PARI_SIGINT_block = 0;
 static int PARI_SIGINT_pending = 0;
 #define paricfg_version NULL
 #endif
-#if HAVE_WINDOWS_H
+#ifdef HAVE_WINDOWS_H
 /* We must include <windows.h> after <pari.h>
  * See https://github.com/sagemath/cysignals/issues/107 */
 #include <windows.h>
@@ -70,7 +70,7 @@ static int PARI_SIGINT_pending = 0;
 #include "struct_signals.h"
 
 
-#if ENABLE_DEBUG_CYSIGNALS
+#ifdef ENABLE_DEBUG_CYSIGNALS
 static struct timeval sigtime;  /* Time of signal */
 #endif
 
@@ -78,7 +78,7 @@ static struct timeval sigtime;  /* Time of signal */
  * Cython modules using cysignals) */
 static cysigs_t cysigs;
 
-#if HAVE_SIGPROCMASK
+#ifdef HAVE_SIGPROCMASK
 /* The default signal mask during normal operation,
  * initialized by setup_cysignals_handlers(). */
 static sigset_t default_sigmask;
@@ -118,7 +118,7 @@ static int sig_raise_exception(int sig, const char* msg);
  */
 static inline void reset_CPU(void)
 {
-#if HAVE_EMMS
+#ifdef HAVE_EMMS
     /* Clear FPU tag word */
     asm("emms");
 #endif
@@ -137,7 +137,7 @@ static inline void sig_reset_defaults(void) {
     signal(SIGSEGV, SIG_DFL);
     signal(SIGALRM, SIG_DFL);
     signal(SIGTERM, SIG_DFL);
-#if HAVE_SIGPROCMASK
+#ifdef HAVE_SIGPROCMASK
     sigprocmask(SIG_SETMASK, &default_sigmask, NULL);
 #endif
 }
@@ -201,7 +201,7 @@ static inline void sigdie_for_sig(int sig, int inside)
  * PyErr_SetInterrupt() */
 static void cysigs_interrupt_handler(int sig)
 {
-#if ENABLE_DEBUG_CYSIGNALS
+#ifdef ENABLE_DEBUG_CYSIGNALS
     if (cysigs.debug_level >= 1) {
         fprintf(stderr, "\n*** SIG %i *** %s sig_on\n", sig, (cysigs.sig_on_count > 0) ? "inside" : "outside");
         if (cysigs.debug_level >= 3) print_backtrace();
@@ -254,7 +254,7 @@ static void cysigs_signal_handler(int sig)
     if (inside == 0 && cysigs.sig_on_count > 0 && sig != SIGQUIT)
     {
         /* We are inside sig_on(), so we can handle the signal! */
-#if ENABLE_DEBUG_CYSIGNALS
+#ifdef ENABLE_DEBUG_CYSIGNALS
         if (cysigs.debug_level >= 1) {
             fprintf(stderr, "\n*** SIG %i *** inside sig_on\n", sig);
             if (cysigs.debug_level >= 3) print_backtrace();
@@ -368,7 +368,7 @@ static void setup_trampoline(void)
 /* This calls sig_raise_exception() to actually raise the exception. */
 static void do_raise_exception(int sig)
 {
-#if ENABLE_DEBUG_CYSIGNALS
+#ifdef ENABLE_DEBUG_CYSIGNALS
     struct timeval raisetime;
     if (cysigs.debug_level >= 2) {
         gettimeofday(&raisetime, NULL);
@@ -390,7 +390,7 @@ static void do_raise_exception(int sig)
  * received *before* the call to sig_on(). */
 static void _sig_on_interrupt_received(void)
 {
-#if HAVE_SIGPROCMASK
+#ifdef HAVE_SIGPROCMASK
     /* Momentarily block signals to avoid race conditions */
     sigset_t oldset;
     sigprocmask(SIG_BLOCK, &sigmask_with_sigint, &oldset);
@@ -401,7 +401,7 @@ static void _sig_on_interrupt_received(void)
     cysigs.interrupt_received = 0;
     PARI_SIGINT_pending = 0;
 
-#if HAVE_SIGPROCMASK
+#ifdef HAVE_SIGPROCMASK
     sigprocmask(SIG_SETMASK, &oldset, NULL);
 #endif
 }
@@ -416,7 +416,7 @@ static void _sig_on_recover(void)
     cysigs.interrupt_received = 0;
     PARI_SIGINT_pending = 0;
 
-#if HAVE_SIGPROCMASK
+#ifdef HAVE_SIGPROCMASK
     /* Reset signal mask */
     sigprocmask(SIG_SETMASK, &default_sigmask, NULL);
 #endif
@@ -441,7 +441,7 @@ static void _sig_off_warning(const char* file, int line)
 
 static void setup_alt_stack(void)
 {
-#if HAVE_SIGALTSTACK
+#ifdef HAVE_SIGALTSTACK
     /* Static space for the alternate signal stack. The size should be
      * of the form MINSIGSTKSZ + constant. The constant is chosen rather
      * ad hoc but sufficiently large. */
@@ -467,7 +467,7 @@ static void setup_cysignals_handlers(void)
     /* Reset the cysigs structure */
     memset(&cysigs, 0, sizeof(cysigs));
 
-#if HAVE_SIGPROCMASK
+#ifdef HAVE_SIGPROCMASK
     /* Block non-critical signals during the signal handlers and while
      * cleaning up after handling a signal */
     sigaddset(&sa.sa_mask, SIGHUP);
@@ -480,7 +480,7 @@ static void setup_cysignals_handlers(void)
     sigprocmask(SIG_BLOCK, &sa.sa_mask, &default_sigmask);
 #endif
     setup_trampoline();
-#if HAVE_SIGPROCMASK
+#ifdef HAVE_SIGPROCMASK
     sigprocmask(SIG_SETMASK, &default_sigmask, &sigmask_with_sigint);
 #endif
 
@@ -517,7 +517,7 @@ static void print_sep(void)
 static void print_backtrace()
 {
     fflush(stderr);
-#if HAVE_BACKTRACE
+#ifdef HAVE_BACKTRACE
     void* backtracebuffer[BACKTRACELEN];
     int btsize = backtrace(backtracebuffer, BACKTRACELEN);
     if (btsize)
@@ -542,7 +542,7 @@ static void print_enhanced_backtrace(void)
     fflush(stderr);
 
     /* Enhanced backtraces are only supported on POSIX systems */
-#if HAVE_FORK
+#ifdef HAVE_FORK
     pid_t parent_pid = getpid();
     pid_t pid = fork();
 
@@ -591,7 +591,7 @@ static void sigdie(int sig, const char* s)
     print_sep();
     print_backtrace();
 
-#if ENABLE_DEBUG_CYSIGNALS
+#ifdef ENABLE_DEBUG_CYSIGNALS
     /* Interrupt debugging is enabled, don't do enhanced backtraces as
      * the user is probably using other debugging tools and we don't
      * want to interfere with that. */

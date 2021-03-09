@@ -26,7 +26,7 @@
 #include <setjmp.h>
 
 
-#if CYSIGNALS_ASM_CYSETJMP
+#ifdef CYSIGNALS_ASM_CYSETJMP
 #ifdef __x86_64__
 /*
  * x86_64 assembly implementation of cysetjmp(): we store the registers

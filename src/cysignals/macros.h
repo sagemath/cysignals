@@ -62,7 +62,7 @@ extern "C" {
  * sends a signal to the calling thread, while kill() typically sends
  * a signal to the main thread (although this is not guaranteed by the
  * POSIX standard) */
-#if HAVE_KILL
+#ifdef HAVE_KILL
 #define proc_raise(sig)  kill(getpid(), sig)
 #else
 /* On Windows, raise() actually signals the process */
@@ -115,7 +115,7 @@ extern "C" {
 static inline int _sig_on_prejmp(const char* message, const char* file, int line)
 {
     cysigs.s = message;
-#if ENABLE_DEBUG_CYSIGNALS
+#ifdef ENABLE_DEBUG_CYSIGNALS
     if (cysigs.debug_level >= 4)
     {
         fprintf(stderr, "sig_on (count = %i) at %s:%i\n",
@@ -179,7 +179,7 @@ static inline int _sig_on_postjmp(int jmpret)
  */
 static inline void _sig_off_(const char* file, int line)
 {
-#if ENABLE_DEBUG_CYSIGNALS
+#ifdef ENABLE_DEBUG_CYSIGNALS
     if (cysigs.debug_level >= 4)
     {
         fprintf(stderr, "sig_off (count = %i) at %s:%i\n",
@@ -254,7 +254,7 @@ static inline void sig_block(void)
 
 static inline void sig_unblock(void)
 {
-#if ENABLE_DEBUG_CYSIGNALS
+#ifdef ENABLE_DEBUG_CYSIGNALS
     if (cysigs.block_sigint < 1)
     {
         fprintf(stderr, "\n*** ERROR *** sig_unblock() with sig_on_count = %i, block_sigint = %i\n",
@@ -301,7 +301,7 @@ static inline void sig_error(void)
 
 static inline int _set_debug_level(int level)
 {
-#if ENABLE_DEBUG_CYSIGNALS
+#ifdef ENABLE_DEBUG_CYSIGNALS
     int old = cysigs.debug_level;
     cysigs.debug_level = level;
     return old;

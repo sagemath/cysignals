@@ -27,17 +27,24 @@
 
 
 /* An implementation of atomic variables might not be allowed with OpenMP */
-#if _OPENMP
-#define CYSIGNALS_C_ATOMIC CYSIGNALS_C_ATOMIC_WITH_OPENMP
-#define CYSIGNALS_CXX_ATOMIC CYSIGNALS_CXX_ATOMIC_WITH_OPENMP
-#define CYSIGNALS_STD_ATOMIC CYSIGNALS_STD_ATOMIC_WITH_OPENMP
-#endif
-
+#undef CYSIGNALS_C_ATOMIC_WITH_OPENMP
+#undef CYSIGNALS_CXX_ATOMIC_WITH_OPENMP
+#undef CYSIGNALS_STD_ATOMIC_WITH_OPENMP
 
 /* Which implementation of atomic variables (if any) to use? */
 #ifndef __cplusplus
+
+#if defined(CYSIGNALS_C_ATOMIC_WITH_OPENMP) || !defined(_OPENMP)
 #undef CYSIGNALS_C_ATOMIC
+#endif
+
 #else
+
+#if defined(CYSIGNALS_CXX_ATOMIC_WITH_OPENMP) || !defined(_OPENMP)
 #undef CYSIGNALS_CXX_ATOMIC
+#endif
+#if defined(CYSIGNALS_STD_ATOMIC_WITH_OPENMP) || !defined(_OPENMP)
 #undef CYSIGNALS_STD_ATOMIC
+#endif
+
 #endif

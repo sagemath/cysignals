@@ -138,6 +138,7 @@ setup(
     license="GNU Lesser General Public License, version 3 or later",
     description="Interrupt and signal handling for Cython",
     long_description=README,
+    long_description_content_type='text/x-rst',
     classifiers=classifiers,
     install_requires=["Cython>=0.28"],
     setup_requires=["Cython>=0.28"],

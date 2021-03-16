@@ -12,7 +12,7 @@ if "READTHEDOCS" in os.environ:
         check_call([sys.executable, "-m", "pip", "install", "-r", reqs])
 
 from setuptools import setup
-from distutils.command.build import build as _build
+from distutils.command.build_ext import build_ext as _build_ext
 from distutils.command.build_py import build_py as _build_py
 from setuptools.command.bdist_egg import bdist_egg as _bdist_egg
 from setuptools.extension import Extension
@@ -83,14 +83,26 @@ classifiers = [
 ]
 
 
-# Run Distutils
-class build(_build):
+def is_newer_than(file1, file2):
+    """
+    Return True if file1 is newer than file2.
+
+    Also returns True if file2 does not exist (file1 *must* exist).
+    """
+
+    if not os.path.isfile(file2):
+        return True
+
+    return os.stat(file1).st_mtime < os.stat(file2).st_mtime
+
+
+class build_ext(_build_ext):
     def run(self):
         """
         Run ``./configure`` and Cython first.
         """
         config_h = opj("src", "cysignals", "cysignals_config.h")
-        if not os.path.isfile(config_h):
+        if is_newer_than('configure.ac', config_h):
             import subprocess
             subprocess.check_call(["make", "configure"])
             subprocess.check_call(["sh", "configure"])
@@ -100,7 +112,7 @@ class build(_build):
         if ext_modules:
             dist.ext_modules[:] = self.cythonize(ext_modules)
 
-        _build.run(self)
+        _build_ext.run(self)
 
     def cythonize(self, extensions):
         # Run Cython with -Werror on continuous integration services
@@ -119,7 +131,11 @@ class build(_build):
 class no_egg(_bdist_egg):
     def run(self):
         from distutils.errors import DistutilsOptionError
-        raise DistutilsOptionError("The package cysignals will not function correctly when built as egg. Therefore, it cannot be installed using 'python setup.py install' or 'easy_install'. Instead, use 'pip install' to install cysignals.")
+        raise DistutilsOptionError(
+            "The package cysignals will not function correctly when built as "
+            "egg. Therefore, it cannot be installed using "
+            "'python setup.py install' or 'easy_install'. Instead, use "
+            "'pip install' to install cysignals.")
 
 
 with open("VERSION") as f:
@@ -149,5 +165,5 @@ setup(
     package_data={"cysignals": ["*.pxd", "*.h"]},
     data_files=[(opj("share", "cysignals"), [opj("src", "scripts", "cysignals-CSI-helper.py")])],
     scripts=glob(opj("src", "scripts", "cysignals-CSI")),
-    cmdclass=dict(build=build, bdist_egg=no_egg),
+    cmdclass=dict(build_ext=build_ext, bdist_egg=no_egg),
 )

@@ -70,15 +70,15 @@ script:
     - flake8 --max-line-length=88 --ignore=E265 src
     - python -c "from cysignals.signals import _pari_version; assert bool(_pari_version()) == ('$PARI' == 'yes')"
 
-deploy:
-  provider: releases
-  api_key:
-    secure: nbhpI3eKptUd6TM7nhl8q7oMRztnBEvQmX9/Xks7bmHa+KRy/ifg1/Jx5a7OMnWgzjJ4lbtEO0NDsg/QTOjBsQSV8mot1/NUgXsuPEVpurqTl1KYk9GgX+7utO/KA5mlbXnGkTpzu0/FYHg7qRigWXe7vDILkhst1MR4RTrfA6KzZSq9UKKyNg7eGwWR4tit5OB0z1Ehe1OvdhOlUMBfDBSC5hbM99bm0/oLYNqUeqqP1cRamvpiLaNMVcRG5PRzR/a0QMEGDhZH5BasjFzZZKPa56+J8N/KdRocxrjzIJEYQORgRDyqRrTPEs4jfwL37kcElPNup4j2iefVZ+61bQWk3r3s98MRxl9vk2uLpI0AgfzUn+fpiKuxJNJ424DffJ1iVJSQsKTihww3whOFuf5ZIQS2KtzcZCUHTkD1rX1aawedQ8IaUMx6XWxE+b0x33BroQ04TooDNmww8Q9md6ZauA+4chUlv8YmXaE4NkRRsCxbrcHna5LEz5vFRcvuG/e6PWM9MFUxTzlqHoxgkawJm+DkGe3qWk5a1zut/tesqvrdM1R23G85T6c+FR2wshS5cKcY6OYpYsD5wRJzd0MRKScTCDhEyODydaFRGKQbf2QizFHqN92QYs+rNK4WjVTmHDsETdKczyRJYfsqsTXnw162UjYtwDT5JPJCOlg=
-
-  file: dist/cysignals-*.tar.gz
-  file_glob: true
-  skip_cleanup: true
-  on:
-    repo: sagemath/cysignals
-    all_branches: true
-    tags: true
+#deploy:
+#  provider: releases
+#  api_key:
+#    secure: nbhpI3eKptUd6TM7nhl8q7oMRztnBEvQmX9/Xks7bmHa+KRy/ifg1/Jx5a7OMnWgzjJ4lbtEO0NDsg/QTOjBsQSV8mot1/NUgXsuPEVpurqTl1KYk9GgX+7utO/KA5mlbXnGkTpzu0/FYHg7qRigWXe7vDILkhst1MR4RTrfA6KzZSq9UKKyNg7eGwWR4tit5OB0z1Ehe1OvdhOlUMBfDBSC5hbM99bm0/oLYNqUeqqP1cRamvpiLaNMVcRG5PRzR/a0QMEGDhZH5BasjFzZZKPa56+J8N/KdRocxrjzIJEYQORgRDyqRrTPEs4jfwL37kcElPNup4j2iefVZ+61bQWk3r3s98MRxl9vk2uLpI0AgfzUn+fpiKuxJNJ424DffJ1iVJSQsKTihww3whOFuf5ZIQS2KtzcZCUHTkD1rX1aawedQ8IaUMx6XWxE+b0x33BroQ04TooDNmww8Q9md6ZauA+4chUlv8YmXaE4NkRRsCxbrcHna5LEz5vFRcvuG/e6PWM9MFUxTzlqHoxgkawJm+DkGe3qWk5a1zut/tesqvrdM1R23G85T6c+FR2wshS5cKcY6OYpYsD5wRJzd0MRKScTCDhEyODydaFRGKQbf2QizFHqN92QYs+rNK4WjVTmHDsETdKczyRJYfsqsTXnw162UjYtwDT5JPJCOlg=
+#
+#  file: dist/cysignals-*.tar.gz
+#  file_glob: true
+#  skip_cleanup: true
+#  on:
+#    repo: sagemath/cysignals
+#    all_branches: true
+#    tags: true

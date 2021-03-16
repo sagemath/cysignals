@@ -98,7 +98,7 @@ def is_newer_than(file1, file2):
     if not os.path.isfile(file2):
         return True
 
-    return os.stat(file1).st_mtime < os.stat(file2).st_mtime
+    return os.stat(file1).st_mtime > os.stat(file2).st_mtime
 
 
 class configure(Command):

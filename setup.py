@@ -13,7 +13,6 @@ if "READTHEDOCS" in os.environ:
 
 from setuptools import setup
 from distutils.command.build_ext import build_ext as _build_ext
-from distutils.command.build_py import build_py as _build_py
 from setuptools.command.bdist_egg import bdist_egg as _bdist_egg
 from setuptools.extension import Extension
 

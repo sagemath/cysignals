@@ -14,7 +14,7 @@ if "READTHEDOCS" in os.environ:
                 [sys.executable, "-m", "pip", "install", "-r", reqs])
 
 from setuptools import setup, Command
-from distutils.command.build import build as _build
+from distutils.command.build_py import build_py as _build_py
 # Explicitly use the build_ext from distutils for now so we don't get the
 # old one that tries to wrap Cython for us.  This shold be fixed with newer
 # versions of setuptools.
@@ -146,6 +146,8 @@ class configure(Command):
 
 class build_ext(_build_ext):
     def run(self):
+        # Make sure configure has been run
+        self.run_command('configure')
         dist = self.distribution
         ext_modules = dist.ext_modules
         if ext_modules:
@@ -167,9 +169,11 @@ class build_ext(_build_ext):
                 compiler_directives=dict(binding=True, language_level=2))
 
 
-class build(_build):
-    # Override the build command to add configure as its first sub-command
-    sub_commands = [('configure', lambda self: True)] + _build.sub_commands
+class build_py(_build_py):
+    # Override the build_py command to run configure as a prerequisite
+    def run(self):
+        self.run_command('configure')
+        _build_py.run(self)
 
 
 class no_egg(_bdist_egg):
@@ -211,7 +215,7 @@ setup(
     scripts=glob(opj("src", "scripts", "cysignals-CSI")),
     cmdclass=dict(
         configure=configure,
-        build=build,
+        build_py=build_py,
         build_ext=build_ext,
         bdist_egg=no_egg
     ),

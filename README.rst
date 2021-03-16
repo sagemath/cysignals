@@ -43,6 +43,12 @@ Links
 Changelog
 ---------
 
+1.11.0 (unreleased)
+^^^^^^^^^^^^^^^^^^^
+
+* Nothing changed yet.
+
+
 1.10.4 (unreleased)
 ^^^^^^^^^^^^^^^^^^^
 

@@ -43,7 +43,13 @@ Links
 Changelog
 ---------
 
-1.10.3 (unreleased)
+1.10.4 (unreleased)
+^^^^^^^^^^^^^^^^^^^
+
+* Nothing changed yet.
+
+
+1.10.3 (2021-03-16)
 ^^^^^^^^^^^^^^^^^^^
 
 * Improved installation of cysignals with ``pip install -e``. [#130]

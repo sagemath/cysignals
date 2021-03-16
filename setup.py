@@ -14,7 +14,7 @@ if "READTHEDOCS" in os.environ:
                 [sys.executable, "-m", "pip", "install", "-r", reqs])
 
 from setuptools import setup, Command
-from distutils.command.build_py import build_py as _build_py
+from setuptools.command.build_py import build_py as _build_py
 # Explicitly use the build_ext from distutils for now so we don't get the
 # old one that tries to wrap Cython for us.  This shold be fixed with newer
 # versions of setuptools.

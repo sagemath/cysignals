@@ -36,8 +36,8 @@ before_build:
   - python%PYTHON_VERSION% -m cython --version
 
 build_script:
-  - '%MAKE% install'
+  - '%MAKE% install PYTHON=python%PYTHON_VERSION%'
 
 test_script:
-  - '%MAKE% check-all'
-  - '%MAKE% distcheck'
+  - '%MAKE% check-all PYTHON=python%PYTHON_VERSION%'
+  - '%MAKE% distcheck PYTHON=python%PYTHON_VERSION%'

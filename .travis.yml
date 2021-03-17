@@ -8,12 +8,10 @@ env:
   global:
     - PYTHON_LATEST_SUPPORTED=3.7
   matrix:
-    - PYTHON_VERSION=2.7 PARI=yes
     - PYTHON_VERSION=3.4 PARI=yes
     - PYTHON_VERSION=3.5 PARI=yes
     - PYTHON_VERSION=3.6 PARI=yes
     - PYTHON_VERSION=3.7 PARI=yes
-    - PYTHON_VERSION=2.7 PARI=no
     - PYTHON_VERSION=3.7 PARI=no
 
 install:
@@ -44,8 +42,8 @@ install:
     - if [ "$TRAVIS_OS_NAME" = linux ]; then conda install -y binutils gcc_linux-64 gxx_linux-64; fi
     - conda install -y setuptools pip cython sphinx pari
     # The 'pip' package for Python 3.4 on conda is broken for newer versions
-    - if [ "$PYTHON_VERSION" = "3.4" ]; then conda install 'pip<20.0'; fi
-    # The flake8 package on conda is quite broken on Python 2.7 and 3.4;
+    - if [ "$PYTHON_VERSION" = "3.4" ]; then pip install 'cython>=0.28,<3.0'; else conda install -y cython; fi
+    # The flake8 package on conda is quite broken on Python 3.4;
     # use pip to install it instead.  After support for these older versions
     # dropped we can can go back to the conda package.
     - pip install flake8

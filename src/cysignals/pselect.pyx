@@ -65,8 +65,6 @@ Now using the ``multiprocessing`` module::
 #
 #*****************************************************************************
 
-from __future__ import absolute_import
-
 cimport libc.errno
 from posix.signal cimport *
 from posix.select cimport *

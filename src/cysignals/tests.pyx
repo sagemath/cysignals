@@ -37,8 +37,6 @@ Verify that the doctester was set up correctly::
 #
 #*****************************************************************************
 
-from __future__ import absolute_import
-
 from libc.signal cimport (SIGHUP, SIGINT, SIGABRT, SIGILL, SIGSEGV,
         SIGFPE, SIGBUS, SIGQUIT)
 from libc.stdlib cimport abort
@@ -897,34 +895,18 @@ def print_sig_occurred():
         No current exception
 
     In Python 3 and in Cython, the exception remains alive only inside
-    the ``except`` clause handling the exception. In Python 2, it stays
-    alive as long as the stack frame where it was raised is still running
-    and calling ``sys.exc_clear()`` clears it::
+    the ``except`` clause handling the exception::
 
         >>> import sys
         >>> from cysignals.alarm import alarm
-        >>> if hasattr(sys, "exc_clear"):
-        ...     # Python 2
-        ...     def testfunc():
-        ...         try:
-        ...             alarm(0.1)
-        ...             while True:
-        ...                pass
-        ...         except KeyboardInterrupt:
-        ...             pass
+        >>> def testfunc():
+        ...     try:
+        ...         alarm(0.1)
+        ...         while True:
+        ...            pass
+        ...     except KeyboardInterrupt:
         ...         print_sig_occurred()
-        ...         sys.exc_clear()
-        ...         print_sig_occurred()
-        ... else:
-        ...     # Python 3
-        ...     def testfunc():
-        ...         try:
-        ...             alarm(0.1)
-        ...             while True:
-        ...                pass
-        ...         except KeyboardInterrupt:
-        ...             print_sig_occurred()
-        ...         print_sig_occurred()
+        ...     print_sig_occurred()
         >>> testfunc()
         AlarmInterrupt
         No current exception
@@ -1024,11 +1006,6 @@ def test_sig_occurred_dealloc_in_gc():
         ...     e = exc
         >>> print_sig_occurred()
         RuntimeError: test_sig_occurred_dealloc_in_gc()
-
-    Python 2 keeps the target of the "except as" in local scope, so make sure
-    to delete it as well::
-
-        >>> if sys.version_info[0] < 3: del exc
 
     Put the exception into a list containing a reference to itself, so that
     when the garbage collector runs (in ``verify_exc_value``) its reference

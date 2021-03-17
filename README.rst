@@ -28,7 +28,7 @@ signals and errors) in Cython code.
 Requirements
 ------------
 
-- Python 2.7 or Python >= 3.4
+- Python >= 3.4
 - Cython >= 0.28
 - Sphinx >= 1.6 (for building the documentation)
 - PARI/GP (optional; for interfacing with the PARI/GP signal handler)

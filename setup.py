@@ -76,8 +76,6 @@ classifiers = [
     'Programming Language :: C',
     'Programming Language :: Cython',
     'Programming Language :: Python',
-    'Programming Language :: Python :: 2',
-    'Programming Language :: Python :: 2.7',
     'Programming Language :: Python :: 3',
     'Programming Language :: Python :: 3.4',
     'Programming Language :: Python :: 3.5',
@@ -153,7 +151,7 @@ class build_ext(_build_ext):
         if ext_modules:
             dist.ext_modules[:] = self.cythonize(ext_modules)
 
-        _build_ext.run(self)
+        super().run()
 
     def cythonize(self, extensions):
         # Run Cython with -Werror on continuous integration services
@@ -173,7 +171,7 @@ class build_py(_build_py):
     # Override the build_py command to run configure as a prerequisite
     def run(self):
         self.run_command('configure')
-        _build_py.run(self)
+        super().run()
 
 
 class no_egg(_bdist_egg):

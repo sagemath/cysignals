@@ -11,21 +11,24 @@ environment:
     # isn't covered by this document) at the time of writing.
     - os: Cygwin
       CYG_ROOT: "C:\\cygwin64"
-      PYTHON: "C:\\cygwin64\\bin"
+      PYTHON_PATH: "C:\\cygwin64\\bin"
       PYTHON_VERSION: "2.7"
       ARCH: x86_64
       MAKE: make
 
 before_build:
   - echo "Building Cysignals for %OS%"
-  - set PATH=%PYTHON%;%PYTHON%\\scripts;%TOOLSPATH%;%PATH%
+  - set PATH=%PYTHON_PATH%;%PYTHON_PATH%\\scripts;%TOOLSPATH%;%PATH%
   - echo %PATH%
   - ps: >-
       if ( "$Env:OS" -ieq "Cygwin" ) {
           $python = "python" + $Env:PYTHON_VERSION[0] + $Env:PYTHON_VERSION[2]
           Start-Process -NoNewWindow -Wait `
               -FilePath $Env:CYG_ROOT\setup-$Env:ARCH.exe `
+              -RedirectStandardOutput out.txt -RedirectStandardError err.txt `
               -ArgumentList "-q -P $python,$python-devel,$python-pip,gcc-core,gcc-g++,libcrypt-devel"
+          Get-Content -Path out.txt
+          Get-Content -Path err.txt
       }
   - cd C:\projects\cysignals
   - python%PYTHON_VERSION% -c "import sys; print(sys.version); print(sys.platform); print(sys.path)"

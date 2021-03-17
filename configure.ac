@@ -108,10 +108,20 @@ if test x$sigsetjmp = xyes; then
 fi
 
 AC_MSG_CHECKING([for assembly implementation of cysetjmp])
-AC_COMPILE_IFELSE([AC_LANG_SOURCE(
+AC_RUN_IFELSE([AC_LANG_SOURCE(
     [
     #define CYSIGNALS_ASM_CYSETJMP 1
     #include "src/cysignals/cysetjmp.h"
+    int main(void) {
+        cyjmp_buf jmp_buf;
+        int ret = cysetjmp(jmp_buf);
+        if (ret != 0) {
+            return !ret;
+        }
+
+        cylongjmp(jmp_buf, 1);
+        return 1;
+    }
     ])],
     dnl YES
     [AC_MSG_RESULT([yes])]

@@ -206,7 +206,14 @@ setup(
     classifiers=classifiers,
     install_requires=["Cython>=0.28"],
     setup_requires=["Cython>=0.28"],
-
+    extras_require={
+        "tests": [
+            "pytest>=6.0",
+            "pytest-cython>=0.2",
+            "pytest-timeout",
+            "pytest-xdist"
+        ]
+    },
     ext_modules=extensions,
     packages=["cysignals"],
     package_dir={"": "src"},

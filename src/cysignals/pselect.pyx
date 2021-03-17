@@ -349,6 +349,7 @@ cdef class PSelecter:
         and writing::
 
             >>> from cysignals.pselect import PSelecter
+            >>> import os
             >>> f = open(os.devnull, "r+")
             >>> sel = PSelecter()
             >>> sel.pselect(rlist=[f])

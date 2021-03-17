@@ -23,8 +23,6 @@ See ``tests.pyx`` for extensive tests.
 #
 #*****************************************************************************
 
-from __future__ import absolute_import
-
 from libc.signal cimport *
 from libc.stdio cimport freopen, stdin
 from cpython.ref cimport Py_XINCREF, Py_XDECREF
@@ -73,10 +71,7 @@ def _pari_version():
     if paricfg_version is NULL:
         return None
     cdef bytes v = paricfg_version
-    if PY_MAJOR_VERSION <= 2:
-        return v
-    else:
-        return v.decode("ascii")
+    return v.decode('ascii')
 
 
 class AlarmInterrupt(KeyboardInterrupt):
@@ -97,7 +92,7 @@ class AlarmInterrupt(KeyboardInterrupt):
         >>> from cysignals.signals import sig_print_exception
         >>> import signal
         >>> sig_print_exception(signal.SIGALRM)
-        AlarmInterrupt
+        cysignals.signals.AlarmInterrupt
 
     """
     pass
@@ -113,7 +108,7 @@ class SignalError(BaseException):
         >>> from cysignals.signals import sig_print_exception
         >>> import signal
         >>> sig_print_exception(signal.SIGSEGV)
-        SignalError: Segmentation fault
+        cysignals.signals.SignalError: Segmentation fault
 
     """
     pass
@@ -189,7 +184,7 @@ def sig_print_exception(sig, msg=None):
         >>> sig_print_exception(signal.SIGFPE)
         FloatingPointError: Floating point exception
         >>> sig_print_exception(signal.SIGBUS, "CUSTOM MESSAGE")
-        SignalError: CUSTOM MESSAGE
+        cysignals.signals.SignalError: CUSTOM MESSAGE
         >>> sig_print_exception(0)
         SystemError: unknown signal number 0
 
@@ -198,7 +193,7 @@ def sig_print_exception(sig, msg=None):
         >>> sig_print_exception(signal.SIGINT, "ignored")
         KeyboardInterrupt
         >>> sig_print_exception(signal.SIGALRM, "ignored")
-        AlarmInterrupt
+        cysignals.signals.AlarmInterrupt
 
     """
     cdef const char* m
@@ -213,12 +208,7 @@ def sig_print_exception(sig, msg=None):
         # Print exception to stdout without traceback
         import sys, traceback
         typ, val, tb = sys.exc_info()
-        try:
-            # Python 3
-            traceback.print_exception(typ, val, None, file=sys.stdout, chain=False)
-        except TypeError:
-            # Python 2
-            traceback.print_exception(typ, val, None, file=sys.stdout)
+        traceback.print_exception(typ, val, None, file=sys.stdout, chain=False)
 
 
 def init_cysignals():

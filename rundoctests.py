@@ -5,8 +5,6 @@
 # We add the ELLIPSIS flag by default and we run all tests even if
 # one fails.
 #
-from __future__ import print_function
-
 import os
 import sys
 import doctest
@@ -56,15 +54,7 @@ class CysignalsDocTestParser(DocTestParser):
 parser = CysignalsDocTestParser()
 
 
-print("Doctesting {} files.".format(len(filenames)))
-
-# For doctests, we want exceptions to look the same,
-# regardless of the Python version. Python 3 will put the
-# module name in the traceback, which we avoid by faking
-# the module to be __main__.
-from cysignals.signals import AlarmInterrupt, SignalError
-for typ in [AlarmInterrupt, SignalError]:
-    typ.__module__ = "__main__"
+print(f"Doctesting {len(filenames)} files.")
 
 
 if os.name != 'nt':
@@ -83,7 +73,8 @@ def testfile(file):
         if sys.platform == 'darwin':
             from cysignals.signals import _setup_alt_stack
             _setup_alt_stack()
-        failures, _ = doctest.testfile(file, module_relative=False, optionflags=flags, parser=parser)
+        failures, _ = doctest.testfile(file, module_relative=False,
+                                       optionflags=flags, parser=parser)
         if not failures:
             os._exit(0)
     except BaseException as E:
@@ -108,14 +99,14 @@ if __name__ == "__main__":
 
         if p.is_alive():
             p.terminate()
-            print("Doctest {} terminated. Timeout limit exceeded "
-                  "(>{}s)".format(f, timeout), file=sys.stderr)
+            print(f"Doctest {f} terminated. Timeout limit exceeded "
+                  f"(>{timeout}s)", file=sys.stderr)
             success = False
         elif status != 0:
             success = False
             if status < 0:
-                print("killed by signal: {}".format(abs(status)), file=sys.stderr)
+                print(f"killed by signal: {abs(status)}", file=sys.stderr)
             elif status != 23:
-                print("bad exit: {}".format(status), file=sys.stderr)
+                print(f"bad exit: {status}", file=sys.stderr)
 
     sys.exit(0 if success else 1)

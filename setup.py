@@ -76,13 +76,11 @@ classifiers = [
     'Programming Language :: C',
     'Programming Language :: Cython',
     'Programming Language :: Python',
-    'Programming Language :: Python :: 2',
-    'Programming Language :: Python :: 2.7',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.4',
-    'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
     'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
     'Topic :: System',
     'Topic :: Software Development :: Debuggers',
 ]
@@ -153,14 +151,13 @@ class build_ext(_build_ext):
         if ext_modules:
             dist.ext_modules[:] = self.cythonize(ext_modules)
 
-        _build_ext.run(self)
+        super().run()
 
     def cythonize(self, extensions):
         # Run Cython with -Werror on continuous integration services
         # with Python 3.6 or later
-        if "CI" in os.environ and sys.version_info >= (3, 6):
-            from Cython.Compiler import Options
-            Options.warning_errors = True
+        from Cython.Compiler import Options
+        Options.warning_errors = True
 
         from Cython.Build.Dependencies import cythonize
         return cythonize(extensions,
@@ -173,7 +170,7 @@ class build_py(_build_py):
     # Override the build_py command to run configure as a prerequisite
     def run(self):
         self.run_command('configure')
-        _build_py.run(self)
+        super().run()
 
 
 class no_egg(_bdist_egg):

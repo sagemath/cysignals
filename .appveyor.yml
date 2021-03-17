@@ -26,7 +26,7 @@ before_build:
           Start-Process -NoNewWindow -Wait `
               -FilePath $Env:CYG_ROOT\setup-$Env:ARCH.exe `
               -RedirectStandardOutput out.txt -RedirectStandardError err.txt `
-              -ArgumentList "-q -P $python,$python-devel,$python-pip,gcc-core,gcc-g++,libcrypt-devel"
+              -ArgumentList "-q -P $python,$python-devel,$python-pip,gcc-core,gcc-g++,binutils,libcrypt-devel"
           Get-Content -Path out.txt
           Get-Content -Path err.txt
       }

@@ -92,7 +92,7 @@ class AlarmInterrupt(KeyboardInterrupt):
         >>> from cysignals.signals import sig_print_exception
         >>> import signal
         >>> sig_print_exception(signal.SIGALRM)
-        AlarmInterrupt
+        cysignals.signals.AlarmInterrupt
 
     """
     pass
@@ -108,7 +108,7 @@ class SignalError(BaseException):
         >>> from cysignals.signals import sig_print_exception
         >>> import signal
         >>> sig_print_exception(signal.SIGSEGV)
-        SignalError: Segmentation fault
+        cysignals.signals.SignalError: Segmentation fault
 
     """
     pass
@@ -184,7 +184,7 @@ def sig_print_exception(sig, msg=None):
         >>> sig_print_exception(signal.SIGFPE)
         FloatingPointError: Floating point exception
         >>> sig_print_exception(signal.SIGBUS, "CUSTOM MESSAGE")
-        SignalError: CUSTOM MESSAGE
+        cysignals.signals.SignalError: CUSTOM MESSAGE
         >>> sig_print_exception(0)
         SystemError: unknown signal number 0
 
@@ -193,7 +193,7 @@ def sig_print_exception(sig, msg=None):
         >>> sig_print_exception(signal.SIGINT, "ignored")
         KeyboardInterrupt
         >>> sig_print_exception(signal.SIGALRM, "ignored")
-        AlarmInterrupt
+        cysignals.signals.AlarmInterrupt
 
     """
     cdef const char* m

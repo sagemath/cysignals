@@ -485,7 +485,7 @@ def test_signal_segv(long delay=DEFAULT_DELAY):
         >>> test_signal_segv()
         Traceback (most recent call last):
         ...
-        SignalError: Segmentation fault
+        cysignals.signals.SignalError: Segmentation fault
 
     """
     with nogil:
@@ -517,7 +517,7 @@ def test_signal_ill(long delay=DEFAULT_DELAY):
         >>> test_signal_ill()
         Traceback (most recent call last):
         ...
-        SignalError: Illegal instruction
+        cysignals.signals.SignalError: Illegal instruction
 
     """
     with nogil:
@@ -549,7 +549,7 @@ def test_signal_bus(long delay=DEFAULT_DELAY):
         >>> test_signal_bus()
         Traceback (most recent call last):
         ...
-        SignalError: Bus error
+        cysignals.signals.SignalError: Bus error
 
     """
     with nogil:
@@ -590,7 +590,7 @@ def test_dereference_null_pointer():
         >>> test_dereference_null_pointer()
         Traceback (most recent call last):
         ...
-        SignalError: ...
+        cysignals.signals.SignalError: ...
         >>> on_stack()
         False
 
@@ -671,7 +671,7 @@ def test_stack_overflow():
         >>> test_stack_overflow()
         Traceback (most recent call last):
         ...
-        SignalError: Segmentation fault
+        cysignals.signals.SignalError: Segmentation fault
 
     """
     with nogil:

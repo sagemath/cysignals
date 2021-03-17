@@ -77,10 +77,10 @@ classifiers = [
     'Programming Language :: Cython',
     'Programming Language :: Python',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.4',
-    'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
     'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
     'Topic :: System',
     'Topic :: Software Development :: Debuggers',
 ]
@@ -156,9 +156,8 @@ class build_ext(_build_ext):
     def cythonize(self, extensions):
         # Run Cython with -Werror on continuous integration services
         # with Python 3.6 or later
-        if "CI" in os.environ and sys.version_info >= (3, 6):
-            from Cython.Compiler import Options
-            Options.warning_errors = True
+        from Cython.Compiler import Options
+        Options.warning_errors = True
 
         from Cython.Build.Dependencies import cythonize
         return cythonize(extensions,

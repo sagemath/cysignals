@@ -10,7 +10,7 @@ class build(_build):
         ext_modules = dist.ext_modules
         if ext_modules:
             dist.ext_modules[:] = self.cythonize(ext_modules)
-        _build.run(self)
+        super().run()
 
     def cythonize(self, extensions):
         from Cython.Build.Dependencies import cythonize

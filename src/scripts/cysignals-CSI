@@ -17,8 +17,6 @@
 #
 #*****************************************************************************
 
-from __future__ import print_function
-
 description = """
     Attach the debugger to a Python process (given by its pid) and
     extract as much information about its internal state as possible
@@ -44,16 +42,6 @@ from datetime import datetime
 from distutils.spawn import find_executable
 
 
-def b(x):
-    """
-    Convert `x` (either a ``str`` or ``bytes``) to ``bytes``, assuming
-    ASCII encoding.
-    """
-    if isinstance(x, bytes):
-        return x
-    return bytes(x, "ascii")
-
-
 def pid_exists(pid):
     """
     Return True if and only if there is a process with id pid running.
@@ -66,28 +54,28 @@ def pid_exists(pid):
 
 
 def gdb_commands(pid, color):
-    cmds = b('')
-    cmds += b('set prompt (cysignals-gdb-prompt)\n')
-    cmds += b('set verbose off\n')
-    cmds += b('attach {0}\n'.format(pid))
-    cmds += b('python\n')
-    cmds += b('print("\\n")\n')
-    cmds += b('print("Stack backtrace")\n')
-    cmds += b('print("---------------")\n')
-    cmds += b('import sys; sys.stdout.flush()\n')
-    cmds += b('end\n')
-    cmds += b('bt full\n')
+    cmds = b''
+    cmds += b'set prompt (cysignals-gdb-prompt)\n'
+    cmds += b'set verbose off\n'
+    cmds += b'attach %d\n' % pid)
+    cmds += b'python\n'
+    cmds += b'print("\\n")\n'
+    cmds += b'print("Stack backtrace")\n'
+    cmds += b'print("---------------")\n'
+    cmds += b'import sys; sys.stdout.flush()\n'
+    cmds += b'end\n'
+    cmds += b'bt full\n'
     cysignals_share = os.path.join(os.path.dirname(sys.argv[0]), '..',
                                    'share', 'cysignals')
     script = os.path.join(cysignals_share, 'cysignals-CSI-helper.py')
     with open(script, 'r') as f:
-        cmds += b('python\n')
-        cmds += b('color = {0!r}; '.format(color))
-        cmds += b('sys_path = {0!r}; '.format(sys.path))
-        cmds += b(f.read())
-        cmds += b('end\n')
-    cmds += b('detach inferior 1\n')
-    cmds += b('quit\n')
+        cmds += b'python\n'
+        cmds += b'color = %r; ' % color
+        cmds += b'sys_path = %r; ' % sys.path
+        cmds += f.read()
+        cmds += b'end\n'
+    cmds += b'detach inferior 1\n'
+    cmds += b'quit\n'
     return cmds
 
 
@@ -181,7 +169,7 @@ def save_backtrace(output):
 
 
 def main(args):
-    print('Attaching gdb to process id {0}.'.format(args.pid))
+    print(f'Attaching gdb to process id {args.pid}.')
     sys.stdout.flush()
     trace = run_gdb(args.pid, not args.nocolor)
     os.write(1, trace)
@@ -209,7 +197,7 @@ def main(args):
 
     filename = save_backtrace(trace)
     if filename is not None:
-        print('Saved trace to {0}'.format(filename))
+        print(f'Saved trace to {filename}')
 
 
 if __name__ == '__main__':
@@ -230,7 +218,7 @@ if __name__ == '__main__':
         sys.exit(0)
 
     if not pid_exists(args.pid):
-        print('There is no process with pid {0}.'.format(args.pid))
+        print(f'There is no process with pid {args.pid}.')
         sys.exit(1)
 
     try:

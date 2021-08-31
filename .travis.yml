@@ -47,6 +47,7 @@ script:
     - g++ --version
     - cython --version
     - make configure
+    - ./configure
     - make -j4 install
     - make -j4 check-all
     - make -j4 distcheck

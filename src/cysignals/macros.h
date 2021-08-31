@@ -197,14 +197,47 @@ static inline void _sig_off_(const char* file, int line)
     }
 }
 
+/**********************************************************************
+ * CUSTOM BLOCKING TO WORK WITH PARI                                  *
+ **********************************************************************/
+
+#ifdef __GENPARI__
+int pari_is_blocked(){ return PARI_SIGINT_block; }
+void pari_reset_block(){ PARI_SIGINT_block = 0;}
+void pari_set_pending(int sig){ PARI_SIGINT_pending = sig; }
+
+#ifndef CYSIGNALS_SET_CUSTOM_BLOCKING
+#define CYSIGNALS_SET_CUSTOM_BLOCKING _set_custom_blocking( \
+        (size_t) &pari_is_blocked, \
+        (size_t) &pari_reset_block, \
+        (size_t) &pari_set_pending)
+#endif
+
+#else
+// PARI must always be included before cysignals.
+// Otherwise cysignals is unsafe.
+#define __GENPARI__
+
+int default_is_blocked(){ return 0; }
+void default_reset_block(){}
+void default_set_pending(int sig){}
+
+#ifndef CYSIGNALS_SET_CUSTOM_BLOCKING
+#define CYSIGNALS_SET_CUSTOM_BLOCKING _set_custom_blocking( \
+        (size_t) &default_is_blocked, \
+        (size_t) &default_reset_block, \
+        (size_t) &default_set_pending)
+#endif
+
+#endif
 
 /**********************************************************************
  * USER MACROS/FUNCTIONS                                              *
  **********************************************************************/
 
 /* The actual macros which should be used in a program. */
-#define sig_on()           _sig_on_(NULL)
-#define sig_str(message)   _sig_on_(message)
+#define sig_on()           (CYSIGNALS_SET_CUSTOM_BLOCKING) && (_sig_on_(NULL))
+#define sig_str(message)   (CYSIGNALS_SET_CUSTOM_BLOCKING) && (_sig_on_(message))
 #define sig_off()          _sig_off_(__FILE__, __LINE__)
 
 /* sig_check() should be functionally equivalent to sig_on(); sig_off();

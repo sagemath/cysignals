@@ -12,8 +12,6 @@ AC_CONFIG_FILES([src/cysignals/signals.pxd])
 
 AC_ARG_ENABLE(debug,
     AS_HELP_STRING([--enable-debug], [enable debug output]))
-AC_ARG_WITH(pari,
-    AS_HELP_STRING([--without-pari], [build without PARI support]))
 
 if test "$enable_debug" = yes; then
     AC_DEFINE([ENABLE_DEBUG_CYSIGNALS], 1, [Enable debug output])
@@ -29,21 +27,6 @@ AC_PROG_CXX()
 
 AC_CHECK_HEADERS([execinfo.h sys/mman.h sys/prctl.h sys/time.h sys/wait.h windows.h])
 AC_CHECK_FUNCS([fork kill sigprocmask sigaltstack backtrace])
-
-
-have_pari=no
-if test "$with_pari" != "no"; then
-    AC_SEARCH_LIBS([pari_init], [pari], [
-        AC_CHECK_DECL([PARI_SIGINT_block],
-            [have_pari=yes], [],
-            [[#include <pari/pari.h>]])])
-fi
-
-if test "$have_pari" = "yes"; then
-    AC_DEFINE([HAVE_PARI], 1, [Define to 1 if PARI is fully supported.])
-elif test "$with_pari" = "yes"; then
-    AC_MSG_ERROR([PARI support requested but PARI was not found])
-fi
 
 AC_MSG_CHECKING([for emms instruction])
 # We add the "leal" instruction to reduce false positives in case some

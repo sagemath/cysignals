@@ -44,34 +44,13 @@ cdef extern from "implementation.c":
     void _sig_on_interrupt_received() nogil
     void _sig_on_recover() nogil
     void _sig_off_warning(const char*, int) nogil
+    int _set_custom_blocking(size_t, size_t, size_t) nogil
 
     # Python library functions for raising exceptions without "except"
     # clause.
     void PyErr_SetNone(object type)
     void PyErr_SetString(object type, char *message)
     void PyErr_Format(object exception, char *format, ...)
-
-    # PARI version string; NULL if compiled without PARI support
-    const char* paricfg_version
-
-
-def _pari_version():
-    """
-    Return the full version string of PARI which was used to compile
-    cysignals, or ``None`` if cysignals was compiled without PARI
-    support.
-
-    TESTS::
-
-        sage: from cysignals.signals import _pari_version
-        sage: v = _pari_version()
-        sage: v is None or type(v) is str
-        True
-    """
-    if paricfg_version is NULL:
-        return None
-    cdef bytes v = paricfg_version
-    return v.decode('ascii')
 
 
 class AlarmInterrupt(KeyboardInterrupt):

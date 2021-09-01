@@ -68,7 +68,7 @@ def gdb_commands(pid, color):
     cysignals_share = os.path.join(os.path.dirname(sys.argv[0]), '..',
                                    'share', 'cysignals')
     script = os.path.join(cysignals_share, 'cysignals-CSI-helper.py')
-    with open(script, 'r') as f:
+    with open(script, 'rb') as f:
         cmds += b'python\n'
         cmds += b'color = %r; ' % color
         cmds += b'sys_path = %r; ' % sys.path

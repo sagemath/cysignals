@@ -44,7 +44,7 @@ cdef extern from "implementation.c":
     void _sig_on_interrupt_received() nogil
     void _sig_on_recover() nogil
     void _sig_off_warning(const char*, int) nogil
-    int _set_custom_blocking(size_t, size_t, size_t) nogil
+    int _set_pari_blocking(int*, int*) nogil
 
     # Python library functions for raising exceptions without "except"
     # clause.

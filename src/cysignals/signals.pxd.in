@@ -34,7 +34,6 @@ cdef extern from "struct_signals.h":
 
 cdef extern from "macros.h" nogil:
     int sig_on() except 0
-    int sig_on_custom_block(int (*is_blocked)(), void (*reset_block)(), void (*set_pending)(int)) except 0
     int sig_str(const char*) except 0
     int sig_check() except 0
     void sig_off()
@@ -89,7 +88,7 @@ cdef nogil:
     void _sig_on_recover "_sig_on_recover"()
     void _sig_off_warning "_sig_off_warning"(const char*, int)
     void print_backtrace "print_backtrace"()
-    int _set_custom_blocking "_set_custom_blocking"(size_t, size_t, size_t)
+    int _set_pari_blocking "_set_pari_blocking"(int*, int*)
 
 
 cdef inline void __generate_declarations():
@@ -98,4 +97,4 @@ cdef inline void __generate_declarations():
     _sig_on_recover
     _sig_off_warning
     print_backtrace
-    _set_custom_blocking
+    _set_pari_blocking

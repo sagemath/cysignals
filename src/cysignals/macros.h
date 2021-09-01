@@ -220,7 +220,9 @@ static inline int _sig_check_(void)
 
 #ifdef __GENPARI__
 
-#define CYSIGNALS_SET_PARI_BLOCKING _set_pari_blocking(&PARI_SIGINT_block, &PARI_SIGINT_pending)
+// Cython < 3.0 does not allow for volatile keyword.
+// The typecasting is undone in ``implementation.c``.
+#define CYSIGNALS_SET_PARI_BLOCKING _set_pari_blocking((int*) &PARI_SIGINT_block, (int*) &PARI_SIGINT_pending)
 
 #else
 

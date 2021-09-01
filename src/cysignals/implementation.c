@@ -60,10 +60,11 @@ Interrupt and signal handling for Cython
 #include "struct_signals.h"
 
 // Allow for PARI's block.
-static int FAKE_PARI_SIGINT_block = 0;
-static int FAKE_PARI_SIGINT_pending = 0;
-static int *PARI_SIGINT_block_pt = &FAKE_PARI_SIGINT_block;
-static int *PARI_SIGINT_pending_pt = &FAKE_PARI_SIGINT_pending;
+// Cython < 3.0 does not allow for volatile keyword.
+volatile int FAKE_PARI_SIGINT_block = 0;
+volatile int FAKE_PARI_SIGINT_pending = 0;
+volatile int *PARI_SIGINT_block_pt = &FAKE_PARI_SIGINT_block;
+volatile int *PARI_SIGINT_pending_pt = &FAKE_PARI_SIGINT_pending;
 
 static int _set_pari_blocking(int* block_pt, int* pending_pt){
     PARI_SIGINT_block_pt = block_pt;

@@ -33,7 +33,8 @@ Requirements
 - Sphinx >= 1.6 (for building the documentation)
 
 Optional Runtime Requirements
-------------
+-----------------------------
+
 - cypari >= 2.1.3 (for interfacing with the PARI/GP signal handler)
 
 Links

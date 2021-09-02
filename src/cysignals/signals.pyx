@@ -53,6 +53,18 @@ cdef extern from "implementation.c":
     void PyErr_Format(object exception, char *format, ...)
 
 
+cdef bint _interfaces_pari_signal_handler = False
+
+
+def interfaces_pari_signal_handler():
+    """
+    Return whether cysignals interfaces PARI.
+
+    This is the case, exactly if cypari >= 2.1.3 is found on runtime.
+    """
+    return _interfaces_pari_signal_handler
+
+
 class AlarmInterrupt(KeyboardInterrupt):
     """
     Exception class for :func:`alarm` timeouts.
@@ -224,6 +236,19 @@ def init_cysignals():
 
     # Set debug level to 2 by default (if debugging was enabled)
     _set_debug_level(2)
+
+    # Interface the PARI signal handler, if cypari2 >= 2.1.3 is found.
+    global _interfaces_pari_signal_handler
+    cdef size_t PARI_SIGINT_block_pt, PARI_SIGINT_pending_pt
+    try:
+        from cypari2.paridecl import _PARI_SIGINT_block_pt, _PARI_SIGINT_pending_pt
+    except ImportError:
+        pass
+    else:
+        PARI_SIGINT_block_pt = _PARI_SIGINT_block_pt()
+        PARI_SIGINT_pending_pt = _PARI_SIGINT_pending_pt()
+        _set_pari_blocking(<int*> PARI_SIGINT_block_pt, <int*> PARI_SIGINT_pending_pt)
+        _interfaces_pari_signal_handler = True
 
     return old
 

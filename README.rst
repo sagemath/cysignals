@@ -31,7 +31,10 @@ Requirements
 - Python >= 3.6
 - Cython >= 0.28
 - Sphinx >= 1.6 (for building the documentation)
-- PARI/GP (optional; for interfacing with the PARI/GP signal handler)
+
+Optional Runtime Requirements
+------------
+- cypari >= 2.1.3 (for interfacing with the PARI/GP signal handler)
 
 Links
 -----

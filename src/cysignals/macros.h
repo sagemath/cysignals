@@ -197,13 +197,23 @@ static inline void _sig_off_(const char* file, int line)
     }
 }
 
+
+/**********************************************************************
+ * USER MACROS/FUNCTIONS                                              *
+ **********************************************************************/
+
+/* The actual macros which should be used in a program. */
+#define sig_on()           _sig_on_(NULL)
+#define sig_str(message)   _sig_on_(message)
+#define sig_off()          _sig_off_(__FILE__, __LINE__)
+
 /* sig_check() should be functionally equivalent to sig_on(); sig_off();
  * but much faster.  Essentially, it checks whether we missed any
  * interrupts.
  *
  * OUTPUT: zero if an interrupt occurred, non-zero otherwise.
  */
-static inline int _sig_check_(void)
+static inline int sig_check(void)
 {
     if (unlikely(cysigs.interrupt_received) && cysigs.sig_on_count == 0)
     {
@@ -213,36 +223,6 @@ static inline int _sig_check_(void)
 
     return 1;
 }
-
-/**********************************************************************
- * CUSTOM BLOCKING TO WORK WITH PARI                                  *
- **********************************************************************/
-
-#ifdef __GENPARI__
-
-// Cython < 3.0 does not allow for volatile keyword.
-// The typecasting is undone in ``implementation.c``.
-#define CYSIGNALS_SET_PARI_BLOCKING _set_pari_blocking((int*) &PARI_SIGINT_block, (int*) &PARI_SIGINT_pending)
-
-#else
-
-// PARI must always be included before cysignals.
-// Otherwise cysignals is unsafe.
-#define __GENPARI__
-
-#define CYSIGNALS_SET_PARI_BLOCKING 1
-
-#endif
-
-/**********************************************************************
- * USER MACROS/FUNCTIONS                                              *
- **********************************************************************/
-
-/* The actual macros which should be used in a program. */
-#define sig_on()           (CYSIGNALS_SET_PARI_BLOCKING) && (_sig_on_(NULL))
-#define sig_str(message)   (CYSIGNALS_SET_PARI_BLOCKING) && (_sig_on_(message))
-#define sig_off()          _sig_off_(__FILE__, __LINE__)
-#define sig_check()        (CYSIGNALS_SET_PARI_BLOCKING) && (_sig_check_())
 
 
 /*

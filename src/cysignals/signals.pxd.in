@@ -88,7 +88,6 @@ cdef nogil:
     void _sig_on_recover "_sig_on_recover"()
     void _sig_off_warning "_sig_off_warning"(const char*, int)
     void print_backtrace "print_backtrace"()
-    int _set_pari_blocking "_set_pari_blocking"(int*, int*)
 
 
 cdef inline void __generate_declarations():
@@ -97,4 +96,3 @@ cdef inline void __generate_declarations():
     _sig_on_recover
     _sig_off_warning
     print_backtrace
-    _set_pari_blocking

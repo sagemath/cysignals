@@ -40,7 +40,6 @@ install:
     - if [ "$TRAVIS_OS_NAME" = linux ]; then conda install -y binutils gcc_linux-64 gxx_linux-64; fi
     - conda install -y setuptools pip sphinx pari cython
     - pip install flake8 twine
-    - if [ "$PARI" = yes ]; then pip install git+https://github.com/kliem/cypari2/@0e2f798; fi
     - export LDFLAGS="-L$CONDA_PREFIX/lib"
     - export CFLAGS="-I$CONDA_PREFIX/include"
 
@@ -55,6 +54,7 @@ script:
     - make -j4 distcheck
     - flake8 --max-line-length=88 --ignore=E265 src
     - twine check dist/*
+    - if [ "$PARI" = yes ]; then pip install git+https://github.com/kliem/cypari2/@0e2f798; fi
     - python -c "from cysignals.signals import interfaces_pari_signal_handler; interfaces_pari_signal_handler() == ('$PARI' == 'yes')"
 
 #deploy:

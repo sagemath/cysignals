@@ -35,7 +35,7 @@ Requirements
 Optional Runtime Requirements
 -----------------------------
 
-- cypari >= 2.1.3 (for interfacing with the PARI/GP signal handler)
+- cypari >= 2.1.3 (for interfacing the PARI/GP signal handler)
 
 Links
 -----

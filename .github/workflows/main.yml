@@ -1,4 +1,4 @@
-name: cysignals-cygwin
+name: cysignals
 
 on:
     pull_request:

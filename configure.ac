@@ -27,7 +27,7 @@ CXX="$CC"
 CXXFLAGS="$CFLAGS"
 AC_PROG_CXX()
 
-AC_CHECK_HEADERS([execinfo.h sys/mman.h sys/prctl.h sys/time.h sys/wait.h windows.h])
+AC_CHECK_HEADERS([execinfo.h sys/mman.h sys/prctl.h sys/time.h sys/wait.h windows.h sys/mman.h])
 AC_CHECK_FUNCS([fork kill sigprocmask sigaltstack backtrace])
 
 

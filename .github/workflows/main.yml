@@ -36,6 +36,7 @@ jobs:
               pip freeze
         - name: Local build
           run: |
+            make configure
             ./configure
             make -j4 check-all
             make -j4 distcheck

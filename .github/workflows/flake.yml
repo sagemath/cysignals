@@ -1,4 +1,4 @@
-name: kpkc-flake8
+name: cysignals-flake8
 
 on:
     pull_request:

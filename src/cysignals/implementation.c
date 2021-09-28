@@ -44,6 +44,9 @@ Interrupt and signal handling for Cython
 #if HAVE_SYS_WAIT_H
 #include <sys/wait.h>
 #endif
+#if HAVE_SYS_MMAN_H
+#include <sys/mman.h>
+#endif
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -438,18 +441,26 @@ static void _sig_off_warning(const char* file, int line)
     print_backtrace();
 }
 
-
 static void setup_alt_stack(void)
 {
 #if HAVE_SIGALTSTACK
-    /* Static space for the alternate signal stack. The size should be
+    /* Space for the alternate signal stack. The size should be
      * of the form MINSIGSTKSZ + constant. The constant is chosen rather
      * ad hoc but sufficiently large. */
-    static char alt_stack[MINSIGSTKSZ + 5120 + BACKTRACELEN * sizeof(void*)];
-
     stack_t ss;
+#if HAVE_SYS_MMAN_H
+    /* MISIGSTKSZ is no longer a constant starting with glibc 2.34.
+     * If <sys/mmap.h> is present, we can use mmap as a workaround as
+     * done in
+     * https://github.com/rr-debugger/rr/commit/a744ceff00ffc04c9b3e9cc9d424d434c5a808b7
+     * */
+    size_t stack_size = MINSIGSTKSZ + 5120 + BACKTRACELEN * sizeof(void*);
+    ss.ss_sp = mmap(NULL, stack_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    ss.ss_size = stack_size;
+#else
     ss.ss_sp = alt_stack;
     ss.ss_size = sizeof(alt_stack);
+#endif
     ss.ss_flags = 0;
     if (sigaltstack(&ss, NULL) == -1) {perror("cysignals sigaltstack"); exit(1);}
 #endif

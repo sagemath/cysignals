@@ -44,5 +44,6 @@ jobs:
         - name: test
           run: |
             C:\\tools\\cygwin\\bin\\bash -l -x -c 'export PATH=/usr/local/bin:/usr/bin && cd $(cygpath -u "$GITHUB_WORKSPACE") && make configure && ./configure }}'
+            C:\\tools\\cygwin\\bin\\bash -l -x -c 'export PATH=/usr/local/bin:/usr/bin && cd $(cygpath -u "$GITHUB_WORKSPACE") && make install PYTHON=python3.${{ matrix.python-version }}'
             C:\\tools\\cygwin\\bin\\bash -l -x -c 'export PATH=/usr/local/bin:/usr/bin && cd $(cygpath -u "$GITHUB_WORKSPACE") && make check-all PYTHON=python3.${{ matrix.python-version }}'
             C:\\tools\\cygwin\\bin\\bash -l -x -c 'export PATH=/usr/local/bin:/usr/bin && cd $(cygpath -u "$GITHUB_WORKSPACE") && make distcheck PYTHON=python3.${{ matrix.python-version }}'

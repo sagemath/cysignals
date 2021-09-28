@@ -15,18 +15,6 @@ jobs:
             matrix:
                 os: [ubuntu-latest, macos-latest]
                 python-version: [3.6, 3.7, 3.8, 3.9]
-                flags: [-UNDEBUG, ' ']
-                march: [-march=native, ' ']
-                exclude:
-                    - os: macos-latest
-                      march: -march=native
-                    - os: ubuntu-latest
-                      march: ' '
-                      flags: ' '
-                    - os: windows-latest
-                      march: -march=native
-                    - os: windows-latest
-                      flags: -UNDEBUG
         env:
             CFLAGS: ${{ matrix.flags }} ${{ matrix.march }}
         steps:

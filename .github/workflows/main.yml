@@ -15,8 +15,6 @@ jobs:
             matrix:
                 os: [ubuntu-latest, macos-latest]
                 python-version: [3.6, 3.7, 3.8, 3.9]
-        env:
-            CFLAGS: ${{ matrix.flags }} ${{ matrix.march }}
         steps:
         - name: Set up the repository
           uses: actions/checkout@v2
@@ -38,5 +36,6 @@ jobs:
           run: |
             make configure
             ./configure
+            make -j4 install
             make -j4 check-all
             make -j4 distcheck

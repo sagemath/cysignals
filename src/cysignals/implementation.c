@@ -449,7 +449,7 @@ static void setup_alt_stack(void)
      * ad hoc but sufficiently large. */
     stack_t ss;
 #if HAVE_SYS_MMAN_H
-    /* MISIGSTKSZ is no longer a constant starting with glibc 2.34.
+    /* MINSIGSTKSZ is no longer a constant starting with glibc 2.34.
      * If <sys/mmap.h> is present, we can use mmap as a workaround as
      * done in
      * https://github.com/rr-debugger/rr/commit/a744ceff00ffc04c9b3e9cc9d424d434c5a808b7

@@ -458,6 +458,8 @@ static void setup_alt_stack(void)
     ss.ss_sp = mmap(NULL, stack_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     ss.ss_size = stack_size;
 #else
+    static char alt_stack[MINSIGSTKSZ + 5120 + BACKTRACELEN * sizeof(void*)];
+
     ss.ss_sp = alt_stack;
     ss.ss_size = sizeof(alt_stack);
 #endif

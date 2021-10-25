@@ -27,7 +27,7 @@ CXX="$CC"
 CXXFLAGS="$CFLAGS"
 AC_PROG_CXX()
 
-AC_CHECK_HEADERS([execinfo.h sys/mman.h sys/prctl.h sys/time.h sys/wait.h windows.h sys/mman.h])
+AC_CHECK_HEADERS([execinfo.h sys/mman.h sys/prctl.h sys/time.h sys/wait.h windows.h])
 AC_CHECK_FUNCS([fork kill sigprocmask sigaltstack backtrace])
 
 
@@ -220,6 +220,20 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE(
         [AC_MSG_RESULT([no])]
     )
     CXXFLAGS="$saved_CXXFLAGS"
+    ,
+    dnl NO
+    [AC_MSG_RESULT([no])]
+)
+
+AC_MSG_CHECKING([whether MINSIGSTKSZ is constant])
+AC_COMPILE_IFELSE([AC_LANG_SOURCE(
+    [
+    #include <signal.h>
+    static char alt_stack[MINSIGSTKSZ];
+    ])],
+    dnl YES
+    [AC_MSG_RESULT([yes])]
+    AC_DEFINE(MINSIGSTKSZ_IS_CONSTANT, 1, [Define to 1 if MINSIGSTKSZ defined in signal.h is constant.])
     ,
     dnl NO
     [AC_MSG_RESULT([no])]

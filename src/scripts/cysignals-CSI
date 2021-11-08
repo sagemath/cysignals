@@ -57,7 +57,7 @@ def gdb_commands(pid, color):
     cmds = b''
     cmds += b'set prompt (cysignals-gdb-prompt)\n'
     cmds += b'set verbose off\n'
-    cmds += b'attach %d\n' % pid)
+    cmds += b'attach %d\n' % pid
     cmds += b'python\n'
     cmds += b'print("\\n")\n'
     cmds += b'print("Stack backtrace")\n'
@@ -68,7 +68,7 @@ def gdb_commands(pid, color):
     cysignals_share = os.path.join(os.path.dirname(sys.argv[0]), '..',
                                    'share', 'cysignals')
     script = os.path.join(cysignals_share, 'cysignals-CSI-helper.py')
-    with open(script, 'r') as f:
+    with open(script, 'rb') as f:
         cmds += b'python\n'
         cmds += b'color = %r; ' % color
         cmds += b'sys_path = %r; ' % sys.path

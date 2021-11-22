@@ -229,7 +229,7 @@ AC_MSG_CHECKING([whether MINSIGSTKSZ is constant])
 AC_COMPILE_IFELSE([AC_LANG_SOURCE(
     [
     #include <signal.h>
-    const int foo = MINSIGSTKSZ;
+    static char alt_stack[MINSIGSTKSZ];
     ])],
     dnl YES
     [AC_MSG_RESULT([yes])]

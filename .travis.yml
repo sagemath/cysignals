@@ -1,4 +1,4 @@
-name: cysignals
+language: generic
 
 os:
     - linux

@@ -10,6 +10,7 @@ import sys
 import doctest
 from doctest import DocTestParser, Example, SKIP
 from multiprocessing import Process
+import logging
 
 flags = doctest.ELLIPSIS
 timeout = 600
@@ -81,9 +82,8 @@ def testfile(file):
                                        optionflags=flags, parser=parser)
         if not failures:
             os._exit(0)
-    except BaseException as E:
-        print(E)
     finally:
+        logging.exception("Exception thrown while running cysignals doctests")
         os._exit(23)
 
 

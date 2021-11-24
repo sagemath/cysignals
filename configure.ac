@@ -48,7 +48,7 @@ fi
 AC_MSG_CHECKING([for emms instruction])
 # We add the "leal" instruction to reduce false positives in case some
 # non-x86 architecture also has an "emms" instruction.
-AC_RUN_IFELSE([AC_LANG_PROGRAM([], [asm("leal (%eax), %eax; emms");])],
+AC_RUN_IFELSE([AC_LANG_PROGRAM([[]], [[asm("leal (%eax), %eax; emms");]])],
     dnl YES
     [AC_MSG_RESULT([yes])]
     AC_DEFINE(HAVE_EMMS, 1, [Define to 1 if your processor understands the "emms" instruction.])
@@ -59,12 +59,12 @@ AC_RUN_IFELSE([AC_LANG_PROGRAM([], [asm("leal (%eax), %eax; emms");])],
 
 AC_MSG_CHECKING([whether setjmp() saves the signal mask])
 AC_RUN_IFELSE([AC_LANG_PROGRAM(
-    [
+    [[
     #include <stdlib.h>
     #include <setjmp.h>
     #include <signal.h>
-    ],
-    [
+    ]],
+    [[
     jmp_buf env;
     sigset_t set;
     sigemptyset(&set);
@@ -77,7 +77,7 @@ AC_RUN_IFELSE([AC_LANG_PROGRAM(
     }
     if (sigprocmask(SIG_SETMASK, NULL, &set)) return 4;
     return sigismember(&set, SIGFPE);
-    ])],
+    ]])],
     dnl YES
     [AC_MSG_RESULT([yes])]
     sigsetjmp=yes
@@ -88,12 +88,12 @@ AC_RUN_IFELSE([AC_LANG_PROGRAM(
 
 AC_MSG_CHECKING([for GNU libc])
 AC_COMPILE_IFELSE([AC_LANG_SOURCE(
-    [
+    [[
     #include <features.h>
     #ifndef __GLIBC__
     syntax error!
     #endif
-    ])],
+    ]])],
     dnl YES
     [AC_MSG_RESULT([yes])]
     # GNU libc implements setjmp(...) as a wrapper of sigsetjmp(..., 0)
@@ -109,7 +109,7 @@ fi
 
 AC_MSG_CHECKING([for assembly implementation of cysetjmp])
 AC_RUN_IFELSE([AC_LANG_SOURCE(
-    [
+    [[
     #define CYSIGNALS_ASM_CYSETJMP 1
     #include <unistd.h>
     #include "src/cysignals/cysetjmp.h"
@@ -125,7 +125,7 @@ AC_RUN_IFELSE([AC_LANG_SOURCE(
         cylongjmp(jmp_buf, 1);
         return 1;
     }
-    ])],
+    ]])],
     dnl YES
     [AC_MSG_RESULT([yes])]
     AC_DEFINE(CYSIGNALS_ASM_CYSETJMP, 1, [Define to 1 to use an assembly implementation of cysetjmp().])
@@ -137,9 +137,9 @@ AC_RUN_IFELSE([AC_LANG_SOURCE(
 dnl Check for atomic operations
 AC_MSG_CHECKING([for _Atomic in C code])
 AC_COMPILE_IFELSE([AC_LANG_SOURCE(
-    [
+    [[
     static _Atomic int x;
-    ])],
+    ]])],
     dnl YES
     [AC_MSG_RESULT([yes])]
     AC_DEFINE(CYSIGNALS_C_ATOMIC, 1, [Define to 1 if your C compiler supports _Atomic.])
@@ -148,9 +148,9 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE(
     saved_CFLAGS="$CFLAGS"
     CFLAGS="$CFLAGS -fopenmp"
     AC_COMPILE_IFELSE([AC_LANG_SOURCE(
-        [
+        [[
         static _Atomic int x;
-        ])],
+        ]])],
         dnl YES
         [AC_MSG_RESULT([yes])]
         AC_DEFINE(CYSIGNALS_C_ATOMIC_WITH_OPENMP, 1, [Define to 1 if your C compiler supports _Atomic with OpenMP])
@@ -167,9 +167,9 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE(
 AC_LANG(C++)
 AC_MSG_CHECKING([for _Atomic in C++ code])
 AC_COMPILE_IFELSE([AC_LANG_SOURCE(
-    [
+    [[
     static _Atomic int x;
-    ])],
+    ]])],
     dnl YES
     [AC_MSG_RESULT([yes])]
     AC_DEFINE(CYSIGNALS_CXX_ATOMIC, 1, [Define to 1 if your C++ compiler supports _Atomic.])
@@ -178,9 +178,9 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE(
     saved_CXXFLAGS="$CXXFLAGS"
     CXXFLAGS="$CXXFLAGS -fopenmp"
     AC_COMPILE_IFELSE([AC_LANG_SOURCE(
-        [
+        [[
         static _Atomic int x;
-        ])],
+        ]])],
         dnl YES
         [AC_MSG_RESULT([yes])]
         AC_DEFINE(CYSIGNALS_CXX_ATOMIC_WITH_OPENMP, 1, [Define to 1 if your C++ compiler supports _Atomic with OpenMP])
@@ -196,10 +196,10 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE(
 
 AC_MSG_CHECKING([for std::atomic])
 AC_COMPILE_IFELSE([AC_LANG_SOURCE(
-    [
+    [[
     #include <atomic>
     static std::atomic<int> x;
-    ])],
+    ]])],
     dnl YES
     [AC_MSG_RESULT([yes])]
     AC_DEFINE(CYSIGNALS_STD_ATOMIC, 1, [Define to 1 if your C++ compiler supports std::atomic.])
@@ -208,10 +208,10 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE(
     saved_CXXFLAGS="$CXXFLAGS"
     CXXFLAGS="$CXXFLAGS -fopenmp"
     AC_COMPILE_IFELSE([AC_LANG_SOURCE(
-        [
+        [[
         #include <atomic>
         static std::atomic<int> x;
-        ])],
+        ]])],
         dnl YES
         [AC_MSG_RESULT([yes])]
         AC_DEFINE(CYSIGNALS_STD_ATOMIC_WITH_OPENMP, 1, [Define to 1 if your C++ compiler supports std::atomic with OpenMP])
@@ -220,6 +220,22 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE(
         [AC_MSG_RESULT([no])]
     )
     CXXFLAGS="$saved_CXXFLAGS"
+    ,
+    dnl NO
+    [AC_MSG_RESULT([no])]
+)
+
+AC_MSG_CHECKING([whether MINSIGSTKSZ is constant])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+    [[
+    #include <signal.h>
+    ]],
+    [[
+    static char alt_stack[MINSIGSTKSZ];
+    ]])],
+    dnl YES
+    [AC_MSG_RESULT([yes])]
+    AC_DEFINE(MINSIGSTKSZ_IS_CONSTANT, 1, [Define to 1 if MINSIGSTKSZ defined in signal.h is constant.])
     ,
     dnl NO
     [AC_MSG_RESULT([no])]

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Test interaction with gdb, i.e. the cysignals-CSI script
 #

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Run doctests for cysignals
 #
@@ -61,7 +61,11 @@ if os.name != 'nt':
     import resource
     # Limit stack size to avoid errors in stack overflow doctest
     stacksize = 1 << 20
-    resource.setrlimit(resource.RLIMIT_STACK, (stacksize, stacksize))
+    if sys.platform != 'darwin':
+        # Work around a very strange OS X.
+        # This was discovered at https://github.com/sagemath/cysignals/issues/71.
+        # The original solution did not last very long and the issue reappeared.
+        resource.setrlimit(resource.RLIMIT_STACK, (stacksize, stacksize))
 
     # Disable core dumps
     resource.setrlimit(resource.RLIMIT_CORE, (0, 0))

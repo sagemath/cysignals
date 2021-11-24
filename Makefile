@@ -2,7 +2,7 @@
 
 VERSION = $(shell cat VERSION)
 
-PYTHON = python
+PYTHON = python3
 PIP = $(PYTHON) -m pip -v
 LS_R = ls -Ra1
 

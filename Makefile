@@ -6,11 +6,7 @@ PYTHON = python
 PIP = $(PYTHON) -m pip -v
 LS_R = ls -Ra1
 
-# We add ulimit -s 1024 in this Makefile to work around a very strange
-# OS X bug manifesting itself with Python 3 and old versions of GNU make.
-# This was discovered at https://github.com/sagemath/cysignals/issues/71
-# but I don't know a good analysis nor solution.
-DOCTEST = ulimit 2>/dev/null -s 1024; $(PYTHON) -B rundoctests.py
+DOCTEST = $(PYTHON) -B rundoctests.py
 
 
 #####################

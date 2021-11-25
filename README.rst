@@ -46,7 +46,9 @@ Changelog
 1.11.0 (unreleased)
 ^^^^^^^^^^^^^^^^^^^
 
-* Fixed compilation with glib 3.34.
+* Drop Python 2 support; bump minimum Python version to 3.6. [#142]
+* Fixed compilation with glib 3.34. [#151]
+* Improved testing. [#139, #152, #154]
 
 
 1.10.3 (2021-03-16)

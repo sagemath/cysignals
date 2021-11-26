@@ -43,7 +43,7 @@ Links
 Changelog
 ---------
 
-1.11.0 (unreleased)
+1.11.0 (2021-11-26)
 ^^^^^^^^^^^^^^^^^^^
 
 * Drop Python 2 support; bump minimum Python version to 3.6. [#142]

@@ -146,7 +146,7 @@ setup(
     ext_modules=extensions,
     packages=["cysignals"],
     package_dir={"": "src"},
-    package_data={"cysignals": ["*.pxi", "*.pxd", "*.h"]},
+    package_data={"cysignals": ["*.pxd", "*.h"]},
     data_files=[(opj("share", "cysignals"), [opj("src", "scripts", "cysignals-CSI-helper.py")])],
     scripts=glob(opj("src", "scripts", "cysignals-CSI")),
     cmdclass=dict(build=build, bdist_egg=no_egg),

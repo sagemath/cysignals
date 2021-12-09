@@ -29,13 +29,13 @@ install:
       bash $MINICONDA_FILE -b
 
     # Configure conda.
-    - |
-      source $HOME/miniconda3/bin/activate root
-      conda config --remove channels defaults
-      conda config --add channels defaults
-      conda config --add channels conda-forge
-      conda config --set show_channel_urls true
-      conda info
+    - source $HOME/miniconda3/bin/activate root
+    - conda config --remove channels defaults
+    - conda config --add channels defaults
+    - conda config --add channels conda-forge
+    - conda config --set show_channel_urls true
+    - conda config --set always_yes True
+    - conda info
 
     - conda create -y --name test python=${PYTHON_VERSION}
     - conda activate test
@@ -43,17 +43,6 @@ install:
     # https://github.com/conda/conda/issues/6030
     - if [ "$TRAVIS_OS_NAME" = linux ]; then conda install -y binutils gcc_linux-64 gxx_linux-64; fi
     - conda install -y setuptools pip sphinx pari
-    # The 'pip' package for Python 3.4 on conda is broken for newer versions
-    - if [ "$PYTHON_VERSION" = "3.4" ]; then conda install -y 'pip<20.0'; fi
-    # The 'cython' package for Python 3.4 on conda is too old too, but PyPI
-    # has a more current version so use pip to install it over the conda
-    # package
-    - if [ "$PYTHON_VERSION" = "3.4" ]; then pip install 'cython>=0.28,<3.0'; else conda install -y cython; fi
-    # The flake8 package on conda is quite broken on Python 2.7 and 3.4;
-    # use pip to install it instead.  After support for these older versions
-    # dropped we can can go back to the conda package.
-    - pip install flake8
-    - if [ "$PYTHON_VERSION" = "$PYTHON_LATEST_SUPPORTED" ]; then pip install twine; fi
     - export LDFLAGS="-L$CONDA_PREFIX/lib"
     - export CFLAGS="-I$CONDA_PREFIX/include"
 

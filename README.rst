@@ -43,6 +43,12 @@ Links
 Changelog
 ---------
 
+1.11.2 (2021-12-15)
+^^^^^^^^^^^^^^^^^^^
+
+* Drop assembly code added after 1.10.3 that is not portable.
+
+
 1.11.0 (2021-11-26)
 ^^^^^^^^^^^^^^^^^^^
 

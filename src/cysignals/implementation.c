@@ -614,12 +614,17 @@ static void sigdie(int sig, const char* s)
 #endif
 
     if (s) {
-        fprintf(stderr,
-            "%s\n"
+        /* Using fprintf from inside a signal handler is undefined,
+           see signal-safety(7). We use write(2) instead, which is
+           async-signal-safe according to POSIX. */
+        const char * message =
+            "\n"
             "This probably occurred because a *compiled* module has a bug\n"
             "in it and is not properly wrapped with sig_on(), sig_off().\n"
-            "Python will now terminate.\n", s);
-        print_sep();
+            "Python will now terminate.\n"
+            "------------------------------------------------------------------------\n";
+        write(2, s, strlen(s));
+        write(2, message, strlen(message));
     }
 
 dienow:

@@ -38,8 +38,8 @@ Interrupt and signal handling for Cython
 #if HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
-#if HAVE_SYS_TIME_H
-#include <sys/time.h>
+#if HAVE_TIME_H
+#include <time.h>
 #endif
 #if HAVE_SYS_WAIT_H
 #include <sys/wait.h>
@@ -102,7 +102,7 @@ void custom_set_pending_signal(int sig){
 
 
 #if ENABLE_DEBUG_CYSIGNALS
-static struct timeval sigtime;  /* Time of signal */
+static struct timespec sigtime;  /* Time of signal */
 #endif
 
 /* The cysigs object (there is a unique copy of this, shared by all
@@ -289,7 +289,7 @@ static void cysigs_interrupt_handler(int sig)
         if (cysigs.debug_level >= 3) print_backtrace();
         /* Store time of this signal, unless there is already a
          * pending signal. */
-        if (!cysigs.interrupt_received) gettimeofday(&sigtime, NULL);
+        if (!cysigs.interrupt_received) clock_gettime(CLOCK_MONOTONIC, &sigtime);
     }
 #endif
 
@@ -342,7 +342,7 @@ static void cysigs_signal_handler(int sig)
             print_stderr_long(sig);
             print_stderr(" *** inside sig_on\n");
             if (cysigs.debug_level >= 3) print_backtrace();
-            gettimeofday(&sigtime, NULL);
+            clock_gettime(CLOCK_MONOTONIC, &sigtime);
         }
 #endif
 
@@ -452,10 +452,10 @@ static void setup_trampoline(void)
 static void do_raise_exception(int sig)
 {
 #if ENABLE_DEBUG_CYSIGNALS
-    struct timeval raisetime;
+    struct timespec raisetime;
     if (cysigs.debug_level >= 2) {
-        gettimeofday(&raisetime, NULL);
-        long delta_ms = (raisetime.tv_sec - sigtime.tv_sec)*1000L + ((long)raisetime.tv_usec - (long)sigtime.tv_usec)/1000;
+        clock_gettime(CLOCK_MONOTONIC, &raisetime);
+        long delta_ms = (raisetime.tv_sec - sigtime.tv_sec)*1000L + (raisetime.tv_nsec - sigtime.tv_nsec)/1000000L;
         PyGILState_STATE gilstate = PyGILState_Ensure();
         print_stderr("do_raise_exception(sig=");
         print_stderr_long(sig);

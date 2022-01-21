@@ -43,6 +43,12 @@ Links
 Changelog
 ---------
 
+1.11.3 (not released yet)
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* Replace `fprintf` by calls to `write`, which is async-signal-safe according to POSIX. [#162]
+
+
 1.11.2 (2021-12-15)
 ^^^^^^^^^^^^^^^^^^^
 

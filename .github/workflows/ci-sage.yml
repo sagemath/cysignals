@@ -258,14 +258,14 @@ jobs:
     needs: [dist, ubuntu-without-sage]
     strategy:
       fail-fast: false
-      max-parallel: 32
+      max-parallel: 20
       matrix:
-        tox_system_factor: [ubuntu-trusty, ubuntu-xenial, ubuntu-bionic, ubuntu-focal, ubuntu-groovy, ubuntu-hirsute, ubuntu-impish, debian-jessie, debian-stretch, debian-buster, debian-bullseye, debian-sid, linuxmint-17, linuxmint-18, linuxmint-19, linuxmint-19.3, linuxmint-20.1, linuxmint-20.2, fedora-26, fedora-27, fedora-28, fedora-29, fedora-30, fedora-31, fedora-32, fedora-33, fedora-34, fedora-35, centos-7, centos-8, gentoo, gentoo-python3.7, archlinux-latest, opensuse-15, opensuse-15.3, opensuse-tumbleweed, slackware-14.2, conda-forge, ubuntu-bionic-i386, manylinux-2_24-i686, debian-buster-i386, centos-7-i386, raspbian-buster-armhf]
+        tox_system_factor: [gitpod, ubuntu-trusty, ubuntu-xenial, ubuntu-bionic, ubuntu-focal, ubuntu-hirsute, ubuntu-impish, ubuntu-jammy,  debian-stretch, debian-buster, debian-bullseye, debian-bookworm, debian-sid, linuxmint-17, linuxmint-18, linuxmint-19, linuxmint-19.3, linuxmint-20.1, linuxmint-20.2, linuxmint-20.3, fedora-26, fedora-27, fedora-28, fedora-29, fedora-30, fedora-31, fedora-32, fedora-33, fedora-34, fedora-35, fedora-36, centos-7, centos-stream-8, gentoo-python3.9, gentoo-python3.10, archlinux-latest, opensuse-15.3, opensuse-tumbleweed, slackware-14.2, conda-forge, ubuntu-bionic-i386, manylinux-2_24-i686, debian-buster-i386, centos-7-i386]
         tox_packages_factor: [minimal, standard]
     env:
       TOX_ENV: docker-${{ matrix.tox_system_factor }}-${{ matrix.tox_packages_factor }}
       LOGS_ARTIFACT_NAME: logs-commit-${{ github.sha }}-tox-docker-${{ matrix.tox_system_factor }}-${{ matrix.tox_packages_factor }}
-      DOCKER_TARGETS: configured with-targets with-targets-optional
+      DOCKER_TARGETS: with-system-packages configured with-targets-pre with-targets with-targets-optional
     steps:
       - name: Check out SageMath
         uses: actions/checkout@v2
@@ -371,19 +371,21 @@ jobs:
     runs-on: macos-latest
     strategy:
       fail-fast: false
-      max-parallel: 4
       matrix:
-        os: [ macos-10.15, macos-11.0 ]
-        tox_system_factor: [homebrew-macos, homebrew-macos-python3_xcode, homebrew-macos-python3_xcode-nokegonly, conda-forge-macos]
-        tox_packages_factor: [minimal, standard]
-        xcode_version_factor: [11.7, default, 12.3]
-
-    needs: [dist, macos-without-sage]
-
+        stage: ["1", "2", "2-optional-0-o", "2-optional-p-z", "2-experimental-0-o", "2-experimental-p-z"]
+        # python3_xcode is only accepted if enough packages are available from the system
+        # --> to test "minimal", we would need https://trac.sagemath.org/ticket/30949
+        tox_env: [homebrew-macos-usrlocal-minimal, homebrew-macos-usrlocal-standard, homebrew-macos-usrlocal-maximal, homebrew-macos-usrlocal-python3_xcode-standard, conda-forge-macos-minimal, conda-forge-macos-standard, conda-forge-macos-maximal]
+        # As of 2021-12, default xcode
+        # - on macos-10.15:               12.4
+        # - on macos-latest (= macos-11): 13.1
+        # https://github.com/actions/virtual-environments/blob/main/images/macos/macos-10.15-Readme.md#xcode
+        xcode_version_factor: [default]
+        os: [ macos-10.15, macos-latest ]
     env:
-      TOX_ENV: local-${{ matrix.tox_system_factor }}-${{ matrix.tox_packages_factor }}
-      LOGS_ARTIFACT_NAME: logs-commit-${{ github.sha }}-tox-local-${{ matrix.tox_system_factor }}-${{ matrix.tox_packages_factor }}-${{ matrix.os }}-xcode_${{ matrix.xcode_version_factor }}
-      DOCKER_TARGETS: configured with-targets with-targets-optional
+      TOX_ENV: local-${{ matrix.tox_env }}
+      LOCAL_ARTIFACT_NAME: sage-local-commit-${{ github.sha }}-tox-local-${{ matrix.tox_env }}-${{ matrix.os }}-xcode_${{ matrix.xcode_version_factor }}
+      LOGS_ARTIFACT_NAME: logs-commit-${{ github.sha }}-tox-local-${{ matrix.tox_env }}--${{ matrix.os }}-xcode_${{ matrix.xcode_version_factor }}
 
     steps:
 

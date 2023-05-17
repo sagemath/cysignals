@@ -55,7 +55,7 @@ kwds = dict(include_dirs=[opj("src"),
             depends=depends,
             define_macros=macros,
             undef_macros=undef_macros,
-            extra_compile_args=["-pthread"],
+            extra_compile_args=["-pthread", "-Wp,-U_FORTIFY_SOURCE"],
             extra_link_args=["-pthread"],)
 
 extensions = [

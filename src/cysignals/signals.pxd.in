@@ -54,7 +54,7 @@ cdef extern from "macros.h" nogil:
 # can be used to make Cython check whether there is a pending exception
 # (PyErr_Occurred() is non-NULL). To Cython, it will look like
 # cython_check_exception() actually raised the exception.
-cdef inline void cython_check_exception() nogil except *:
+cdef inline void cython_check_exception() except * nogil:
     pass
 
 

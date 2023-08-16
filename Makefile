@@ -19,7 +19,7 @@ build: configure
 	$(PYTHON) setup.py build
 
 install: configure
-	$(PIP) install --no-index --ignore-installed --no-deps .
+	$(PIP) install --no-build-isolation --no-index --ignore-installed --no-deps .
 
 dist: configure
 	chmod -R go+rX-w .

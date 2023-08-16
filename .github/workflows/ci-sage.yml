@@ -90,7 +90,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version-start: [python-3]
-        python-version: [6, 7, 8]
+        python-version: [7, 8, 9]
     steps:
     - run: |
         git config --global core.autocrlf false
@@ -107,7 +107,7 @@ jobs:
         choco install make autoconf gcc-core gcc-g++ python3${{ matrix.python-version }}-devel --source cygwin
     - name: install dependencies
       run: |
-        C:\\tools\\cygwin\\bin\\bash -l -x -c 'export PATH=/usr/local/bin:/usr/bin && cd $(cygpath -u "$GITHUB_WORKSPACE") && python3.${{ matrix.python-version }} -m pip install setuptools cysignals Cython Sphinx flake8'
+        C:\\tools\\cygwin\\bin\\bash -l -x -c 'export PATH=/usr/local/bin:/usr/bin && cd $(cygpath -u "$GITHUB_WORKSPACE") && python3.${{ matrix.python-version }} -m pip install -U setuptools cysignals Cython Sphinx flake8'
     - name: install
       run: |
         C:\\tools\\cygwin\\bin\\bash -l -x -c 'export PATH=/usr/local/bin:/usr/bin && cd $(cygpath -u "$GITHUB_WORKSPACE") && python3.${{ matrix.python-version }} setup.py build_ext -i'
@@ -207,7 +207,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
     steps:
     - name: Set up the repository
       uses: actions/checkout@v2
@@ -221,7 +221,7 @@ jobs:
     - name: Install dependencies
       run: |
           python -m pip install --upgrade pip
-          pip install setuptools Cython Sphinx flake8
+          pip install -U setuptools Cython Sphinx flake8
     - name: Freeze pip
       run: |
           pip freeze
@@ -253,7 +253,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
     steps:
     - name: Set up the repository
       uses: actions/checkout@v2
@@ -267,7 +267,7 @@ jobs:
     - name: Install dependencies
       run: |
           python -m pip install --upgrade pip
-          pip install setuptools Cython Sphinx flake8
+          pip install -U setuptools Cython Sphinx flake8
     - name: Freeze pip
       run: |
           pip freeze

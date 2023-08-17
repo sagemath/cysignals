@@ -7,11 +7,11 @@ import subprocess
 import sys
 
 # When building with readthedocs, install the requirements too
-if "READTHEDOCS" in os.environ:
-    reqs = "requirements.txt"
-    if os.path.isfile(reqs):
-        subprocess.check_call(
-                [sys.executable, "-m", "pip", "install", "-r", reqs])
+#if "READTHEDOCS" in os.environ:
+reqs = "requirements.txt"
+if os.path.isfile(reqs):
+    subprocess.check_call(
+           [sys.executable, "-m", "pip", "install", "-r", reqs])
 
 from setuptools import setup, Command
 from setuptools.command.build_py import build_py as _build_py
@@ -19,7 +19,6 @@ from setuptools.command.build_py import build_py as _build_py
 # old one that tries to wrap Cython for us.  This shold be fixed with newer
 # versions of setuptools.
 from distutils.command.build_ext import build_ext as _build_ext
-from setuptools.command.bdist_egg import bdist_egg as _bdist_egg
 from setuptools.extension import Extension
 
 import warnings
@@ -173,16 +172,6 @@ class build_py(_build_py):
         super().run()
 
 
-class no_egg(_bdist_egg):
-    def run(self):
-        from distutils.errors import DistutilsOptionError
-        raise DistutilsOptionError(
-            "The package cysignals will not function correctly when built as "
-            "egg. Therefore, it cannot be installed using "
-            "'python setup.py install' or 'easy_install'. Instead, use "
-            "'pip install' to install cysignals.")
-
-
 with open("VERSION") as f:
     VERSION = f.read().strip()
 
@@ -201,7 +190,7 @@ setup(
     long_description=README,
     long_description_content_type='text/x-rst',
     classifiers=classifiers,
-    install_requires=["Cython>=0.28"],
+    install_requires=["Cython>=0.28", "wheel"],
     setup_requires=["Cython>=0.28"],
 
     ext_modules=extensions,
@@ -214,6 +203,5 @@ setup(
         configure=configure,
         build_py=build_py,
         build_ext=build_ext,
-        bdist_egg=no_egg
     ),
 )

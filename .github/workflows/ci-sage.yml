@@ -65,7 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out ${{ env.SPKG }}
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           path: build/pkgs/${{ env.SPKG }}/src
       - name: Install prerequisites
@@ -96,7 +96,7 @@ jobs:
         git config --global core.autocrlf false
         git config --global core.symlinks true
     - name: Set up the repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
           submodules: recursive
           fetch-depth: 0
@@ -150,7 +150,7 @@ jobs:
         choco --version
         choco install git python3 --source cygwin
     - name: Check out SageMath
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         repository: ${{ env.SAGE_REPO }}
         ref: ${{ env.SAGE_REF }}
@@ -210,12 +210,12 @@ jobs:
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
     steps:
     - name: Set up the repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
           submodules: recursive
           fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
@@ -256,7 +256,7 @@ jobs:
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
     steps:
     - name: Set up the repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
           submodules: recursive
           fetch-depth: 0
@@ -304,7 +304,7 @@ jobs:
         run: |
           if [ ${{ matrix.xcode_version_factor }} != default ]; then sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode_version_factor }}.app; fi
       - name: Check out SageMath
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: ${{ env.SAGE_REPO }}
           ref: ${{ env.SAGE_REF }}

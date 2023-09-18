@@ -201,9 +201,6 @@ setup(
     long_description=README,
     long_description_content_type='text/x-rst',
     classifiers=classifiers,
-    install_requires=["Cython>=0.28"],
-    setup_requires=["Cython>=0.28"],
-
     ext_modules=extensions,
     packages=["cysignals"],
     package_dir={"": "src"},

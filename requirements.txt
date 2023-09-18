@@ -1,3 +1,5 @@
 setuptools
-Cython>=0.28
-Sphinx>=1.6
+wheel
+Cython>=0.28, <3
+Sphinx
+flake8

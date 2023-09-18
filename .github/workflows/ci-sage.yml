@@ -118,7 +118,6 @@ jobs:
         C:\\tools\\cygwin\\bin\\bash -l -x -c 'export PATH=/usr/local/bin:/usr/bin && cd $(cygpath -u "$GITHUB_WORKSPACE") && python3.${{ matrix.python-version }} setup.py build_ext -i'
     - name: test
       run: |
-        C:\\tools\\cygwin\\bin\\bash -l -x -c 'export PATH=/usr/local/bin:/usr/bin && cd $(cygpath -u "$GITHUB_WORKSPACE") && make configure && ./configure }}'
         C:\\tools\\cygwin\\bin\\bash -l -x -c 'export PATH=/usr/local/bin:/usr/bin && cd $(cygpath -u "$GITHUB_WORKSPACE") && make install PYTHON=python3.${{ matrix.python-version }}'
         C:\\tools\\cygwin\\bin\\bash -l -x -c 'export PATH=/usr/local/bin:/usr/bin && cd $(cygpath -u "$GITHUB_WORKSPACE") && make check-all PYTHON=python3.${{ matrix.python-version }}'
         C:\\tools\\cygwin\\bin\\bash -l -x -c 'export PATH=/usr/local/bin:/usr/bin && cd $(cygpath -u "$GITHUB_WORKSPACE") && make distcheck PYTHON=python3.${{ matrix.python-version }}'
@@ -232,8 +231,6 @@ jobs:
           pip freeze
     - name: Local build
       run: |
-        make configure
-        ./configure
         make -j4 install
         make -j4 check-all
         make -j4 distcheck
@@ -278,8 +275,6 @@ jobs:
           pip freeze
     - name: Local build
       run: |
-        make configure
-        ./configure
         make -j4 install
         make -j4 check-all
         make -j4 distcheck

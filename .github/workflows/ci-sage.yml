@@ -256,6 +256,9 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12-dev']
+    env:
+      # Work around https://github.com/sagemath/cysignals/issues/179
+      ARCHFLAGS: "-arch x86_64"
     steps:
     - name: Set up the repository
       uses: actions/checkout@v4

@@ -167,6 +167,27 @@ jobs:
       docker_push_repository: ghcr.io/${{ github.repository }}/cysignals-
     needs: [dist, ubuntu-without-sage]
 
+  docker-sage-incremental:
+    uses: sagemath/sage/.github/workflows/docker.yml@develop
+    with:
+      # Build incrementally from published Docker image
+      incremental: true
+      free_disk_space: true
+      from_docker_repository: ghcr.io/sagemath/sage/
+      from_docker_target: "with-targets"
+      from_docker_tag: "dev"
+      docker_targets: "with-targets"
+      targets_pre:       build/make/Makefile
+      targets:           "cysignals-uninstall cypari-uninstall build doc-html ptest"
+      targets_optional:  build/make/Makefile
+      sage_repo:         sagemath/sage
+      sage_ref:          refs/pull/36110/merge
+      upstream_artifact: upstream
+      # We prefix the image name with the SPKG name ("cysignals-") to avoid the error
+      # 'Package "sage-docker-..." is already associated with another repository.'
+      docker_push_repository: ghcr.io/${{ github.repository }}/cysignals-
+    needs: [dist, ubuntu-without-sage, docker]
+
   macos-without-sage:
     runs-on: macos-latest
     strategy:

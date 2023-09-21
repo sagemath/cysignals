@@ -164,13 +164,17 @@ class build_ext(_build_ext):
         # Run Cython with -Werror on continuous integration services
         # with Python 3.6 or later
         from Cython.Compiler import Options
-        Options.warning_errors = True
+        Options.warning_errors = False
 
         from Cython.Build.Dependencies import cythonize
         return cythonize(extensions,
                 build_dir=cythonize_dir,
                 include_path=["src", os.path.join(cythonize_dir, "src")],
-                compiler_directives=dict(binding=True, language_level=2))
+                compiler_directives=dict(
+                    binding=True,
+                    language_level=2,
+                    legacy_implicit_noexcept=True,
+                    ))
 
 
 class build_py(_build_py):

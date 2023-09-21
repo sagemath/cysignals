@@ -1,5 +1,5 @@
 setuptools
 wheel
-Cython>=0.28, <3
+Cython
 Sphinx
 flake8

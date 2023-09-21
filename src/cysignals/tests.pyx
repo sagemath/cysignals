@@ -275,7 +275,7 @@ def test_sig_on_cython(long delay=DEFAULT_DELAY):
     signal_after_delay(SIGINT, delay)
     c_test_sig_on_cython()
 
-cdef int c_test_sig_on_cython_except() nogil except 42:
+cdef int c_test_sig_on_cython_except() except 42 nogil:
     sig_on()
     infinite_loop()
 
@@ -293,7 +293,7 @@ def test_sig_on_cython_except(long delay=DEFAULT_DELAY):
         signal_after_delay(SIGINT, delay)
         c_test_sig_on_cython_except()
 
-cdef void c_test_sig_on_cython_except_all() nogil except *:
+cdef void c_test_sig_on_cython_except_all() except * nogil:
     sig_on()
     infinite_loop()
 
@@ -1297,7 +1297,7 @@ def test_thread_sig_block(long delay=DEFAULT_DELAY):
         sig_off()
 
 
-cdef void* func_thread_sig_block(void* ignored) nogil:
+cdef void* func_thread_sig_block(void* ignored) noexcept nogil:
     # This is executed by the two threads spawned by test_thread_sig_block()
     cdef int n
     for n in range(1000000):

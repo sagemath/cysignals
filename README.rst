@@ -47,6 +47,7 @@ Changelog
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * Replace `fprintf` by calls to `write`, which is async-signal-safe according to POSIX. [#162]
+* Introduce a general hook to interface with custom signal handling
 
 
 1.11.2 (2021-12-15)

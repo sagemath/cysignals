@@ -249,3 +249,58 @@ can conditionally call ``sig_on()`` and ``sig_off()``::
 
 This should only be needed if both the check (``n > 100`` in the example) and
 the code inside the ``sig_on()`` block take very little time.
+
+.. _section_add_custom_signals:
+
+Using custom blocking and signal handlers
+-----------------------------------------
+
+The following illustrates how signals can be held back similar to
+``sig_block`` and ``sig_unblock``. The number theory libary PARI/GP
+defines a variable, which indicates that the execution should not
+currently be interrupted. Another variable is used to indicate a pending signal,
+so that PARI/GP can treat it.
+
+Other external libraries might use a similar scheme.
+Here we indicate this might work::
+
+    from cysignals.signals cimport sig_on, sig_off, add_custom_signals
+
+    cdef extern from "stdio.h":
+        void sleep(int)
+
+    cdef int SIGINT_block = 0
+    cdef int SIGINT_pending = 0
+
+    cdef int signal_is_blocked():
+        return SIGINT_block
+
+    cdef void signal_unblock():
+        global SIGINT_block
+        SIGINT_block = 0
+
+    cdef void set_pending_signal(int sig):
+        global SIGINT_pending
+        SIGINT_pending = sig
+
+    # Use the hook provided by cysignals.
+    add_custom_signals(&signal_is_blocked, &signal_unblock, &set_pending_signal)
+
+    def foo(size_t b, int blocked):
+        global SIGINT_block, SIGINT_pending
+        sig_on()
+        SIGINT_block = blocked
+        for i in range(b):
+            sleep(1)
+            if SIGINT_pending:
+                SIGINT_block = 0
+                SIGINT_pending = 0
+                raise KeyboardInterrupt("interrupt was held back")
+        SIGINT_block = 0
+        sig_off()
+        return
+
+In the above scenario ``foo(10, 0)`` would just wait for 10 seconds,
+while allowing interrupts. ``foo(10, 1)`` blocks the interrupt
+until the end of the second. The pending signal is then treated
+with a custom message.

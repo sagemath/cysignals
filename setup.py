@@ -5,6 +5,7 @@ import os
 import shlex
 import subprocess
 import sys
+import sysconfig
 
 # When building with readthedocs, install the requirements too
 if "READTHEDOCS" in os.environ:
@@ -81,6 +82,9 @@ classifiers = [
     'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
     'Topic :: System',
     'Topic :: Software Development :: Debuggers',
 ]
@@ -139,7 +143,10 @@ class configure(Command):
                     is_newer_than(filename + '.in', filename))
 
         if any(needs_reconfigure(f) for f in self.configure_outputs):
-            subprocess.check_call(['sh', 'configure'] + self.configure_flags)
+            subprocess.check_call(['sh', 'configure',
+                                   f'CC={sysconfig.get_config_var("CC")}',
+                                   f'CXX={sysconfig.get_config_var("CXX")}']
+                                  + self.configure_flags)
 
 
 class build_ext(_build_ext):

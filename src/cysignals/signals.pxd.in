@@ -49,6 +49,10 @@ cdef extern from "macros.h" nogil:
     int sig_str_no_except "sig_str"(const char*)
     int sig_check_no_except "sig_check"()
 
+# This function adds custom block/unblock/pending.
+cdef int add_custom_signals(int (*custom_signal_is_blocked)(),
+                            void (*custom_signal_unblock)(),
+                            void (*custom_set_pending_signal)(int)) except -1
 
 # This function does nothing, but it is declared cdef except *, so it
 # can be used to make Cython check whether there is a pending exception

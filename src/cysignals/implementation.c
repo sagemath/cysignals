@@ -62,6 +62,37 @@ static int PARI_SIGINT_block = 0;
 static int PARI_SIGINT_pending = 0;
 #define paricfg_version NULL
 #endif
+
+// Custom signal handling of other packages.
+#define MAX_N_CUSTOM_HANDLERS 16
+
+static int (*custom_signal_is_blocked_pts[MAX_N_CUSTOM_HANDLERS])();
+static void (*custom_signal_unblock_pts[MAX_N_CUSTOM_HANDLERS])();
+static void (*custom_set_pending_signal_pts[MAX_N_CUSTOM_HANDLERS])(int);
+static int n_custom_handlers = 0;
+
+int custom_signal_is_blocked(){
+    // Check if a custom block is set.
+    for(int i = 0; i < n_custom_handlers; i++){
+        if (custom_signal_is_blocked_pts[i]())
+            return 1;
+    }
+    return 0;
+}
+
+void custom_signal_unblock(){
+    // Unset all custom blocks.
+    for(int i = 0; i < n_custom_handlers; i++)
+        custom_signal_unblock_pts[i]();
+}
+
+
+void custom_set_pending_signal(int sig){
+    // Set a pending signal to custom handlers.
+    for(int i = 0; i < n_custom_handlers; i++)
+        custom_set_pending_signal_pts[i](sig);
+}
+
 #if HAVE_WINDOWS_H
 /* We must include <windows.h> after <pari.h>
  * See https://github.com/sagemath/cysignals/issues/107 */
@@ -214,7 +245,7 @@ static void cysigs_interrupt_handler(int sig)
 
     if (cysigs.sig_on_count > 0)
     {
-        if (!cysigs.block_sigint && !PARI_SIGINT_block)
+        if (!cysigs.block_sigint && !PARI_SIGINT_block && !custom_signal_is_blocked())
         {
             /* Raise an exception so Python can see it */
             do_raise_exception(sig);
@@ -238,6 +269,7 @@ static void cysigs_interrupt_handler(int sig)
     {
         cysigs.interrupt_received = sig;
         PARI_SIGINT_pending = sig;
+        custom_set_pending_signal(sig);
     }
 }
 
@@ -400,6 +432,7 @@ static void _sig_on_interrupt_received(void)
     cysigs.sig_on_count = 0;
     cysigs.interrupt_received = 0;
     PARI_SIGINT_pending = 0;
+    custom_signal_unblock();
 
 #if HAVE_SIGPROCMASK
     sigprocmask(SIG_SETMASK, &oldset, NULL);
@@ -412,9 +445,11 @@ static void _sig_on_recover(void)
 {
     cysigs.block_sigint = 0;
     PARI_SIGINT_block = 0;
+    custom_signal_unblock();
     cysigs.sig_on_count = 0;
     cysigs.interrupt_received = 0;
     PARI_SIGINT_pending = 0;
+    custom_set_pending_signal(0);
 
 #if HAVE_SIGPROCMASK
     /* Reset signal mask */

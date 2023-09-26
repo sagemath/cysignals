@@ -11,6 +11,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+
+  sdists_for_pypi:
+
+    runs-on: ubuntu-latest
+    env:
+      CAN_DEPLOY: ${{ secrets.SAGEMATH_PYPI_API_TOKEN != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+      - name: make sdist
+        run: |
+          python3 -m pip install build
+          python3 -m build --sdist
+      - uses: actions/upload-artifact@v3
+        with:
+          path: "dist/*.tar.gz"
+          name: dist
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.SAGEMATH_PYPI_API_TOKEN }}
+          skip_existing: true
+          verbose: true
+        if: env.CAN_DEPLOY == 'true'
+
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -19,10 +44,10 @@ jobs:
         os: [ubuntu-latest, macOS-latest]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       # Used to host cibuildwheel
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.16.0
@@ -30,6 +55,31 @@ jobs:
           # on pp310: build/src/cysignals/implementation.c:231:9: error: implicit declaration of function 'PyPyErr_SetInterrupt' is invalid in C99 [-Werror,-Wimplicit-function-declaration]
           CIBW_SKIP: "pp31*"
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl
+
+  pypi-publish:
+    # https://github.com/pypa/gh-action-pypi-publish
+    name: Upload release to PyPI
+    needs: build_wheels
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    runs-on: ubuntu-latest
+    env:
+      CAN_DEPLOY: ${{ secrets.SAGEMATH_PYPI_API_TOKEN != '' }}
+    steps:
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: wheels
+          path: wheelhouse
+
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.SAGEMATH_PYPI_API_TOKEN }}
+          packages_dir: wheelhouse/
+          skip_existing: true
+          verbose: true
+        if: env.CAN_DEPLOY == 'true'

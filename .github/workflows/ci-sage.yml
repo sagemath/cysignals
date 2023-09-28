@@ -152,16 +152,14 @@ jobs:
         make -j4 distcheck
 
   linux:
-    uses: mkoeppe/sage/.github/workflows/docker.yml@tox_2023_09
+    uses: sagemath/sage/.github/workflows/docker.yml@develop
     with:
       # FIXME: duplicated from env.TARGETS
       targets_pre:       build/make/Makefile
       targets:           SAGE_CHECK=no SAGE_CHECK_PACKAGES="cysignals,cypari" cysignals cypari
       targets_optional:  build/make/Makefile
-      sage_repo:         mkoeppe/sage
-      sage_ref:          tox_2023_09
-      #sage_repo:         sagemath/sage
-      #sage_ref:          develop
+      sage_repo:         sagemath/sage
+      sage_ref:          develop
       upstream_artifact: upstream
       # We prefix the image name with the SPKG name ("cysignals-") to avoid the error
       # 'Package "sage-docker-..." is already associated with another repository.'
@@ -201,8 +199,7 @@ jobs:
         make -j4 distcheck
 
   macos:
-    # https://github.com/sagemath/sage/pull/36338
-    uses: mkoeppe/sage/.github/workflows/macos.yml@tox_2023_09
+    uses: sagemath/sage/.github/workflows/macos.yml@develop
     with:
       osversion_xcodeversion_toxenv_tuples: >-
         [["latest", "",           "homebrew-macos-usrlocal-minimal"],
@@ -213,9 +210,7 @@ jobs:
       targets_pre:       build/make/Makefile
       targets:           SAGE_CHECK=no SAGE_CHECK_PACKAGES="cysignals,cypari" cysignals cypari
       targets_optional:  build/make/Makefile
-      sage_repo:         mkoeppe/sage
-      sage_ref:          tox_2023_09
-      #sage_repo:         sagemath/sage
-      #sage_ref:          refs/pull/36110/merge
+      sage_repo:         sagemath/sage
+      sage_ref:          develop
       upstream_artifact: upstream
     needs: [dist, macos-without-sage]

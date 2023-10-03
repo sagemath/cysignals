@@ -46,6 +46,7 @@ Changelog
 1.11.3 (not released yet)
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+* Add support for Cython 3.
 * Replace `fprintf` by calls to `write`, which is async-signal-safe according to POSIX. [#162]
 * Introduce a general hook to interface with custom signal handling
 

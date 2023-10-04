@@ -38,8 +38,8 @@ Interrupt and signal handling for Cython
 #if HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
-#if HAVE_SYS_TIME_H
-#include <sys/time.h>
+#if HAVE_TIME_H
+#include <time.h>
 #endif
 #if HAVE_SYS_WAIT_H
 #include <sys/wait.h>
@@ -102,7 +102,7 @@ void custom_set_pending_signal(int sig){
 
 
 #if ENABLE_DEBUG_CYSIGNALS
-static struct timeval sigtime;  /* Time of signal */
+static struct timespec sigtime;  /* Time of signal */
 #endif
 
 /* The cysigs object (there is a unique copy of this, shared by all
@@ -155,6 +155,52 @@ static inline void reset_CPU(void)
 #endif
 }
 
+static inline void print_stderr(const char* s)
+{
+    /* Using stdio (fputs, fprintf, fflush) from inside a signal
+     * handler is undefined, see signal-safety(7). We use write(2)
+     * instead, which is async-signal-safe according to POSIX. */
+    write(2, s, strlen(s));
+}
+
+/* str should have enough space allocated */
+static inline void ulong_to_str(unsigned long val, char *str, int base)
+{
+    const char xdigits[16] = "0123456789abcdef";
+    unsigned long aux;
+    int len;
+
+    len = 1; aux = val;
+    while (aux /= base) len++;
+
+    str += len; *str = 0;
+    do *--str = xdigits[val % base]; while (val /= base);
+}
+
+static inline void long_to_str(long val, char *str, int base)
+{
+    if (val < 0) *str++ = '-';
+    ulong_to_str(val < 0 ? -val : val, str, base);
+}
+
+static inline void print_stderr_long(long val)
+{
+    char buf[21];
+    long_to_str(val, buf, 10);
+    print_stderr(buf);
+}
+
+static inline void print_stderr_ptr(void *ptr)
+{
+    if (!ptr)
+        print_stderr("(nil)");
+    else {
+        char buf[17];
+        ulong_to_str((unsigned long)ptr, buf, 16);
+        print_stderr("0x");
+        print_stderr(buf);
+    }
+}
 
 /* Reset all signal handlers and the signal mask to their defaults. */
 static inline void sig_reset_defaults(void) {
@@ -234,12 +280,16 @@ static void cysigs_interrupt_handler(int sig)
 {
 #if ENABLE_DEBUG_CYSIGNALS
     if (cysigs.debug_level >= 1) {
-        fprintf(stderr, "\n*** SIG %i *** %s sig_on\n", sig, (cysigs.sig_on_count > 0) ? "inside" : "outside");
+        print_stderr("\n*** SIG ");
+        print_stderr_long(sig);
+        if (cysigs.sig_on_count > 0)
+            print_stderr(" *** inside sig_on\n");
+        else
+            print_stderr(" *** outside sig_on\n");
         if (cysigs.debug_level >= 3) print_backtrace();
-        fflush(stderr);
         /* Store time of this signal, unless there is already a
          * pending signal. */
-        if (!cysigs.interrupt_received) gettimeofday(&sigtime, NULL);
+        if (!cysigs.interrupt_received) clock_gettime(CLOCK_MONOTONIC, &sigtime);
     }
 #endif
 
@@ -288,10 +338,11 @@ static void cysigs_signal_handler(int sig)
         /* We are inside sig_on(), so we can handle the signal! */
 #if ENABLE_DEBUG_CYSIGNALS
         if (cysigs.debug_level >= 1) {
-            fprintf(stderr, "\n*** SIG %i *** inside sig_on\n", sig);
+            print_stderr("\n*** SIG ");
+            print_stderr_long(sig);
+            print_stderr(" *** inside sig_on\n");
             if (cysigs.debug_level >= 3) print_backtrace();
-            fflush(stderr);
-            gettimeofday(&sigtime, NULL);
+            clock_gettime(CLOCK_MONOTONIC, &sigtime);
         }
 #endif
 
@@ -401,15 +452,19 @@ static void setup_trampoline(void)
 static void do_raise_exception(int sig)
 {
 #if ENABLE_DEBUG_CYSIGNALS
-    struct timeval raisetime;
+    struct timespec raisetime;
     if (cysigs.debug_level >= 2) {
-        gettimeofday(&raisetime, NULL);
-        long delta_ms = (raisetime.tv_sec - sigtime.tv_sec)*1000L + ((long)raisetime.tv_usec - (long)sigtime.tv_usec)/1000;
+        clock_gettime(CLOCK_MONOTONIC, &raisetime);
+        long delta_ms = (raisetime.tv_sec - sigtime.tv_sec)*1000L + (raisetime.tv_nsec - sigtime.tv_nsec)/1000000L;
         PyGILState_STATE gilstate = PyGILState_Ensure();
-        fprintf(stderr, "do_raise_exception(sig=%i)\nPyErr_Occurred() = %p\nRaising Python exception %li ms after signal...\n",
-            sig, PyErr_Occurred(), delta_ms);
+        print_stderr("do_raise_exception(sig=");
+        print_stderr_long(sig);
+        print_stderr(")\nPyErr_Occurred() = ");
+        print_stderr_ptr(PyErr_Occurred());
+        print_stderr("\nRaising Python exception ");
+        print_stderr_long(delta_ms);
+        print_stderr("ms after signal...\n");
         PyGILState_Release(gilstate);
-        fflush(stderr);
     }
 #endif
 
@@ -550,38 +605,31 @@ static void setup_cysignals_handlers(void)
 
 static void print_sep(void)
 {
-    fputs("------------------------------------------------------------------------\n",
-            stderr);
-    fflush(stderr);
+    print_stderr("------------------------------------------------------------------------\n");
 }
 
 /* Print a backtrace if supported by libc */
 static void print_backtrace()
 {
-    fflush(stderr);
 #if HAVE_BACKTRACE
     void* backtracebuffer[BACKTRACELEN];
     int btsize = backtrace(backtracebuffer, BACKTRACELEN);
     if (btsize)
         backtrace_symbols_fd(backtracebuffer, btsize, 2);
     else
-        fputs("(no backtrace available)\n", stderr);
+        print_stderr("(no backtrace available)\n");
     print_sep();
 #endif
 }
 
 /* Print a backtrace using gdb */
-static void print_enhanced_backtrace(void)
+static inline void print_enhanced_backtrace(void)
 {
     /* Bypass Linux Yama restrictions on ptrace() to allow debugging */
     /* See https://www.kernel.org/doc/Documentation/security/Yama.txt */
 #ifdef PR_SET_PTRACER
     prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY, 0, 0, 0);
 #endif
-
-    /* Flush all buffers before forking */
-    fflush(stdout);
-    fflush(stderr);
 
     /* Enhanced backtraces are only supported on POSIX systems */
 #if HAVE_FORK
@@ -591,7 +639,9 @@ static void print_enhanced_backtrace(void)
     if (pid < 0)
     {
         /* Failed to fork: no problem, just ignore */
-        perror("cysignals fork");
+        print_stderr("cysignals fork: ");
+        print_stderr(strerror(errno));
+        print_stderr("\n");
         return;
     }
 
@@ -601,12 +651,11 @@ static void print_enhanced_backtrace(void)
 
         /* We deliberately put these variables on the stack to avoid
          * malloc() calls, the heap might be messed up! */
-        char path[1024];
+        char* path = "cysignals-CSI";
         char pid_str[32];
         char* argv[5];
 
-        snprintf(path, sizeof(path), "cysignals-CSI");
-        snprintf(pid_str, sizeof(pid_str), "%i", parent_pid);
+        long_to_str(parent_pid, pid_str, 10);
 
         argv[0] = "cysignals-CSI";
         argv[1] = "--no-color";
@@ -614,7 +663,9 @@ static void print_enhanced_backtrace(void)
         argv[3] = pid_str;
         argv[4] = NULL;
         execvp(path, argv);
-        perror("cysignals failed to execute cysignals-CSI");
+        print_stderr("cysignals failed to execute cysignals-CSI: ");
+        print_stderr(strerror(errno));
+        print_stderr("\n");
         exit(2);
     }
     /* Wait for cysignals-CSI to finish */
@@ -649,17 +700,12 @@ static void sigdie(int sig, const char* s)
 #endif
 
     if (s) {
-        /* Using fprintf from inside a signal handler is undefined,
-           see signal-safety(7). We use write(2) instead, which is
-           async-signal-safe according to POSIX. */
-        const char * message =
-            "\n"
+        print_stderr(s);
+        print_stderr("\n"
             "This probably occurred because a *compiled* module has a bug\n"
             "in it and is not properly wrapped with sig_on(), sig_off().\n"
-            "Python will now terminate.\n"
-            "------------------------------------------------------------------------\n";
-        write(2, s, strlen(s));
-        write(2, message, strlen(message));
+            "Python will now terminate.\n");
+        print_sep();
     }
 
 dienow:

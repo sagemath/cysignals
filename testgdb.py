@@ -39,12 +39,12 @@ class TestGDB(unittest.TestCase):
         logs = [os.path.join(self.crash_dir, fn)
                 for fn in os.listdir(self.crash_dir) if fn.endswith(".log")]
         self.assertEqual(len(logs), 1)
-        log = open(logs[0]).read()
-
-        self.assertIn(b"Stack backtrace", log)
-        self.assertIn(b"Cython backtrace", log)
-        self.assertIn(b"__pyx_pf_9cysignals_5tests_46unguarded_dereference_null_pointer()", log)
-        self.assertIn(b"cdef void dereference_null_pointer() nogil:", log)
+        with open(logs[0]) as logf:
+            log = logf.read()
+            self.assertIn("Stack backtrace", log)
+            self.assertIn("Cython backtrace", log)
+            self.assertIn("unguarded_dereference_null_pointer ()", log)
+            self.assertIn("cdef void dereference_null_pointer() noexcept nogil:", log)
 
 
 if __name__ == '__main__':

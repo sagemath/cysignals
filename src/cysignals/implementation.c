@@ -54,14 +54,6 @@ Interrupt and signal handling for Cython
 #include <sys/prctl.h>
 #endif
 #include <Python.h>
-#if HAVE_PARI
-#include <pari/pari.h>
-#else
-/* Fake PARI variables */
-static int PARI_SIGINT_block = 0;
-static int PARI_SIGINT_pending = 0;
-#define paricfg_version NULL
-#endif
 
 // Custom signal handling of other packages.
 #define MAX_N_CUSTOM_HANDLERS 16
@@ -94,8 +86,6 @@ void custom_set_pending_signal(int sig){
 }
 
 #if HAVE_WINDOWS_H
-/* We must include <windows.h> after <pari.h>
- * See https://github.com/sagemath/cysignals/issues/107 */
 #include <windows.h>
 #endif
 #include "struct_signals.h"
@@ -295,7 +285,7 @@ static void cysigs_interrupt_handler(int sig)
 
     if (cysigs.sig_on_count > 0)
     {
-        if (!cysigs.block_sigint && !PARI_SIGINT_block && !custom_signal_is_blocked())
+        if (!cysigs.block_sigint && !custom_signal_is_blocked())
         {
             /* Raise an exception so Python can see it */
             do_raise_exception(sig);
@@ -318,7 +308,6 @@ static void cysigs_interrupt_handler(int sig)
     if (cysigs.interrupt_received != SIGHUP && cysigs.interrupt_received != SIGTERM)
     {
         cysigs.interrupt_received = sig;
-        PARI_SIGINT_pending = sig;
         custom_set_pending_signal(sig);
     }
 }
@@ -486,7 +475,6 @@ static void _sig_on_interrupt_received(void)
     do_raise_exception(cysigs.interrupt_received);
     cysigs.sig_on_count = 0;
     cysigs.interrupt_received = 0;
-    PARI_SIGINT_pending = 0;
     custom_signal_unblock();
 
 #if HAVE_SIGPROCMASK
@@ -499,11 +487,9 @@ static void _sig_on_interrupt_received(void)
 static void _sig_on_recover(void)
 {
     cysigs.block_sigint = 0;
-    PARI_SIGINT_block = 0;
     custom_signal_unblock();
     cysigs.sig_on_count = 0;
     cysigs.interrupt_received = 0;
-    PARI_SIGINT_pending = 0;
     custom_set_pending_signal(0);
 
 #if HAVE_SIGPROCMASK

@@ -43,12 +43,13 @@ Links
 Changelog
 ---------
 
-1.11.3 (not released yet)
-^^^^^^^^^^^^^^^^^^^^^^^^^
+1.11.3 (2023-10-04)
+^^^^^^^^^^^^^^^^^^^
 
-* Add support for Cython 3.
+* Add support for Cython 3. [#174, #176, #182, #187]
+* Add support for Python 3.12.
 * Replace `fprintf` by calls to `write`, which is async-signal-safe according to POSIX. [#162]
-* Introduce a general hook to interface with custom signal handling
+* Introduce a general hook to interface with custom signal handling. [#181]
 
 
 1.11.2 (2021-12-15)

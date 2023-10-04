@@ -13,7 +13,7 @@ concurrency:
 jobs:
 
   sdists_for_pypi:
-
+    name: Build sdist (and upload to PyPI on release tags)
     runs-on: ubuntu-latest
     env:
       CAN_DEPLOY: ${{ secrets.SAGEMATH_PYPI_API_TOKEN != '' }}
@@ -34,7 +34,7 @@ jobs:
           password: ${{ secrets.SAGEMATH_PYPI_API_TOKEN }}
           skip_existing: true
           verbose: true
-        if: env.CAN_DEPLOY == 'true'
+        if: env.CAN_DEPLOY == 'true' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
 
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
@@ -57,11 +57,12 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
+          name: wheels
           path: ./wheelhouse/*.whl
 
   pypi-publish:
     # https://github.com/pypa/gh-action-pypi-publish
-    name: Upload release to PyPI
+    name: Upload wheels to PyPI
     needs: build_wheels
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
     runs-on: ubuntu-latest

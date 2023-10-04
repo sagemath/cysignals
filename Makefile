@@ -25,7 +25,7 @@ dist: configure
 	chmod -R go+rX-w .
 	umask 0022 && $(PYTHON) setup.py sdist --formats=gztar
 
-doc:
+doc: install
 	cd docs && $(MAKE) html
 
 

@@ -80,9 +80,9 @@ def _pari_version():
     return v.decode('ascii')
 
 
-cdef int add_custom_signals(int (*custom_signal_is_blocked)(),
-                            void (*custom_signal_unblock)(),
-                            void (*custom_set_pending_signal)(int)) except -1:
+cdef int add_custom_signals(int (*custom_signal_is_blocked)() noexcept,
+                            void (*custom_signal_unblock)() noexcept,
+                            void (*custom_set_pending_signal)(int) noexcept) except -1:
     """
     Add an external block/unblock/pending to cysignals.
 
@@ -341,7 +341,7 @@ def python_check_interrupt(sig, frame):
     sig_check()
 
 
-cdef void verify_exc_value():
+cdef void verify_exc_value() noexcept:
     """
     Check that ``cysigs.exc_value`` is still the exception being raised.
     Clear ``cysigs.exc_value`` if not.

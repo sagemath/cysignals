@@ -50,9 +50,9 @@ cdef extern from "macros.h" nogil:
     int sig_check_no_except "sig_check"()
 
 # This function adds custom block/unblock/pending.
-cdef int add_custom_signals(int (*custom_signal_is_blocked)(),
-                            void (*custom_signal_unblock)(),
-                            void (*custom_set_pending_signal)(int)) except -1
+cdef int add_custom_signals(int (*custom_signal_is_blocked)() noexcept,
+                            void (*custom_signal_unblock)() noexcept,
+                            void (*custom_set_pending_signal)(int) noexcept) except -1
 
 # This function does nothing, but it is declared cdef except *, so it
 # can be used to make Cython check whether there is a pending exception
@@ -62,9 +62,9 @@ cdef inline void cython_check_exception() except * nogil:
     pass
 
 
-cdef void verify_exc_value()
+cdef void verify_exc_value() noexcept
 
-cdef inline PyObject* sig_occurred():
+cdef inline PyObject* sig_occurred() noexcept:
     """
     Borrowed reference to the exception which is currently being
     propagated from cysignals. If there is no exception or if we
@@ -88,13 +88,13 @@ cdef inline PyObject* sig_occurred():
 # these available to every Cython module cimporting this file.
 cdef nogil:
     cysigs_t cysigs "cysigs"
-    void _sig_on_interrupt_received "_sig_on_interrupt_received"()
-    void _sig_on_recover "_sig_on_recover"()
-    void _sig_off_warning "_sig_off_warning"(const char*, int)
-    void print_backtrace "print_backtrace"()
+    void _sig_on_interrupt_received "_sig_on_interrupt_received"() noexcept
+    void _sig_on_recover "_sig_on_recover"() noexcept
+    void _sig_off_warning "_sig_off_warning"(const char*, int) noexcept
+    void print_backtrace "print_backtrace"() noexcept
 
 
-cdef inline void __generate_declarations():
+cdef inline void __generate_declarations() noexcept:
     cysigs
     _sig_on_interrupt_received
     _sig_on_recover

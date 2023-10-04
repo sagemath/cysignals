@@ -89,14 +89,14 @@ set_debug_level(0)
 ########################################################################
 # C helper functions                                                   #
 ########################################################################
-cdef void infinite_loop() nogil:
+cdef void infinite_loop() noexcept nogil:
     # Ensure that the compiler cannot "optimize away" this infinite
     # loop, see https://bugs.llvm.org/show_bug.cgi?id=965
     cdef volatile_int x = 0
     while x == 0:
         pass
 
-cdef void infinite_malloc_loop() nogil:
+cdef void infinite_malloc_loop() noexcept nogil:
     cdef size_t s = 1
     while True:
         sig_free(sig_malloc(s))
@@ -106,12 +106,12 @@ cdef void infinite_malloc_loop() nogil:
 # Dereference a NULL pointer on purpose. This signals a SIGSEGV on most
 # systems, but on older Mac OS X and possibly other systems, this
 # signals a SIGBUS instead. In any case, this should give some signal.
-cdef void dereference_null_pointer() nogil:
+cdef void dereference_null_pointer() noexcept nogil:
     cdef volatile_int* ptr = <volatile_int*>(0)
     ptr[0] += 1
 
 
-cdef int stack_overflow(volatile_int* x=NULL) nogil:
+cdef int stack_overflow(volatile_int* x=NULL) noexcept nogil:
     cdef volatile_int a = 0
     if x is not NULL:
         a = x[0]
@@ -258,7 +258,7 @@ def test_sig_str(long delay=DEFAULT_DELAY):
         signal_after_delay(SIGABRT, delay)
         infinite_loop()
 
-cdef c_test_sig_on_cython():
+cdef c_test_sig_on_cython() noexcept:
     sig_on()
     infinite_loop()
 

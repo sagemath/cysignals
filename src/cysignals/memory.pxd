@@ -33,35 +33,35 @@ cdef extern from *:
     int unlikely(int) nogil  # Defined by Cython
 
 
-cdef inline void* sig_malloc "sig_malloc"(size_t n) nogil:
+cdef inline void* sig_malloc "sig_malloc"(size_t n) noexcept nogil:
     sig_block()
     cdef void* ret = malloc(n)
     sig_unblock()
     return ret
 
 
-cdef inline void* sig_realloc "sig_realloc"(void* ptr, size_t size) nogil:
+cdef inline void* sig_realloc "sig_realloc"(void* ptr, size_t size) noexcept nogil:
     sig_block()
     cdef void* ret = realloc(ptr, size)
     sig_unblock()
     return ret
 
 
-cdef inline void* sig_calloc "sig_calloc"(size_t nmemb, size_t size) nogil:
+cdef inline void* sig_calloc "sig_calloc"(size_t nmemb, size_t size) noexcept nogil:
     sig_block()
     cdef void* ret = calloc(nmemb, size)
     sig_unblock()
     return ret
 
 
-cdef inline void sig_free "sig_free"(void* ptr) nogil:
+cdef inline void sig_free "sig_free"(void* ptr) noexcept nogil:
     sig_block()
     free(ptr)
     sig_unblock()
 
 
 @cython.cdivision(True)
-cdef inline size_t mul_overflowcheck(size_t a, size_t b) nogil:
+cdef inline size_t mul_overflowcheck(size_t a, size_t b) noexcept nogil:
     """
     Return a*b, checking for overflow. Assume that a > 0.
     If overflow occurs, return <size_t>(-1).

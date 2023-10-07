@@ -160,14 +160,14 @@ jobs:
       targets:           SAGE_CHECK=no SAGE_CHECK_PACKAGES="cysignals,cypari" cysignals cypari
       targets_optional:  build/make/Makefile
       sage_repo:         sagemath/sage
-      sage_ref:          refs/pull/36110/merge
+      sage_ref:          develop
       upstream_artifact: upstream
       # We prefix the image name with the SPKG name ("cysignals-") to avoid the error
       # 'Package "sage-docker-..." is already associated with another repository.'
       docker_push_repository: ghcr.io/${{ github.repository }}/cysignals-
     needs: [dist, ubuntu-without-sage]
 
-  docker-sage-incremental:
+  linux-sage-incremental:
     uses: sagemath/sage/.github/workflows/docker.yml@develop
     with:
       # Build incrementally from published Docker image
@@ -181,19 +181,19 @@ jobs:
       targets:           "cysignals-uninstall cypari-uninstall build doc-html ptest"
       targets_optional:  build/make/Makefile
       sage_repo:         sagemath/sage
-      sage_ref:          refs/pull/36110/merge
+      sage_ref:          develop
       upstream_artifact: upstream
       # We prefix the image name with the SPKG name ("cysignals-") to avoid the error
       # 'Package "sage-docker-..." is already associated with another repository.'
       docker_push_repository: ghcr.io/${{ github.repository }}/cysignals-
-    needs: [dist, ubuntu-without-sage, docker]
+    needs: [dist, linux]
 
   macos-without-sage:
     runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12-dev']
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12']
     env:
       # Work around https://github.com/sagemath/cysignals/issues/179
       ARCHFLAGS: "-arch x86_64"

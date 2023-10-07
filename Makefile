@@ -22,8 +22,9 @@ install: configure
 	$(PIP) install --no-build-isolation --no-index --ignore-installed --no-deps .
 
 dist: configure
+	$(PIP) install build
 	chmod -R go+rX-w .
-	umask 0022 && $(PYTHON) setup.py sdist --formats=gztar
+	umask 0022 && $(PYTHON) -m build --sdist
 
 doc: install
 	cd docs && $(MAKE) html

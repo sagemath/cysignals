@@ -43,6 +43,12 @@ Links
 Changelog
 ---------
 
+1.11.4 (2023-10-07)
+^^^^^^^^^^^^^^^^^^^
+
+* Include generated `configure` script in the sdist again.
+
+
 1.11.3 (2023-10-04)
 ^^^^^^^^^^^^^^^^^^^
 

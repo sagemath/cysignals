@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from setuptools import setup
+from setuptools.extension import Extension
 from distutils.command.build import build as _build
 
 
@@ -21,7 +22,6 @@ setup(
     name="cysignals_example",
     version='1.0',
     license='Public Domain',
-    setup_requires=["cysignals"],
-    ext_modules=["cysignals_example.pyx"],
+    ext_modules=[Extension("*", ["cysignals_example.pyx"])],
     cmdclass=dict(build=build),
 )

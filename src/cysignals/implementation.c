@@ -531,7 +531,7 @@ static void _sig_off_warning(const char* file, int line)
 
 static void setup_alt_stack(void)
 {
-#if HAVE_SIGALTSTACK
+#if HAVE_SIGALTSTACK && !defined(__EMSCRIPTEN__)
     /* Space for the alternate signal stack. The size should be
      * of the form MINSIGSTKSZ + constant. The constant is chosen rather
      * ad hoc but sufficiently large.
@@ -576,7 +576,9 @@ static void setup_cysignals_handlers(void)
      * After setting up the trampoline, we reset the signal mask. */
     sigprocmask(SIG_BLOCK, &sa.sa_mask, &default_sigmask);
 #endif
+#if !defined(__EMSCRIPTEN__)
     setup_trampoline();
+#endif
 #if HAVE_SIGPROCMASK
     sigprocmask(SIG_SETMASK, &default_sigmask, &sigmask_with_sigint);
 #endif

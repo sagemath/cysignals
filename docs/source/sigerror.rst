@@ -27,9 +27,9 @@ A typical error handler implemented in Cython would look as follows::
 
 Exceptions which are raised this way can be handled as usual by putting
 the ``sig_on()`` in a ``try``/``except`` block.
-For example, the package `cypari2 <https://github.com/defeo/cypari2>`_
+For example, the package `cypari2 <https://github.com/sagemath/cypari2>`_
 provides a wrapper around the number theory library PARI/GP.
-The `error handler <https://github.com/defeo/cypari2/blob/master/cypari2/handle_error.pyx>`_
+The `error handler <https://github.com/sagemath/cypari2/blob/master/cypari2/handle_error.pyx>`_
 has a callback which turns errors from PARI/GP
 into Python exceptions of type ``PariError``.
 This can be handled as follows::

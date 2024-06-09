@@ -173,7 +173,6 @@ class build_ext(_build_ext):
                 compiler_directives=dict(
                     binding=True,
                     language_level=2,
-                    legacy_implicit_noexcept=True,
                     ))
 
 

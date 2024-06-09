@@ -103,6 +103,9 @@ jobs:
               (cd unpacked && tar xfz - ) < dist/$pkg*.tar.gz
               "${{ steps.python.outputs.python-path }}" -m pipx run cibuildwheel==2.17.0 unpacked/$pkg*
           done
+        env:
+          # on pp310: build/src/cysignals/implementation.c:231:9: error: implicit declaration of function 'PyPyErr_SetInterrupt' is invalid in C99 [-Werror,-Wimplicit-function-declaration]
+          CIBW_SKIP: "pp31*"
 
       - uses: actions/upload-artifact@v3
         with:

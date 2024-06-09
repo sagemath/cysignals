@@ -183,9 +183,6 @@ jobs:
       matrix:
         os: ['macos-13', 'macos-latest']
         python-version: ['3.9', '3.10', '3.11', '3.12', '3.13-dev']
-    env:
-      # Work around https://github.com/sagemath/cysignals/issues/179
-      ARCHFLAGS: "-arch x86_64"
     steps:
     - name: Set up the repository
       uses: actions/checkout@v4
@@ -201,7 +198,11 @@ jobs:
         brew install autoconf
         python -m pip install --upgrade pip
     - name: Build and check
+      # Work around https://github.com/sagemath/cysignals/issues/179
       run: |
+        case $RUNNER_ARCH in
+          X*) export ARCHFLAGS="-arch x86_64";;
+        esac
         make -j4 check
 
   macos:

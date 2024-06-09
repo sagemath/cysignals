@@ -31,7 +31,7 @@ AC_CHECK_FUNCS([fork kill sigprocmask sigaltstack backtrace])
 AC_MSG_CHECKING([for emms instruction])
 # We add the "leal" instruction to reduce false positives in case some
 # non-x86 architecture also has an "emms" instruction.
-AC_RUN_IFELSE([AC_LANG_PROGRAM([[]], [[asm("leal (%eax), %eax; emms");]])],
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[asm("leal (%eax), %eax; emms");]])],
     dnl YES
     [AC_MSG_RESULT([yes])]
     AC_DEFINE(HAVE_EMMS, 1, [Define to 1 if your processor understands the "emms" instruction.])
@@ -67,6 +67,9 @@ AC_RUN_IFELSE([AC_LANG_PROGRAM(
     ,
     dnl NO
     [AC_MSG_RESULT([no])]
+    ,
+    [AC_MSG_RESULT([cross, assume yes])]
+    sigsetjmp=yes
 )
 
 AC_MSG_CHECKING([for GNU libc])

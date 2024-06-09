@@ -95,7 +95,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version-start: [python-3]
-        python-version: [7, 8, 9]
+        python-version: [9]
     steps:
     - run: |
         git config --global core.autocrlf false
@@ -122,7 +122,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12', '3.13-dev']
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13-dev']
     steps:
     - name: Set up the repository
       uses: actions/checkout@v4
@@ -182,7 +182,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ['macos-13', 'macos-latest']
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12', '3.13-dev']
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13-dev']
     env:
       # Work around https://github.com/sagemath/cysignals/issues/179
       ARCHFLAGS: "-arch x86_64"

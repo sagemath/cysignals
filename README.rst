@@ -31,7 +31,6 @@ Requirements
 - Python >= 3.6
 - Cython >= 0.28
 - Sphinx >= 1.6 (for building the documentation)
-- PARI/GP (optional; for interfacing with the PARI/GP signal handler)
 
 Links
 -----
@@ -42,6 +41,12 @@ Links
 
 Changelog
 ---------
+
+1.12.0 (unreleased)
+^^^^^^^^^^^^^^^^^^^
+
+* Remove optional compile-time dependency on PARI/GP. [#166]
+
 
 1.11.4 (2023-10-07)
 ^^^^^^^^^^^^^^^^^^^

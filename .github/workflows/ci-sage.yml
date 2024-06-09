@@ -122,7 +122,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12', '3.13-dev']
     steps:
     - name: Set up the repository
       uses: actions/checkout@v4
@@ -130,7 +130,7 @@ jobs:
           submodules: recursive
           fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
@@ -177,11 +177,12 @@ jobs:
     needs: [dist, linux]
 
   macos-without-sage:
-    runs-on: macos-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12']
+        os: ['macos-13', 'macos-latest']
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12', '3.13-dev']
     env:
       # Work around https://github.com/sagemath/cysignals/issues/179
       ARCHFLAGS: "-arch x86_64"
@@ -192,7 +193,7 @@ jobs:
           submodules: recursive
           fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies

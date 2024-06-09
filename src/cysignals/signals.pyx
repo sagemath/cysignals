@@ -51,9 +51,6 @@ cdef extern from "implementation.c":
     void PyErr_SetString(object type, char *message)
     void PyErr_Format(object exception, char *format, ...)
 
-    # PARI version string; NULL if compiled without PARI support
-    const char* paricfg_version
-
     int (**custom_signal_is_blocked_pts)()
     void (**custom_signal_unblock_pts)()
     void (**custom_set_pending_signal_pts)(int)
@@ -63,21 +60,16 @@ cdef extern from "implementation.c":
 
 def _pari_version():
     """
-    Return the full version string of PARI which was used to compile
-    cysignals, or ``None`` if cysignals was compiled without PARI
-    support.
+    Return ``None`` to indicate that cysignals was compiled without PARI support.
 
     TESTS::
 
         sage: from cysignals.signals import _pari_version
         sage: v = _pari_version()
-        sage: v is None or type(v) is str
+        sage: v is None
         True
     """
-    if paricfg_version is NULL:
-        return None
-    cdef bytes v = paricfg_version
-    return v.decode('ascii')
+    return None
 
 
 cdef int add_custom_signals(int (*custom_signal_is_blocked)() noexcept,

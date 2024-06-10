@@ -42,8 +42,8 @@ Links
 Changelog
 ---------
 
-1.12.0 (unreleased)
-^^^^^^^^^^^^^^^^^^^
+1.12.0 (release candidate)
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * Remove optional compile-time dependency on PARI/GP. [#166]
 

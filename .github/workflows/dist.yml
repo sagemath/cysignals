@@ -56,10 +56,9 @@ jobs:
       # SPKGs to install as system packages
       SPKGS: _bootstrap _prereq
       # Non-Python packages to install as spkgs
-      TARGETS_PRE: cysignals-build-deps
-      # Disable building PyPy wheels on all platforms
-      # Disable musllinux until #33083 provides alpine package information
-      CIBW_SKIP: "pp* *-musllinux*"
+      TARGETS_PRE:
+      # on pp310: build/src/cysignals/implementation.c:231:9: error: implicit declaration of function 'PyPyErr_SetInterrupt' is invalid in C99 [-Werror,-Wimplicit-function-declaration]
+      CIBW_SKIP: "pp31*"
       #
       CIBW_ARCHS: ${{ matrix.arch }}
       # https://cibuildwheel.readthedocs.io/en/stable/options/#requires-python
@@ -97,15 +96,12 @@ jobs:
         run: |
           "${{ steps.python.outputs.python-path }}" -m pip install pipx
           export PATH=build/bin:$PATH
-          export CIBW_BEFORE_ALL="( $(sage-print-system-package-command debian --yes --no-install-recommends install $(sage-get-system-packages debian $SPKGS)) || $(sage-print-system-package-command fedora --yes --no-install-recommends install $(sage-get-system-packages fedora $SPKGS | sed s/pkg-config/pkgconfig/)) || ( $(sage-print-system-package-command homebrew --yes --no-install-recommends install $(sage-get-system-packages homebrew $SPKGS)) || echo error ignored) ) && ./bootstrap && ./configure --enable-build-as-root --enable-fat-binary && MAKE=\"make -j6\" make V=0 $TARGETS_PRE"
+          export CIBW_BEFORE_ALL="( $(sage-print-system-package-command debian --yes --no-install-recommends install $(sage-get-system-packages debian $SPKGS)) || $(sage-print-system-package-command fedora --yes --no-install-recommends install $(sage-get-system-packages fedora $SPKGS | sed s/pkg-config/pkgconfig/)) || ( $(sage-print-system-package-command homebrew --yes --no-install-recommends install $(sage-get-system-packages homebrew $SPKGS)) || $(sage-print-system-package-command alpine --yes --no-install-recommends install $(sage-get-system-packages alpine $SPKGS)) || echo error ignored) )"
           mkdir -p unpacked
           for pkg in cysignals; do
               (cd unpacked && tar xfz - ) < dist/$pkg*.tar.gz
               "${{ steps.python.outputs.python-path }}" -m pipx run cibuildwheel==2.18.0 unpacked/$pkg*
           done
-        env:
-          # on pp310: build/src/cysignals/implementation.c:231:9: error: implicit declaration of function 'PyPyErr_SetInterrupt' is invalid in C99 [-Werror,-Wimplicit-function-declaration]
-          CIBW_SKIP: "pp31*"
 
       - uses: actions/upload-artifact@v4
         with:

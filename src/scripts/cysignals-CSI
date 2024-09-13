@@ -132,8 +132,8 @@ def prune_old_logs(directory, days):
     """
     for filename in os.listdir(directory):
         filename = os.path.join(directory, filename)
-        mtime = datetime.utcfromtimestamp(os.path.getmtime(filename))
-        age = datetime.utcnow() - mtime
+        mtime = datetime.fromtimestamp(os.path.getmtime(filename), datetime.UTC)
+        age = datetime.now(datetime.UTC) - mtime
         if age.days >= days:
             try:
                 os.unlink(filename)

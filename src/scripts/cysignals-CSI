@@ -39,12 +39,12 @@ import site
 
 from argparse import ArgumentParser
 from datetime import datetime
-from distutils.spawn import find_executable
+from shutil import which
 
 
 def pid_exists(pid):
     """
-    Return True if and only if there is a process with id pid running.
+    Return ``True`` if and only if there is a process with id pid running.
     """
     try:
         os.kill(pid, 0)
@@ -83,7 +83,7 @@ def run_gdb(pid, color):
     """
     Execute gdb.
     """
-    whichgdb = find_executable('gdb')
+    whichgdb = which('gdb')
     if whichgdb is None:
         return b"Cannot find gdb installed"
 

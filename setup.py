@@ -215,7 +215,6 @@ setup(
     packages=["cysignals"],
     package_dir={"": "src"},
     package_data={"cysignals": ["*.pxd", "*.h"]},
-    data_files=[(opj("share", "cysignals"), [opj("src", "scripts", "cysignals-CSI-helper.py")])],
     scripts=glob(opj("src", "scripts", "cysignals-CSI")),
     cmdclass=dict(
         configure=configure,
@@ -223,4 +222,7 @@ setup(
         build_ext=build_ext,
         bdist_egg=no_egg
     ),
+    install_requires=[
+        "importlib_resources; python_version < '3.9'",
+    ],
 )

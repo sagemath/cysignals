@@ -1,0 +1,5 @@
+option('debug',
+  type: 'boolean',
+  value: false,
+  description: 'Enable debug output'
+)

@@ -20,12 +20,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
-      - name: make dist
+      - name: Build sdist
         run: |
-          make dist
+          pip install meson meson-python
+          meson setup builddir
+          meson compile -C builddir
+          meson dist -C builddir
       - uses: actions/upload-artifact@v4
         with:
-          path: "dist/*.tar.gz"
+          path: "builddir/meson-dist/*.tar.*"
           name: dist
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:

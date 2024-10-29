@@ -1,5 +1,3 @@
-# cython: preliminary_late_includes_cy28=True
-# distutils: extra_link_args = @LIBS@
 #*****************************************************************************
 #  cysignals is free software: you can redistribute it and/or modify it
 #  under the terms of the GNU Lesser General Public License as published

@@ -1,4 +1,4 @@
-setuptools
+meson-python
 wheel
 Cython
 Sphinx

@@ -95,7 +95,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version-start: [python-3]
-        python-version: [9]
+        python-version: [10]
     steps:
     - run: |
         git config --global core.autocrlf false
@@ -109,20 +109,28 @@ jobs:
       shell: bash {0}
       run: |
         choco --version
-        choco install make autoconf gcc-core gcc-g++ python3${{ matrix.python-version }}-devel --source cygwin
+        choco install gcc-core gcc-g++ python3${{ matrix.python-version }}-devel --source cygwin
     - name: Install dependencies
+      shell: C:\tools\cygwin\bin\bash.exe -l -i {0}
       run: |
-        C:\\tools\\cygwin\\bin\\bash -l -x -c 'export PATH=/usr/local/bin:/usr/bin && cd $(cygpath -u "$GITHUB_WORKSPACE") && python3.${{ matrix.python-version }} -m pip install --upgrade pip'
+        cd $(cygpath -u "$GITHUB_WORKSPACE")
+        python3.${{ matrix.python-version }} -m pip install --upgrade pip
+        python3.${{ matrix.python-version }} -m pip install -r requirements.txt
+      env:
+        PATH: /usr/local/bin:/usr/bin
     - name: Build and check
-      run: |
-        C:\\tools\\cygwin\\bin\\bash -l -x -c 'export PATH=/usr/local/bin:/usr/bin && cd $(cygpath -u "$GITHUB_WORKSPACE") && make check PYTHON=python3.${{ matrix.python-version }}'
+      shell: C:\tools\cygwin\bin\bash.exe -l -i {0}
+      run: meson test -C builddir
+      env:
+        PATH: /usr/local/bin:/usr/bin
+        PYTHON: python3.${{ matrix.python-version }}
 
   ubuntu-without-sage:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13-dev']
+        python-version: ['3.10', '3.11', '3.12', '3.13-dev']
     steps:
     - name: Set up the repository
       uses: actions/checkout@v4
@@ -136,9 +144,9 @@ jobs:
     - name: Install dependencies
       run: |
           python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
     - name: Build and check
-      run: |
-        make -j4 check
+      run: meson test -C builddir
 
   linux:
     uses: sagemath/sage/.github/workflows/docker.yml@develop
@@ -197,13 +205,14 @@ jobs:
       run: |
         brew install autoconf
         python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt
     - name: Build and check
       # Work around https://github.com/sagemath/cysignals/issues/179
       run: |
         case $RUNNER_ARCH in
           X*) export ARCHFLAGS="-arch x86_64";;
         esac
-        make -j4 check
+        meson test -C builddir
 
   macos:
     uses: sagemath/sage/.github/workflows/macos.yml@develop

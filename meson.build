@@ -105,4 +105,7 @@ else
   threads_dep = dependency('threads')
 endif
 
+test('doctests', py, args: ['-B rundoctests.py', 'src/cysignals/*.pyx'])
+test('example', py, args: ['-m build', '--no-build-isolation', 'example'])
+
 subdir('src')

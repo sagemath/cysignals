@@ -105,27 +105,18 @@ jobs:
       with:
           submodules: recursive
           fetch-depth: 0
-    - name: Install cygwin and minimal prerequisites with choco
-      shell: bash {0}
-      run: |
-        choco --version
-        choco install gcc-core gcc-g++ python3${{ matrix.python-version }}-devel --source cygwin
+    - name: Set up Cygwin
+      uses: egor-tensin/setup-cygwin@v4
+      with:
+        packages: gcc-core gcc-g++ python3${{ matrix.python-version }}-devel
     - name: Install dependencies
-      shell: C:\tools\cygwin\bin\bash.exe -l -i {0}
       run: |
-        cd $(cygpath -u "$GITHUB_WORKSPACE")
         python3.${{ matrix.python-version }} -m pip install --upgrade pip
         python3.${{ matrix.python-version }} -m pip install -r requirements.txt
-      env:
-        PATH: /usr/local/bin:/usr/bin
     - name: Build and check
-      shell: C:\tools\cygwin\bin\bash.exe -l -i {0}
       run: |
         meson setup builddir
         meson test -C builddir
-      env:
-        PATH: /usr/local/bin:/usr/bin
-        PYTHON: python3.${{ matrix.python-version }}
 
   ubuntu-without-sage:
     runs-on: ubuntu-latest

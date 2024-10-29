@@ -120,7 +120,9 @@ jobs:
         PATH: /usr/local/bin:/usr/bin
     - name: Build and check
       shell: C:\tools\cygwin\bin\bash.exe -l -i {0}
-      run: meson test -C builddir
+      run: |
+        meson setup builddir
+        meson test -C builddir
       env:
         PATH: /usr/local/bin:/usr/bin
         PYTHON: python3.${{ matrix.python-version }}
@@ -146,7 +148,9 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
     - name: Build and check
-      run: meson test -C builddir
+      run: |
+        meson setup builddir
+        meson test -C builddir
 
   linux:
     uses: sagemath/sage/.github/workflows/docker.yml@develop
@@ -212,6 +216,7 @@ jobs:
         case $RUNNER_ARCH in
           X*) export ARCHFLAGS="-arch x86_64";;
         esac
+        meson setup builddir
         meson test -C builddir
 
   macos:

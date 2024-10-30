@@ -120,6 +120,7 @@ jobs:
         meson setup builddir
         meson test -C builddir
     - name: Print logs
+      if: always()
       run: |
         cat builddir/meson-logs/testlog.txt
 
@@ -148,6 +149,7 @@ jobs:
         meson setup builddir
         meson test -C builddir
     - name: Print logs
+      if: always()
       run: |
         cat builddir/meson-logs/testlog.txt
 
@@ -218,6 +220,7 @@ jobs:
         meson setup builddir
         meson test -C builddir
     - name: Print logs
+      if: always()
       run: |
         cat builddir/meson-logs/testlog.txt
 

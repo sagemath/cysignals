@@ -15,6 +15,7 @@ extensions = {
     'pselect': files('pselect.pyx'),
     'pysignals': files('pysignals.pyx'),
     'signals': files('signals.pyx'),
+    'tests': files('tests.pyx'),
 }
 
 test_files = []

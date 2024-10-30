@@ -9,14 +9,6 @@ We disable crash debugging for this test run::
     >>> import os
     >>> os.environ["CYSIGNALS_CRASH_NDEBUG"] = ""
 
-Verify that the doctester was set up correctly::
-
-    >>> import os
-    >>> os.name == "posix"  # doctest: +SKIP_POSIX
-    False
-    >>> os.name == "nt"     # doctest: +SKIP_WINDOWS
-    False
-
 """
 
 #*****************************************************************************
@@ -787,8 +779,11 @@ def test_interrupt_bomb(long n=100, long p=10):
 
     TESTS::
 
+        >>> import sys, pytest
+        >>> if sys.platform == 'cygwin':
+        ...     pytest.skip('this doctest does not work on Windows')
         >>> from cysignals.tests import *
-        >>> test_interrupt_bomb()  # doctest: +SKIP_CYGWIN
+        >>> test_interrupt_bomb()
         Received ... interrupts
 
     """

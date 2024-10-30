@@ -31,3 +31,7 @@ classifiers = [
 ]
 urls = { Homepage = "https://github.com/sagemath/cysignals" }
 requires-python = ">=3.9"
+
+[tool.pytest.ini_options]
+addopts = "--doctest-modules"
+norecursedirs = "builddir docs"

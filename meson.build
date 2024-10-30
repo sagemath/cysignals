@@ -20,6 +20,11 @@ add_project_arguments('-DCYTHON_CLINE_IN_TRACEBACK=0', language: 'c')
 # Disable sanity checking in GNU libc
 # This is required because of false positives in the longjmp() check
 add_project_arguments('-U_FORTIFY_SOURCE', language: 'c')
+# Make declarations in Cython code available to C include files
+add_project_arguments(
+  '-X preliminary_late_includes_cy28=True',
+  language: 'cython',
+)
 
 # Platform-specific settings
 if is_cygwin

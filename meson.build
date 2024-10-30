@@ -103,7 +103,7 @@ else
   threads_dep = dependency('threads')
 endif
 
-test('doctests', py, args: ['-B rundoctests.py', 'src/cysignals/*.pyx'])
-test('example', py, args: ['-m build', '--no-build-isolation', 'example'])
+test('doctests', py, args: ['-B', 'rundoctests.py', 'src/cysignals/*.pyx'], workdir: meson.current_source_dir())
+test('example', py, args: ['-m build', '--no-build-isolation', 'example'], workdir: meson.current_source_dir())
 
 subdir('src')

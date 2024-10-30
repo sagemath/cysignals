@@ -119,6 +119,9 @@ jobs:
       run: |
         meson setup builddir
         meson test -C builddir
+    - name: Print logs
+      run: |
+        cat builddir/meson-logs/testlog.txt
 
   ubuntu-without-sage:
     runs-on: ubuntu-latest
@@ -144,6 +147,9 @@ jobs:
       run: |
         meson setup builddir
         meson test -C builddir
+    - name: Print logs
+      run: |
+        cat builddir/meson-logs/testlog.txt
 
   linux:
     uses: sagemath/sage/.github/workflows/docker.yml@develop
@@ -211,6 +217,9 @@ jobs:
         esac
         meson setup builddir
         meson test -C builddir
+    - name: Print logs
+      run: |
+        cat builddir/meson-logs/testlog.txt
 
   macos:
     uses: sagemath/sage/.github/workflows/macos.yml@develop

@@ -20,3 +20,4 @@ def pytest_collect_file(
 
 # Need to import cysignals to initialize it
 import cysignals
+import cysignals.alarm

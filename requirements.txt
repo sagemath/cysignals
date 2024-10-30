@@ -5,3 +5,4 @@ wheel
 Cython
 Sphinx
 flake8
+pytest

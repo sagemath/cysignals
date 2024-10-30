@@ -3,7 +3,8 @@ project('cysignals', 'c', 'cpp', 'cython',
 )
 
 # Python
-py = import('python').find_installation(pure: false)
+py_module = import('python')
+py = py_module.find_installation(pure: false)
 py_dep = py.dependency()
 
 # Compilers
@@ -103,7 +104,18 @@ else
   threads_dep = dependency('threads')
 endif
 
-test('doctests', py, args: ['-B', 'rundoctests.py', 'src/cysignals/*.pyx'], workdir: meson.current_source_dir())
-test('example', py, args: ['-m build', '--no-build-isolation', 'example'], workdir: meson.current_source_dir())
-
 subdir('src')
+
+pytest = py_module.find_installation(modules: ['pytest'], required: false)
+if pytest.found()
+  test('pytest', pytest, args: ['-m', 'pytest', test_files], workdir: meson.current_source_dir())
+else
+  message('pytest not found, skipping tests')
+endif
+
+build = py_module.find_installation(modules: ['build'], required: false)
+if build.found()
+  test('example', py, args: ['-m', 'build', '--no-isolation', 'example'], workdir: meson.current_source_dir())
+else
+  message('build not found, skipping example')
+endif

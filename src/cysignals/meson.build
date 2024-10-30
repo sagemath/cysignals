@@ -17,11 +17,15 @@ extensions = {
     'signals': files('signals.pyx'),
 }
 
+test_files = []
+
 foreach name, pyx : extensions
     if name != 'signals' and is_windows
         # These modules are not supported on Windows
         continue
     endif
+
+    test_files += pyx
 
     # Platform-specific source files
     extra_sources = []

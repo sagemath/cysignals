@@ -110,10 +110,12 @@ jobs:
       with:
         packages: gcc-core gcc-g++ python3${{ matrix.python-version }}-devel ninja
     - name: Install dependencies
+      shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
       run: |
         python3.${{ matrix.python-version }} -m pip install --upgrade pip
         python3.${{ matrix.python-version }} -m pip install -r requirements.txt
     - name: Build and check
+      shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
       run: |
         meson setup builddir
         meson test -C builddir

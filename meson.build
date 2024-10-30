@@ -97,13 +97,6 @@ config.set('CYSIGNALS_STD_ATOMIC', cxx.links('#include <atomic>\nstatic std::ato
 # for std::atomic with OpenMP in C++ code
 config.set('CYSIGNALS_STD_ATOMIC_WITH_OPENMP', cxx.links('#include <atomic>\nstatic std::atomic<int> x;', args: ['-fopenmp']) ? 1 : 0)
 
-# Check whether MINSIGSTKSZ is constant
-config.set('MINSIGSTKSZ_IS_CONSTANT', cc.links('''
-#include <signal.h>
-static char alt_stack[MINSIGSTKSZ];
-int main() { return 0; }
-''') ? 1 : 0)
-
 if is_windows
   threads_dep = []
 else

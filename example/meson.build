@@ -15,6 +15,12 @@ print(cysignals.__file__.replace('__init__.py', ''))
 ).stdout().strip()
 cysignals = declare_dependency(include_directories: inc_cysignals)
 
+# Make declarations in Cython code available to C include files
+add_project_arguments(
+  '-X preliminary_late_includes_cy28=True',
+  language: 'cython',
+)
+
 
 py.extension_module('cysignals_example',
   sources: ['cysignals_example.pyx'],

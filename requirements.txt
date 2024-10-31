@@ -6,3 +6,4 @@ Cython
 Sphinx
 flake8
 pytest
+pytest-timeout

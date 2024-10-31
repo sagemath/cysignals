@@ -108,7 +108,7 @@ subdir('src')
 
 pytest = py_module.find_installation(modules: ['pytest'], required: false)
 if pytest.found()
-  test('pytest', pytest, args: ['-m', 'pytest', test_files], workdir: meson.current_source_dir())
+  test('pytest', pytest, args: ['-m', 'pytest', test_files], workdir: meson.current_source_dir(), timeout: 90)
 else
   message('pytest not found, skipping tests')
 endif

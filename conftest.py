@@ -1,3 +1,4 @@
+from math import e
 import pathlib
 
 from _pytest.nodes import Collector
@@ -20,8 +21,23 @@ def pytest_collect_file(
 
 # Need to import cysignals to initialize it
 import cysignals
-import cysignals.alarm
-import cysignals.signals
-import cysignals.pselect
-import cysignals.pysignals
-import cysignals.tests
+try:
+    import cysignals.alarm
+except ImportError:
+    pass
+try:
+    import cysignals.signals
+except ImportError:
+    pass
+try:
+    import cysignals.pselect
+except ImportError:
+    pass
+try:
+    import cysignals.pysignals
+except ImportError:
+    pass
+try:
+    import cysignals.tests
+except ImportError:
+    pass

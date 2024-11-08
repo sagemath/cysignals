@@ -8,7 +8,6 @@ We disable crash debugging for this test run::
 
     >>> import os
     >>> os.environ["CYSIGNALS_CRASH_NDEBUG"] = ""
-
 """
 
 #*****************************************************************************

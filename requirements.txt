@@ -5,5 +5,4 @@ wheel
 Cython
 Sphinx
 flake8
-pytest
-pytest-timeout
+pytest>=8.0.0

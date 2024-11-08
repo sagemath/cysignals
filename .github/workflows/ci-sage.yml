@@ -50,20 +50,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  # Ubuntu packages to install so that the project's "setup.py sdist" can succeed
-  DIST_PREREQ: python3-setuptools autoconf
-  # Name of this project in the Sage distribution
-  SPKG:        cysignals
-  # Sage distribution packages to build
-  TARGETS_PRE: build/make/Makefile
-  TARGETS:     SAGE_CHECK=no SAGE_CHECK_PACKAGES="cysignals,cypari" cysignals cypari
-  TARGETS_OPTIONAL: build/make/Makefile
-  # Standard setting: Test the current beta release of Sage
-  SAGE_REPO:   sagemath/sage
-  SAGE_REF:    develop
-  REMOVE_PATCHES: "*"
-
 jobs:
 
   dist:
@@ -84,7 +70,8 @@ jobs:
           && echo "sage-package create ${{ env.SPKG }} --version git --tarball ${{ env.SPKG }}-git.tar.gz --type=standard" > upstream/update-pkgs.sh \
           && if [ -n "${{ env.REMOVE_PATCHES }}" ]; then echo "(cd ../build/pkgs/${{ env.SPKG }}/patches && rm -f ${{ env.REMOVE_PATCHES }}; :)" >> upstream/update-pkgs.sh; fi \
           && ls -l upstream/
-      - uses: actions/upload-artifact@v2
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
           path: upstream
           name: upstream
@@ -113,7 +100,7 @@ jobs:
       shell: C:\tools\cygwin\bin\bash.exe --norc -eo pipefail -o igncr '{0}'
       run: |
         python3.${{ matrix.python-version }} -m pip install --upgrade pip
-        python3.${{ matrix.python-version }} -m pip install -r ./requirements.txt
+        python3.${{ matrix.python-version }} -m pip install --upgrade -r ./requirements.txt
     - name: Build and check
       shell: C:\tools\cygwin\bin\bash.exe --norc -eo pipefail -o igncr '{0}'
       run: |
@@ -139,7 +126,7 @@ jobs:
     - name: Install dependencies
       run: |
           pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install --upgrade -r requirements.txt
     - name: Build and check
       run: |
         pip install --no-build-isolation --config-settings=builddir=builddir .
@@ -202,7 +189,7 @@ jobs:
       run: |
         brew install autoconf
         pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install --upgrade -r requirements.txt
     - name: Build and check
       # Work around https://github.com/sagemath/cysignals/issues/179
       run: |

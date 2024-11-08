@@ -520,18 +520,11 @@ static void setup_alt_stack(void)
 #if HAVE_SIGALTSTACK
     /* Space for the alternate signal stack. The size should be
      * of the form MINSIGSTKSZ + constant. The constant is chosen rather
-     * ad hoc but sufficiently large.
-     * MINSIGSTKSZ is no longer a constant starting with glibc 2.34. */
+     * ad hoc but sufficiently large. */
     stack_t ss;
-#if MINSIGSTKSZ_IS_CONSTANT
-    static char alt_stack[MINSIGSTKSZ + 5120 + BACKTRACELEN * sizeof(void*)];
-    ss.ss_sp = alt_stack;
-    ss.ss_size = sizeof(alt_stack);
-#else
     size_t stack_size = MINSIGSTKSZ + 5120 + BACKTRACELEN * sizeof(void*);
     ss.ss_sp = malloc(stack_size);
     ss.ss_size = stack_size;
-#endif
     if (ss.ss_sp == NULL) {perror("cysignals malloc alt signal stack"); exit(1);}
     ss.ss_flags = 0;
     if (sigaltstack(&ss, NULL) == -1) {perror("cysignals sigaltstack"); exit(1);}

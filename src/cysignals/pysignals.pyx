@@ -168,7 +168,7 @@ def getossignal(int sig):
         >>> getossignal(signal.SIGUSR1)
         <SigAction with sa_handler=SIG_DFL>
         >>> def handler(*args): pass
-        >>> _ = signal.signal(signal.SIGUSR1, handler)
+        >>> old_handler = signal.signal(signal.SIGUSR1, handler)
         >>> getossignal(signal.SIGUSR1)
         <SigAction with sa_handler=0x...>
 
@@ -182,6 +182,7 @@ def getossignal(int sig):
         False
         >>> getossignal(signal.SIGABRT) == python_os_handler
         False
+        >>> _ = signal.signal(signal.SIGUSR1, old_handler)
 
     TESTS::
 
@@ -274,11 +275,13 @@ def setsignal(int sig, action, osaction=None):
         got signal
         >>> setsignal(signal.SIGILL, signal.SIG_DFL)
         <function handler at 0x...>
-        >>> _ = setsignal(signal.SIGALRM, signal.SIG_DFL, signal.SIG_IGN)
+        >>> old_handler = getossignal(signal.SIGALRM)
+        >>> old_py_handler = setsignal(signal.SIGALRM, signal.SIG_DFL, signal.SIG_IGN)
         >>> os.kill(os.getpid(), signal.SIGALRM)
         >>> _ = setsignal(signal.SIGALRM, handler, getossignal(signal.SIGSEGV))
         >>> os.kill(os.getpid(), signal.SIGALRM)
         got signal
+        >>> _ = setsignal(signal.SIGALRM, old_py_handler, old_handler)
 
     TESTS::
 

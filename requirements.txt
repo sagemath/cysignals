@@ -1,5 +1,8 @@
-setuptools
+meson-python
+ninja
+build
 wheel
 Cython
 Sphinx
 flake8
+pytest>=8.0.0

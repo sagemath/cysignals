@@ -105,10 +105,10 @@ class AlarmInterrupt(KeyboardInterrupt):
 
         >>> from cysignals import AlarmInterrupt
         >>> from signal import alarm
+        >>> from time import sleep
         >>> try:
         ...     _ = alarm(1)
-        ...     while True:
-        ...         pass
+        ...     sleep(2)
         ... except AlarmInterrupt:
         ...     print("alarm!")
         alarm!

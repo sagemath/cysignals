@@ -1,0 +1,6 @@
+name: cysignals-dev
+channels:
+  - conda-forge
+dependencies:
+  - meson-python
+  - cython

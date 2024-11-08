@@ -6,8 +6,6 @@ PYTHON = python3
 PIP = $(PYTHON) -m pip -v
 LS_R = ls -Ra1
 
-DOCTEST = $(PYTHON) -B rundoctests.py
-
 
 #####################
 # Build
@@ -66,11 +64,11 @@ check-all:
 check-install: check-doctest check-example
 
 check-doctest: install
-	$(DOCTEST) src/cysignals/*.pyx
+	$(PYTHON) -m pytest .
 
 check-example: install
 	$(PYTHON) -m pip install -U build setuptools wheel Cython
-	cd example && $(PYTHON) -m build --no-isolation .
+	$(PYTHON) -m build --no-isolation example
 
 check-gdb: install
 	$(PYTHON) testgdb.py

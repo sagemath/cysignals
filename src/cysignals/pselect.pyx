@@ -88,13 +88,14 @@ def interruptible_sleep(double seconds):
         >>> import signal, time
         >>> def alarm_handler(sig, frame):
         ...     pass
-        >>> _ = signal.signal(signal.SIGALRM, alarm_handler)
+        >>> old_handler = signal.signal(signal.SIGALRM, alarm_handler)
         >>> t0 = time.time()
         >>> _ = signal.alarm(1)
         >>> interruptible_sleep(2)
         >>> t = time.time() - t0
         >>> (0.9 <= t <= 1.9) or t
         True
+        >>> _ = signal.signal(signal.SIGALRM, old_handler)
 
     TESTS::
 
@@ -346,6 +347,7 @@ cdef class PSelecter:
         The file ``/dev/null`` should always be available for reading
         and writing::
 
+            >>> import os
             >>> from cysignals.pselect import PSelecter
             >>> f = open(os.devnull, "r+")
             >>> sel = PSelecter()
@@ -389,6 +391,7 @@ cdef class PSelecter:
         Open a file and close it, but save the (invalid) file
         descriptor::
 
+            >>> import os
             >>> f = open(os.devnull, "r")
             >>> n = f.fileno()
             >>> f.close()

@@ -34,6 +34,10 @@ cimport cython
 import sys
 from gc import collect
 
+IF UNAME_SYSNAME == "Windows":
+    DEF SIGHUP = 1000
+    DEF SIGALRM = 1000
+    DEF SIGBUS = 1000
 
 cdef extern from "implementation.c":
     cysigs_t cysigs

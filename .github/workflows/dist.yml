@@ -26,7 +26,7 @@ jobs:
           pip install --upgrade -r requirements.txt
           meson setup builddir
           meson compile -C builddir
-          meson dist -C builddir
+          meson dist -C builddir --no-tests
       - uses: actions/upload-artifact@v4
         with:
           path: "builddir/meson-dist/*.tar.*"

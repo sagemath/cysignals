@@ -107,12 +107,15 @@ class AlarmInterrupt(KeyboardInterrupt):
 
     EXAMPLES::
 
+        >>> import platform, pytest
+        >>> if platform.system() == 'Windows':
+        ...     pytest.skip('this doctest does not work on Windows')
         >>> from cysignals import AlarmInterrupt
         >>> from signal import alarm
+        >>> from time import sleep
         >>> try:
         ...     _ = alarm(1)
-        ...     while True:
-        ...         pass
+        ...     sleep(2)
         ... except AlarmInterrupt:
         ...     print("alarm!")
         alarm!
@@ -210,7 +213,7 @@ def sig_print_exception(sig, msg=None):
         >>> import signal
         >>> sig_print_exception(signal.SIGFPE)
         FloatingPointError: Floating point exception
-        >>> sig_print_exception(signal.SIGBUS, "CUSTOM MESSAGE")
+        >>> sig_print_exception(signal.SIGSEGV, "CUSTOM MESSAGE")
         cysignals.signals.SignalError: CUSTOM MESSAGE
         >>> sig_print_exception(0)
         SystemError: unknown signal number 0
@@ -219,6 +222,9 @@ def sig_print_exception(sig, msg=None):
 
         >>> sig_print_exception(signal.SIGINT, "ignored")
         KeyboardInterrupt
+        >>> import platform, pytest
+        >>> if platform.system() == 'Windows':
+        ...     pytest.skip('this doctest does not work on Windows')
         >>> sig_print_exception(signal.SIGALRM, "ignored")
         cysignals.signals.AlarmInterrupt
 
@@ -315,6 +321,9 @@ def sig_on_reset():
 
     EXAMPLES::
 
+        >>> import platform, pytest
+        >>> if platform.system() == 'Windows':
+        ...     pytest.skip('this doctest does not work on Windows')
         >>> from cysignals.signals import sig_on_reset
         >>> from cysignals.tests import _sig_on
         >>> _sig_on(); sig_on_reset()

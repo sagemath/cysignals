@@ -20,10 +20,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
-      - name: Build sdist
+      - name: Install dependencies
         run: |
           pip install --upgrade pip
           pip install --upgrade -r requirements.txt
+      - name: Build sdist
+        run: |
           meson setup builddir
           meson compile -C builddir
           meson dist -C builddir --no-tests

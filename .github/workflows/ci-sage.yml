@@ -104,7 +104,8 @@ jobs:
           pip install --upgrade -r requirements.txt
     - name: Build and check
       run: |
-        pip install --no-build-isolation --config-settings=builddir=builddir .
+        meson setup builddir
+        meson compile -C builddir
         meson test --print-errorlogs -C builddir
 
   macos-without-sage:

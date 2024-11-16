@@ -25,10 +25,7 @@ jobs:
           pip install --upgrade pip
           pip install --upgrade -r requirements.txt
       - name: Build sdist
-        run: |
-          meson setup builddir
-          meson compile -C builddir
-          meson dist -C builddir --no-tests
+        run: python -m build --sdist .
       - uses: actions/upload-artifact@v4
         with:
           path: "builddir/meson-dist/*.tar.*"

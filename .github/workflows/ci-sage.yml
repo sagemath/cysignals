@@ -107,42 +107,6 @@ jobs:
         pip install --no-build-isolation --config-settings=builddir=builddir .
         meson test --print-errorlogs -C builddir
 
-  linux:
-    uses: sagemath/sage/.github/workflows/docker.yml@develop
-    with:
-      # FIXME: duplicated from env.TARGETS
-      targets_pre:       build/make/Makefile
-      targets:           SAGE_CHECK=no SAGE_CHECK_PACKAGES="cysignals,cypari" cysignals cypari
-      targets_optional:  build/make/Makefile
-      sage_repo:         sagemath/sage
-      sage_ref:          develop
-      upstream_artifact: upstream
-      # We prefix the image name with the SPKG name ("cysignals-") to avoid the error
-      # 'Package "sage-docker-..." is already associated with another repository.'
-      docker_push_repository: ghcr.io/${{ github.repository }}/cysignals-
-    needs: [dist, ubuntu-without-sage]
-
-  linux-sage-incremental:
-    uses: sagemath/sage/.github/workflows/docker.yml@develop
-    with:
-      # Build incrementally from published Docker image
-      incremental: true
-      free_disk_space: true
-      from_docker_repository: ghcr.io/sagemath/sage/
-      from_docker_target: "with-targets"
-      from_docker_tag: "dev"
-      docker_targets: "with-targets"
-      targets_pre:       build/make/Makefile
-      targets:           "cysignals-uninstall cypari-uninstall build doc-html ptest"
-      targets_optional:  build/make/Makefile
-      sage_repo:         sagemath/sage
-      sage_ref:          develop
-      upstream_artifact: upstream
-      # We prefix the image name with the SPKG name ("cysignals-") to avoid the error
-      # 'Package "sage-docker-..." is already associated with another repository.'
-      docker_push_repository: ghcr.io/${{ github.repository }}/cysignals-
-    needs: [dist, linux]
-
   macos-without-sage:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -172,20 +136,3 @@ jobs:
         esac
         pip install --no-build-isolation --config-settings=builddir=builddir .
         meson test --print-errorlogs -C builddir
-
-  macos:
-    uses: sagemath/sage/.github/workflows/macos.yml@develop
-    with:
-      osversion_xcodeversion_toxenv_tuples: >-
-        [["latest", "",           "homebrew-macos-usrlocal-minimal"],
-         ["latest", "",           "homebrew-macos-usrlocal-standard"],
-         ["13",     "xcode_15.0", "homebrew-macos-usrlocal-standard"],
-         ["latest", "",           "conda-forge-macos-standard"]]
-      # FIXME: duplicated from env.TARGETS
-      targets_pre:       build/make/Makefile
-      targets:           SAGE_CHECK=no SAGE_CHECK_PACKAGES="cysignals,cypari" cysignals cypari
-      targets_optional:  build/make/Makefile
-      sage_repo:         sagemath/sage
-      sage_ref:          develop
-      upstream_artifact: upstream
-    needs: [dist, macos-without-sage]

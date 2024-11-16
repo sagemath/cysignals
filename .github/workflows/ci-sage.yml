@@ -82,11 +82,13 @@ jobs:
         pip install --no-build-isolation --config-settings=builddir=builddir .
         meson test --print-errorlogs -C builddir
 
-  ubuntu-without-sage:
-    runs-on: ubuntu-latest
+  ci:
+    name: CI (${{ matrix.os }} with Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        os: ['macos-13', 'macos-latest', 'ubuntu-latest']
         python-version: ['3.10', '3.11', '3.12', '3.13-dev']
     steps:
     - name: Set up the repository
@@ -106,33 +108,3 @@ jobs:
       run: pip install --no-build-isolation --config-settings=builddir=builddir .
     - name: Test
       run: meson test --print-errorlogs -C builddir
-
-  macos-without-sage:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: ['macos-13', 'macos-latest']
-        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13-dev']
-    steps:
-    - name: Set up the repository
-      uses: actions/checkout@v4
-      with:
-          submodules: recursive
-          fetch-depth: 0
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        pip install --upgrade pip
-        pip install --upgrade -r requirements.txt
-    - name: Build and check
-      # Work around https://github.com/sagemath/cysignals/issues/179
-      run: |
-        case $RUNNER_ARCH in
-          X*) export ARCHFLAGS="-arch x86_64";;
-        esac
-        pip install --no-build-isolation --config-settings=builddir=builddir .
-        meson test --print-errorlogs -C builddir

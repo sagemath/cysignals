@@ -105,7 +105,7 @@ jobs:
     - name: Build and check
       run: |
         meson setup builddir
-        meson compile -C builddir
+        meson install -C builddir
         meson test --print-errorlogs -C builddir
 
   macos-without-sage:

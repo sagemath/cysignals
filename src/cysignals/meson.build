@@ -18,20 +18,10 @@ extensions = {
     'tests': files('tests.pyx'),
 }
 
-test_files = []
-
 foreach name, pyx : extensions
     if name != 'signals' and is_windows
         # These modules are not supported on Windows
         continue
-    endif
-
-    test_files += pyx
-
-    # Platform-specific source files
-    extra_sources = []
-    if is_cygwin and name == 'signals'
-        extra_sources += files('implementation_cygwin.c')
     endif
 
     py.extension_module(name,

@@ -70,7 +70,7 @@ jobs:
     - name: Set up Cygwin
       uses: egor-tensin/setup-cygwin@v4
       with:
-        packages: gcc-core gcc-g++ python3${{ matrix.python-version }}-devel ninja
+        packages: gcc-core gcc-g++ python3${{ matrix.python-version }}-devel ninja pkgconf
     - name: Install dependencies
       shell: C:\tools\cygwin\bin\bash.exe --norc -eo pipefail -o igncr '{0}'
       run: |

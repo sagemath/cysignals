@@ -1,5 +1,4 @@
 meson-python
-ninja
 build
 wheel
 Cython

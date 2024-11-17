@@ -25,7 +25,7 @@ foreach name, pyx : extensions
     endif
 
     py.extension_module(name,
-        pyx, extra_sources,
+        pyx,
         include_directories: [include_directories('.'), src],
         dependencies: [py_dep, threads_dep],
         install: true,

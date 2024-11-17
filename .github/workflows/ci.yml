@@ -1,0 +1,111 @@
+name: Run Sage CI for Linux/Cygwin/macOS
+
+## This GitHub Actions workflow provides:
+##
+##  - portability testing, by building and testing this project on many platforms
+##    (Linux variants and Cygwin), each with two configurations (installed packages),
+##
+##  - continuous integration, by building and testing other software
+##    that depends on this project.
+##
+## It runs on every pull request and push of a tag to the GitHub repository.
+##
+## The testing can be monitored in the "Actions" tab of the GitHub repository.
+##
+## After all jobs have finished (or are canceled) and a short delay,
+## tar files of all logs are made available as "build artifacts".
+##
+## This GitHub Actions workflow uses the portability testing framework
+## of SageMath (https://www.sagemath.org/).  For more information, see
+## https://doc.sagemath.org/html/en/developer/portability_testing.html
+
+## The workflow consists of two jobs:
+##
+##  - First, it builds a source distribution of the project
+##    and generates a script "update-pkgs.sh".  It uploads them
+##    as a build artifact named upstream.
+##
+##  - Second, it checks out a copy of the SageMath source tree.
+##    It downloads the upstream artifact and replaces the project's
+##    package in the SageMath distribution by the newly packaged one
+##    from the upstream artifact, by running the script "update-pkgs.sh".
+##    Then it builds a small portion of the Sage distribution.
+##
+## Many copies of the second step are run in parallel for each of the tested
+## systems/configurations.
+
+#on: [push, pull_request]
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+    # Allow to run manually
+
+concurrency:
+  # Cancel previous runs of this workflow for the same branch
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cygwin-without-sage:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version-start: [python-3]
+        python-version: [9]
+    steps:
+    - run: |
+        git config --global core.autocrlf false
+        git config --global core.symlinks true
+    - name: Set up the repository
+      uses: actions/checkout@v4
+      with:
+          submodules: recursive
+          fetch-depth: 0
+    - name: Set up Cygwin
+      uses: egor-tensin/setup-cygwin@v4
+      with:
+        packages: gcc-core gcc-g++ python3${{ matrix.python-version }}-devel ninja pkgconf
+    - name: Install dependencies
+      shell: C:\tools\cygwin\bin\bash.exe --norc -eo pipefail -o igncr '{0}'
+      run: |
+        python3.${{ matrix.python-version }} -m pip install --upgrade pip
+        python3.${{ matrix.python-version }} -m pip install --upgrade -r ./requirements.txt
+    - name: Build and check
+      shell: C:\tools\cygwin\bin\bash.exe --norc -eo pipefail -o igncr '{0}'
+      run: |
+        pip install --no-build-isolation --config-settings=builddir=builddir .
+        meson test --print-errorlogs -C builddir
+
+  ci:
+    name: CI (${{ matrix.os }} with Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ['macos-13', 'macos-latest', 'ubuntu-latest']
+        python-version: ['3.10', '3.11', '3.12', '3.13-dev']
+    steps:
+    - name: Set up the repository
+      uses: actions/checkout@v4
+      with:
+          submodules: recursive
+          fetch-depth: 0
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+          pip install --upgrade pip
+          pip install --upgrade -r requirements.txt
+          pip install --upgrade ninja
+    - name: Build
+      run: pip install --no-build-isolation --config-settings=builddir=builddir .
+    - name: Test
+      run: meson test --print-errorlogs -C builddir

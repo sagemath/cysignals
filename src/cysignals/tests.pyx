@@ -1,4 +1,3 @@
-# cython: preliminary_late_includes_cy28=True
 """
 Test interrupt and signal handling
 
@@ -1291,11 +1290,12 @@ def test_thread_sig_block(long delay=DEFAULT_DELAY):
         sig_off()
 
 
-cdef void* func_thread_sig_block(void* ignored) noexcept nogil:
+cdef void* func_thread_sig_block(void* ignored) noexcept with gil:
     # This is executed by the two threads spawned by test_thread_sig_block()
     cdef int n
     for n in range(1000000):
         sig_block()
         if not (1 <= cysigs.block_sigint <= 2):
+            PyErr_SetString(RuntimeError, "sig_block() is not thread-safe")
             sig_error()
         sig_unblock()

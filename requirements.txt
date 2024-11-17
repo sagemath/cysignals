@@ -1,4 +1,5 @@
-setuptools
+meson-python
+build
 wheel
 Cython
 Sphinx

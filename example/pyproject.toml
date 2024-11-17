@@ -1,3 +1,7 @@
 [build-system]
-requires = ['setuptools', 'Cython>=0.28', 'cysignals']
-build-backend = "setuptools.build_meta"
+requires = ["meson-python", "cython>=0.28"]
+build-backend = "mesonpy"
+
+[project]
+name = "cysignals-example"
+version = "0.1.0"

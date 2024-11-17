@@ -254,12 +254,6 @@ static inline void sigdie_for_sig(int sig, int inside)
 }
 
 
-/* Additional platform-specific implementation code */
-#if defined(__CYGWIN__)
-#include "implementation_cygwin.c"
-#endif
-
-
 /* Handler for SIGHUP, SIGINT, SIGALRM
  *
  * Inside sig_on() (i.e. when cysigs.sig_on_count is positive), this

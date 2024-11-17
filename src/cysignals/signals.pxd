@@ -52,6 +52,8 @@ cdef int add_custom_signals(int (*custom_signal_is_blocked)() noexcept,
                             void (*custom_signal_unblock)() noexcept,
                             void (*custom_set_pending_signal)(int) noexcept) except -1
 
+cdef int sig_raise_exception "sig_raise_exception"(int sig, const char* msg) except 0 with gil
+
 # This function does nothing, but it is declared cdef except *, so it
 # can be used to make Cython check whether there is a pending exception
 # (PyErr_Occurred() is non-NULL). To Cython, it will look like

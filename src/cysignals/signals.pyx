@@ -34,10 +34,19 @@ cimport cython
 import sys
 from gc import collect
 
-IF UNAME_SYSNAME == "Windows":
-    DEF SIGHUP = 1000
-    DEF SIGALRM = 1000
-    DEF SIGBUS = 1000
+# On Windows, some signals are not pre-defined.
+# We define them here with values that will never occur in practice
+# (to avoid compilation errors and conditional compilation).
+cdef extern from *:
+    """
+    #if defined(_WIN32) || defined(WIN32) || defined(MS_WINDOWS)
+    #define NO_SUCH_SIGNAL 256
+    #define SIGHUP NO_SUCH_SIGNAL
+    #define SIGALRM NO_SUCH_SIGNAL
+    #define SIGBUS NO_SUCH_SIGNAL
+    #endif
+    """
+    pass
 
 cdef extern from "implementation.c":
     cysigs_t cysigs

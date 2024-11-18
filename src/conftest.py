@@ -1,7 +1,16 @@
 import pathlib
+import platform
 
 from _pytest.nodes import Collector
 from _pytest.doctest import DoctestModule
+
+if platform.system() == "Windows":
+    collect_ignore = [
+        "cysignals/alarm.pyx",
+        "cysignals/pselect.pyx",
+        "cysignals/pysignals.pyx",
+        "cysignals/tests.pyx",
+    ]
 
 
 def pytest_collect_file(

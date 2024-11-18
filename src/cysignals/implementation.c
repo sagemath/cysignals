@@ -86,11 +86,9 @@ void custom_set_pending_signal(int sig){
 
 #if HAVE_WINDOWS_H
 #include <windows.h>
-#else
+#endif
+#if !_WIN32
 #include <pthread.h>
-/* A trampoline to jump to after handling a signal. */
-static cyjmp_buf trampoline_setup;
-static sigjmp_buf trampoline;
 #endif
 #include "struct_signals.h"
 
@@ -110,6 +108,12 @@ static sigset_t default_sigmask;
 
 /* default_sigmask with SIGHUP, SIGINT, SIGALRM added. */
 static sigset_t sigmask_with_sigint;
+#endif
+
+#if !_WIN32
+/* A trampoline to jump to after handling a signal. */
+static cyjmp_buf trampoline_setup;
+static sigjmp_buf trampoline;
 #endif
 
 static void setup_cysignals_handlers(void);
@@ -391,7 +395,7 @@ static void cysigs_interrupt_handler(int sig)
             /* Raise an exception so Python can see it */
             do_raise_exception(sig);
 
-#if !HAVE_WINDOWS_H
+#if !_WIN32
             /* Jump back to sig_on() (the first one if there is a stack) */
             siglongjmp(trampoline, sig);
 #endif
@@ -447,7 +451,7 @@ static void cysigs_signal_handler(int sig)
 
         /* Raise an exception so Python can see it */
         do_raise_exception(sig);
-    #if !HAVE_WINDOWS_H
+    #if !_WIN32
         /* Jump back to sig_on() (the first one if there is a stack) */
         siglongjmp(trampoline, sig);
     #endif

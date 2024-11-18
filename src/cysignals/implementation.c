@@ -391,7 +391,7 @@ static void cysigs_interrupt_handler(int sig)
             /* Raise an exception so Python can see it */
             do_raise_exception(sig);
 
-#if not HAVE_WINDOWS_H
+#if !HAVE_WINDOWS_H
             /* Jump back to sig_on() (the first one if there is a stack) */
             siglongjmp(trampoline, sig);
 #endif
@@ -447,7 +447,7 @@ static void cysigs_signal_handler(int sig)
 
         /* Raise an exception so Python can see it */
         do_raise_exception(sig);
-    #if not HAVE_WINDOWS_H
+    #if !HAVE_WINDOWS_H
         /* Jump back to sig_on() (the first one if there is a stack) */
         siglongjmp(trampoline, sig);
     #endif
@@ -462,7 +462,7 @@ static void cysigs_signal_handler(int sig)
     }
 }
 
-#if not HAVE_WINDOWS_H
+#if !HAVE_WINDOWS_H
 /* A trampoline to jump to after handling a signal.
  *
  * The jump to sig_on() uses cylongjmp(), which does not restore the

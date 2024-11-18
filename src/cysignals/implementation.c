@@ -462,7 +462,7 @@ static void cysigs_signal_handler(int sig)
     }
 }
 
-#if !HAVE_WINDOWS_H
+#if !_WIN32
 /* A trampoline to jump to after handling a signal.
  *
  * The jump to sig_on() uses cylongjmp(), which does not restore the

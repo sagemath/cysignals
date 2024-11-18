@@ -1,4 +1,3 @@
-# cython: preliminary_late_includes_cy28=True
 """
 Test interrupt and signal handling
 
@@ -8,15 +7,6 @@ We disable crash debugging for this test run::
 
     >>> import os
     >>> os.environ["CYSIGNALS_CRASH_NDEBUG"] = ""
-
-Verify that the doctester was set up correctly::
-
-    >>> import os
-    >>> os.name == "posix"  # doctest: +SKIP_POSIX
-    False
-    >>> os.name == "nt"     # doctest: +SKIP_WINDOWS
-    False
-
 """
 
 #*****************************************************************************
@@ -787,8 +777,11 @@ def test_interrupt_bomb(long n=100, long p=10):
 
     TESTS::
 
+        >>> import sys, pytest
+        >>> if sys.platform == 'cygwin':
+        ...     pytest.skip('this doctest does not work on Windows')
         >>> from cysignals.tests import *
-        >>> test_interrupt_bomb()  # doctest: +SKIP_CYGWIN
+        >>> test_interrupt_bomb()
         Received ... interrupts
 
     """
@@ -1297,11 +1290,12 @@ def test_thread_sig_block(long delay=DEFAULT_DELAY):
         sig_off()
 
 
-cdef void* func_thread_sig_block(void* ignored) noexcept nogil:
+cdef void* func_thread_sig_block(void* ignored) noexcept with gil:
     # This is executed by the two threads spawned by test_thread_sig_block()
     cdef int n
     for n in range(1000000):
         sig_block()
         if not (1 <= cysigs.block_sigint <= 2):
+            PyErr_SetString(RuntimeError, "sig_block() is not thread-safe")
             sig_error()
         sig_unblock()

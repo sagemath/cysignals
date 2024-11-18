@@ -20,12 +20,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
-      - name: make dist
+      - name: Install dependencies
         run: |
-          make dist
+          pip install --upgrade pip
+          pip install --upgrade -r requirements.txt
+      - name: Build sdist
+        run: python -m build --sdist .
       - uses: actions/upload-artifact@v4
         with:
-          path: "dist/*.tar.gz"
+          path: "dist/*.tar.*"
           name: dist
       - uses: pypa/gh-action-pypi-publish@release/v1
         with:
@@ -82,7 +85,7 @@ jobs:
         # Installing pipx follows the approach of https://github.com/pypa/cibuildwheel/pull/1743
         id: python
         with:
-          python-version: "3.8 - 3.12"
+          python-version: "3.9 - 3.12"
           update-environment: false
 
       - name: Build platform wheels

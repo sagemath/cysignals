@@ -1,3 +1,37 @@
 [build-system]
-requires = ['setuptools', 'Cython>=0.28']
-build-backend = "setuptools.build_meta"
+requires = ["meson-python", "cython>=0.28"]
+build-backend = "mesonpy"
+
+[project]
+name = "cysignals"
+version = "1.12.0rc2"
+description = "Interrupt and signal handling for Cython"
+license = { file = "LICENSE" }
+readme = { file = "README.rst", content-type = "text/x-rst" }
+authors = [
+    { name = "The Sage Developers", email = "sage-support@googlegroups.com" },
+]
+classifiers = [
+    "Development Status :: 6 - Mature",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
+    "Operating System :: POSIX",
+    "Operating System :: MacOS :: MacOS X",
+    "Programming Language :: C",
+    "Programming Language :: Cython",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: System",
+    "Topic :: Software Development :: Debuggers",
+]
+urls = { Homepage = "https://github.com/sagemath/cysignals" }
+requires-python = ">=3.9"
+
+[tool.pytest.ini_options]
+addopts = "--doctest-modules --import-mode importlib"
+norecursedirs = "builddir docs example"

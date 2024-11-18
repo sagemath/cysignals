@@ -63,7 +63,7 @@ static void ms_sleep(long ms)
 #if HAVE_UNISTD_H
     usleep(1000 * ms);
 #else
-    Sleep(ms);
+    sleep(ms);
 #endif
 }
 

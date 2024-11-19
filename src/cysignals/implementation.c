@@ -34,7 +34,6 @@ Interrupt and signal handling for Cython
 #include <stdlib.h>
 #include <limits.h>
 #include <errno.h>
-#include <pthread.h>
 #if HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -88,6 +87,9 @@ void custom_set_pending_signal(int sig){
 #if HAVE_WINDOWS_H
 #include <windows.h>
 #endif
+#if !_WIN32
+#include <pthread.h>
+#endif
 #include "struct_signals.h"
 
 
@@ -108,9 +110,11 @@ static sigset_t default_sigmask;
 static sigset_t sigmask_with_sigint;
 #endif
 
+#if !_WIN32
 /* A trampoline to jump to after handling a signal. */
 static cyjmp_buf trampoline_setup;
 static sigjmp_buf trampoline;
+#endif
 
 static void setup_cysignals_handlers(void);
 static void cysigs_interrupt_handler(int sig);
@@ -194,15 +198,23 @@ static inline void print_stderr_ptr(void *ptr)
 
 /* Reset all signal handlers and the signal mask to their defaults. */
 static inline void sig_reset_defaults(void) {
+#ifdef SIGHUP
     signal(SIGHUP, SIG_DFL);
+#endif
     signal(SIGINT, SIG_DFL);
+#ifdef SIGQUIT
     signal(SIGQUIT, SIG_DFL);
+#endif
     signal(SIGILL, SIG_DFL);
     signal(SIGABRT, SIG_DFL);
     signal(SIGFPE, SIG_DFL);
+#ifdef SIGBUS
     signal(SIGBUS, SIG_DFL);
+#endif
     signal(SIGSEGV, SIG_DFL);
+#ifdef SIGALRM
     signal(SIGALRM, SIG_DFL);
+#endif
     signal(SIGTERM, SIG_DFL);
 #if HAVE_SIGPROCMASK
     sigprocmask(SIG_SETMASK, &default_sigmask, NULL);
@@ -228,10 +240,14 @@ static inline void sigdie_for_sig(int sig, int inside)
             sigdie(sig, "Unhandled SIGFPE during signal handling.");
         else if (sig == SIGSEGV)
             sigdie(sig, "Unhandled SIGSEGV during signal handling.");
+    #ifdef SIGBUS
         else if (sig == SIGBUS)
             sigdie(sig, "Unhandled SIGBUS during signal handling.");
+    #endif
+    #ifdef SIGQUIT
         else if (sig == SIGQUIT)
             sigdie(sig, NULL);
+    #endif
         else
             sigdie(sig, "Unknown signal during signal handling.");
     }
@@ -244,10 +260,14 @@ static inline void sigdie_for_sig(int sig, int inside)
             sigdie(sig, "Unhandled SIGFPE: An unhandled floating point exception occurred.");
         else if (sig == SIGSEGV)
             sigdie(sig, "Unhandled SIGSEGV: A segmentation fault occurred.");
+    #ifdef SIGBUS
         else if (sig == SIGBUS)
             sigdie(sig, "Unhandled SIGBUS: A bus error occurred.");
+    #endif
+    #ifdef SIGQUIT
         else if (sig == SIGQUIT)
             sigdie(sig, NULL);
+    #endif
         else
             sigdie(sig, "Unknown signal received.");
     }
@@ -330,8 +350,22 @@ static void cygwin_setup_alt_stack() {
 
 #endif  /* CYGWIN && __x86_64__ */
 
+void get_monotonic_time(struct timespec *ts) {
+#ifdef _WIN32
+    LARGE_INTEGER frequency;
+    LARGE_INTEGER counter;
 
-/* Handler for SIGHUP, SIGINT, SIGALRM
+    QueryPerformanceFrequency(&frequency);
+    QueryPerformanceCounter(&counter);
+
+    ts->tv_sec = counter.QuadPart / frequency.QuadPart;
+    ts->tv_nsec = (counter.QuadPart % frequency.QuadPart) * 1e9 / frequency.QuadPart;
+#else
+    clock_gettime(CLOCK_MONOTONIC, ts);
+#endif
+}
+
+/* Handler for SIGHUP, SIGINT, SIGALRM, SIGTERM
  *
  * Inside sig_on() (i.e. when cysigs.sig_on_count is positive), this
  * raises an exception and jumps back to sig_on().
@@ -350,7 +384,7 @@ static void cysigs_interrupt_handler(int sig)
         if (cysigs.debug_level >= 3) print_backtrace();
         /* Store time of this signal, unless there is already a
          * pending signal. */
-        if (!cysigs.interrupt_received) clock_gettime(CLOCK_MONOTONIC, &sigtime);
+        if (!cysigs.interrupt_received) get_monotonic_time(&sigtime);
     }
 #endif
 
@@ -361,8 +395,10 @@ static void cysigs_interrupt_handler(int sig)
             /* Raise an exception so Python can see it */
             do_raise_exception(sig);
 
+#if !_WIN32
             /* Jump back to sig_on() (the first one if there is a stack) */
             siglongjmp(trampoline, sig);
+#endif
         }
     }
     else
@@ -376,7 +412,11 @@ static void cysigs_interrupt_handler(int sig)
     /* If we are here, we cannot handle the interrupt immediately, so
      * we store the signal number for later use.  But make sure we
      * don't overwrite a SIGHUP or SIGTERM which we already received. */
-    if (cysigs.interrupt_received != SIGHUP && cysigs.interrupt_received != SIGTERM)
+    if (
+#ifdef SIGHUP
+        cysigs.interrupt_received != SIGHUP && 
+#endif
+        cysigs.interrupt_received != SIGTERM)
     {
         cysigs.interrupt_received = sig;
         custom_set_pending_signal(sig);
@@ -393,8 +433,11 @@ static void cysigs_signal_handler(int sig)
     int inside = cysigs.inside_signal_handler;
     cysigs.inside_signal_handler = 1;
 
-    if (inside == 0 && cysigs.sig_on_count > 0 && sig != SIGQUIT)
-    {
+    if (inside == 0 && cysigs.sig_on_count > 0 
+        #ifdef SIGQUIT
+            && sig != SIGQUIT
+        #endif
+    ) {
         /* We are inside sig_on(), so we can handle the signal! */
 #if ENABLE_DEBUG_CYSIGNALS
         if (cysigs.debug_level >= 1) {
@@ -402,15 +445,16 @@ static void cysigs_signal_handler(int sig)
             print_stderr_long(sig);
             print_stderr(" *** inside sig_on\n");
             if (cysigs.debug_level >= 3) print_backtrace();
-            clock_gettime(CLOCK_MONOTONIC, &sigtime);
+            get_monotonic_time(&sigtime);
         }
 #endif
 
         /* Raise an exception so Python can see it */
         do_raise_exception(sig);
-
+    #if !_WIN32
         /* Jump back to sig_on() (the first one if there is a stack) */
         siglongjmp(trampoline, sig);
+    #endif
     }
     else
     {
@@ -422,7 +466,7 @@ static void cysigs_signal_handler(int sig)
     }
 }
 
-
+#if !_WIN32
 /* A trampoline to jump to after handling a signal.
  *
  * The jump to sig_on() uses cylongjmp(), which does not restore the
@@ -506,6 +550,7 @@ static void setup_trampoline(void)
         cylongjmp(trampoline_setup, 1);
     }
 }
+#endif
 
 
 /* This calls sig_raise_exception() to actually raise the exception. */
@@ -514,7 +559,7 @@ static void do_raise_exception(int sig)
 #if ENABLE_DEBUG_CYSIGNALS
     struct timespec raisetime;
     if (cysigs.debug_level >= 2) {
-        clock_gettime(CLOCK_MONOTONIC, &raisetime);
+        get_monotonic_time(&raisetime);
         long delta_ms = (raisetime.tv_sec - sigtime.tv_sec)*1000L + (raisetime.tv_nsec - sigtime.tv_nsec)/1000000L;
         PyGILState_STATE gilstate = PyGILState_Ensure();
         print_stderr("do_raise_exception(sig=");
@@ -608,6 +653,11 @@ static void setup_alt_stack(void)
 
 static void setup_cysignals_handlers(void)
 {
+#ifdef _WIN32
+    signal(SIGINT, cysigs_interrupt_handler);
+    signal(SIGTERM, cysigs_interrupt_handler);
+    signal(SIGABRT, cysigs_signal_handler);
+#else
     struct sigaction sa;
     memset(&sa, 0, sizeof(sa));
 
@@ -635,21 +685,30 @@ static void setup_cysignals_handlers(void)
     /* Handlers for interrupt-like signals */
     sa.sa_handler = cysigs_interrupt_handler;
     sa.sa_flags = 0;
+#ifdef SIGHUP
     if (sigaction(SIGHUP, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
+#endif
     if (sigaction(SIGINT, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
+#ifdef SIGALRM
     if (sigaction(SIGALRM, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
+#endif
 
     /* Handlers for critical signals */
     sa.sa_handler = cysigs_signal_handler;
     /* Allow signals during signal handling, we have code to deal with
      * this case. */
     sa.sa_flags = SA_NODEFER | SA_ONSTACK;
+#ifdef SIGQUIT
     if (sigaction(SIGQUIT, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
+#endif
     if (sigaction(SIGILL, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
     if (sigaction(SIGABRT, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
     if (sigaction(SIGFPE, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
+#ifdef SIGBUS
     if (sigaction(SIGBUS, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
+#endif
     if (sigaction(SIGSEGV, &sa, NULL)) {perror("cysignals sigaction"); exit(1);}
+#endif
 }
 
 

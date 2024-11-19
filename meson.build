@@ -14,6 +14,7 @@ cxx = meson.get_compiler('cpp')
 is_windows = host_machine.system() == 'windows'
 is_cygwin = host_machine.system() == 'cygwin'
 is_msvc = cc.get_id() == 'msvc'
+is_mingw = cc.get_id()=='gcc' and host_machine.system()=='windows'
 
 # Set preprocessor macros
 # Disable .c line numbers in exception tracebacks
@@ -45,7 +46,7 @@ config.set('HAVE_TIME_H', cc.has_header('time.h') ? 1 : 0)
 config.set('HAVE_SYS_WAIT_H', cc.has_header('sys/wait.h') ? 1 : 0)
 config.set('HAVE_WINDOWS_H', cc.has_header('windows.h') ? 1 : 0)
 
-config.set('HAVE_FORK', cc.has_function('fork') ? 1 : 0)
+config.set('HAVE_FORK', (cc.has_function('fork') and not is_mingw) ? 1 : 0)
 config.set('HAVE_KILL', cc.has_function('kill') ? 1 : 0)
 config.set('HAVE_SIGPROCMASK', cc.has_function('sigprocmask') ? 1 : 0)
 config.set('HAVE_SIGALTSTACK', cc.has_function('sigaltstack') ? 1 : 0)

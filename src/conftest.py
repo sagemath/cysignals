@@ -4,8 +4,11 @@ import platform
 from _pytest.nodes import Collector
 from _pytest.doctest import DoctestModule
 
+# cysignals-CSI only works from  gdb, i.e. invoke ./testgdb.py directly
+collect_ignore = ["cysignals/cysignals-CSI-helper.py"]
+
 if platform.system() == "Windows":
-    collect_ignore = [
+    collect_ignore += [
         "cysignals/alarm.pyx",
         "cysignals/pselect.pyx",
         "cysignals/pysignals.pyx",

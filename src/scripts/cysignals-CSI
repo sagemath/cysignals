@@ -40,6 +40,7 @@ import site
 from argparse import ArgumentParser
 from datetime import datetime
 from shutil import which
+import importlib.resources as importlib_resources
 
 
 def pid_exists(pid):
@@ -65,15 +66,12 @@ def gdb_commands(pid, color):
     cmds += b'import sys; sys.stdout.flush()\n'
     cmds += b'end\n'
     cmds += b'bt full\n'
-    cysignals_share = os.path.join(os.path.dirname(sys.argv[0]), '..',
-                                   'share', 'cysignals')
-    script = os.path.join(cysignals_share, 'cysignals-CSI-helper.py')
-    with open(script, 'rb') as f:
-        cmds += b'python\n'
-        cmds += b'color = %r; ' % color
-        cmds += b'sys_path = %r; ' % sys.path
-        cmds += f.read()
-        cmds += b'end\n'
+    script = importlib_resources.files('cysignals') / 'cysignals-CSI-helper.py'
+    cmds += b'python\n'
+    cmds += b'color = %r; ' % color
+    cmds += b'sys_path = %r; ' % sys.path
+    cmds += script.read_bytes()
+    cmds += b'end\n'
     cmds += b'detach inferior 1\n'
     cmds += b'quit\n'
     return cmds

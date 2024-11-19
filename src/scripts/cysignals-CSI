@@ -40,11 +40,7 @@ import site
 from argparse import ArgumentParser
 from datetime import datetime
 from shutil import which
-
-if sys.version_info >= (3, 9):
-    import importlib.resources as importlib_resources
-else:
-    import importlib_resources
+import importlib.resources as importlib_resources
 
 
 def pid_exists(pid):

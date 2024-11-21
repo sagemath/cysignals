@@ -25,7 +25,7 @@ signals and errors) in Cython code.
 Requirements
 ------------
 
-- Python >= 3.6
+- Python >= 3.9
 - Cython >= 0.28
 - Sphinx >= 1.6 (for building the documentation)
 

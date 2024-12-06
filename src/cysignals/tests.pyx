@@ -1,3 +1,4 @@
+# cython: preliminary_late_includes_cy28=True
 """
 Test interrupt and signal handling
 

@@ -492,7 +492,7 @@ static void cysigs_signal_handler(int sig)
  * fact, POSIX recommends threads in
  * http://pubs.opengroup.org/onlinepubs/009695299/functions/makecontext.html
  */
-static void* _sig_on_trampoline(void* dummy)
+static void* _sig_on_trampoline(CYTHON_UNUSED void* dummy)
 {
     register int sig;
 
@@ -523,7 +523,7 @@ static void setup_trampoline(void)
     size_t trampolinestacksize = 1 << 17;
 
 #ifdef PTHREAD_STACK_MIN
-    if (trampolinestacksize < PTHREAD_STACK_MIN)
+    if (trampolinestacksize < (size_t) PTHREAD_STACK_MIN)
         trampolinestacksize = PTHREAD_STACK_MIN;
 #endif
     trampolinestack = malloc(trampolinestacksize + 4096);

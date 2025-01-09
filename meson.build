@@ -1,5 +1,5 @@
 project('cysignals', 'c', 'cpp', 'cython',
-  default_options: ['warning_level=3', 'cpp_std=c++17']
+  default_options: ['warning_level=2', 'cpp_std=c++17']
 )
 
 # Python

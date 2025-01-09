@@ -58,6 +58,8 @@ cdef extern from "<pthread.h>" nogil:
 
 
 cdef extern from *:
+    # disable warning (variable might be clobbered by longjmp)
+    '#pragma GCC diagnostic ignored "-Wclobbered"'
     ctypedef int volatile_int "volatile int"
 
 
@@ -101,6 +103,9 @@ cdef void dereference_null_pointer() noexcept nogil:
     cdef volatile_int* ptr = <volatile_int*>(0)
     ptr[0] += 1
 
+# disable warning (infinite recursion in stack_overflow)
+cdef extern from *:
+    '#pragma GCC diagnostic ignored "-Winfinite-recursion"'
 
 cdef int stack_overflow(volatile_int* x=NULL) noexcept nogil:
     cdef volatile_int a = 0

@@ -1280,7 +1280,7 @@ def test_thread_sig_block(long delay=DEFAULT_DELAY):
         >>> test_thread_sig_block()
 
     """
-    cdef pthread_t t1, t2
+    cdef pthread_t t1 = 0, t2 = 0
     with nogil:
         sig_on()
         if pthread_create(&t1, NULL, func_thread_sig_block, NULL):

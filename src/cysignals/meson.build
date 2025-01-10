@@ -28,6 +28,7 @@ foreach name, pyx : extensions
     py.extension_module(name,
         pyx,
         include_directories: [include_directories('.'), src],
+        cython_args: ['-Wextra'],
         dependencies: [py_dep, threads_dep],
         install: true,
         subdir: 'cysignals'

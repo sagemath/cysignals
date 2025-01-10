@@ -254,7 +254,7 @@ def test_sig_str(long delay=DEFAULT_DELAY):
         signal_after_delay(SIGABRT, delay)
         infinite_loop()
 
-cdef c_test_sig_on_cython() noexcept:
+cdef c_test_sig_on_cython():
     sig_on()
     infinite_loop()
 

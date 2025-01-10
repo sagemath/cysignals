@@ -8,6 +8,12 @@ We disable crash debugging for this test run::
 
     >>> import os
     >>> os.environ["CYSIGNALS_CRASH_NDEBUG"] = ""
+
+Reload cysignals handlers to workaround pytest override::
+
+    >>> from cysignals.signals import init_cysignals
+    >>> init_cysignals()
+    <cyfunction python_check_interrupt at ...>
 """
 
 #*****************************************************************************

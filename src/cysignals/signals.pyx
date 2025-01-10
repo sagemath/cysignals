@@ -246,10 +246,10 @@ def sig_print_exception(sig, msg=None):
 
     try:
         sig_raise_exception(sig, m)
-    except BaseException as e:
+    except BaseException:
         # Print exception to stdout without traceback
         import sys, traceback
-        typ, val, tb = sys.exc_info()
+        typ, val, _ = sys.exc_info()
         traceback.print_exception(typ, val, None, file=sys.stdout, chain=False)
 
 

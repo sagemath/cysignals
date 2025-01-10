@@ -1,4 +1,4 @@
-# cython: preliminary_late_includes_cy28=True
+# cython: preliminary_late_includes_cy28=True, show_performance_hints=False
 """
 Test interrupt and signal handling
 

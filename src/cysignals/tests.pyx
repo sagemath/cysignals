@@ -202,7 +202,7 @@ def subpython_err(command, **kwds):
     """
     argv = [sys.executable, '-c', command]
     P = Popen(argv, stdout=PIPE, stderr=PIPE, universal_newlines=True, **kwds)
-    (out, err) = P.communicate()
+    (_, err) = P.communicate()
     sys.stdout.write(err)
 
 
@@ -982,7 +982,7 @@ def test_sig_occurred_dealloc():
         No current exception
 
     """
-    x = DeallocDebug()
+    _ = DeallocDebug()
     sig_str("test_sig_occurred_dealloc()")
     abort()
 
@@ -1160,9 +1160,8 @@ def sig_on_bench():
         >>> sig_on_bench()
 
     """
-    cdef int i
     with nogil:
-        for i in range(1000000):
+        for _ in range(1000000):
             sig_on()
             sig_off()
 
@@ -1176,9 +1175,8 @@ def sig_check_bench():
         >>> sig_check_bench()
 
     """
-    cdef int i
     with nogil:
-        for i in range(1000000):
+        for _ in range(1000000):
             sig_check()
 
 
@@ -1298,8 +1296,7 @@ def test_thread_sig_block(long delay=DEFAULT_DELAY):
 
 cdef void* func_thread_sig_block(void* ignored) noexcept with gil:
     # This is executed by the two threads spawned by test_thread_sig_block()
-    cdef int n
-    for n in range(1000000):
+    for _ in range(1000000):
         sig_block()
         if not (1 <= cysigs.block_sigint <= 2):
             PyErr_SetString(RuntimeError, "sig_block() is not thread-safe")

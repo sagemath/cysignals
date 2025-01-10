@@ -34,4 +34,4 @@ requires-python = ">=3.9"
 
 [tool.pytest.ini_options]
 addopts = "--doctest-modules --import-mode importlib"
-norecursedirs = "builddir docs example"
+testpaths = "src tests"

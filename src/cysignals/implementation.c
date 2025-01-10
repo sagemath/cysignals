@@ -591,7 +591,7 @@ static void _sig_on_interrupt_received(void)
     do_raise_exception(cysigs.interrupt_received);
     cysigs.sig_on_count = 0;
     cysigs.interrupt_received = 0;
-    custom_signal_unblock();
+    custom_set_pending_signal(0);
 
 #if HAVE_SIGPROCMASK
     sigprocmask(SIG_SETMASK, &oldset, NULL);

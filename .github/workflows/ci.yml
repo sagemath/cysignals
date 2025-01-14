@@ -79,6 +79,7 @@ jobs:
     - name: Build and check
       shell: C:\tools\cygwin\bin\bash.exe --norc -eo pipefail -o igncr '{0}'
       run: |
+        pip install --upgrade -r ./requirements.txt
         pip install --no-build-isolation --config-settings=builddir=builddir .
         meson test --print-errorlogs -C builddir
 

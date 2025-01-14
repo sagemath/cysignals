@@ -1,4 +1,4 @@
-# cython: preliminary_late_includes_cy28=True
+# cython: preliminary_late_includes_cy28=True, show_performance_hints=False
 """
 Test interrupt and signal handling
 
@@ -8,6 +8,12 @@ We disable crash debugging for this test run::
 
     >>> import os
     >>> os.environ["CYSIGNALS_CRASH_NDEBUG"] = ""
+
+Reload cysignals handlers to workaround pytest override::
+
+    >>> from cysignals.signals import init_cysignals
+    >>> init_cysignals()
+    <cyfunction python_check_interrupt at ...>
 """
 
 #*****************************************************************************
@@ -58,6 +64,8 @@ cdef extern from "<pthread.h>" nogil:
 
 
 cdef extern from *:
+    # disable warning (variable might be clobbered by longjmp)
+    '#pragma GCC diagnostic ignored "-Wclobbered"'
     ctypedef int volatile_int "volatile int"
 
 
@@ -101,6 +109,9 @@ cdef void dereference_null_pointer() noexcept nogil:
     cdef volatile_int* ptr = <volatile_int*>(0)
     ptr[0] += 1
 
+# disable warning (infinite recursion in stack_overflow)
+cdef extern from *:
+    '#pragma GCC diagnostic ignored "-Winfinite-recursion"'
 
 cdef int stack_overflow(volatile_int* x=NULL) noexcept nogil:
     cdef volatile_int a = 0
@@ -197,7 +208,7 @@ def subpython_err(command, **kwds):
     """
     argv = [sys.executable, '-c', command]
     P = Popen(argv, stdout=PIPE, stderr=PIPE, universal_newlines=True, **kwds)
-    (out, err) = P.communicate()
+    (_, err) = P.communicate()
     sys.stdout.write(err)
 
 
@@ -249,7 +260,7 @@ def test_sig_str(long delay=DEFAULT_DELAY):
         signal_after_delay(SIGABRT, delay)
         infinite_loop()
 
-cdef c_test_sig_on_cython() noexcept:
+cdef c_test_sig_on_cython():
     sig_on()
     infinite_loop()
 
@@ -977,7 +988,7 @@ def test_sig_occurred_dealloc():
         No current exception
 
     """
-    x = DeallocDebug()
+    _ = DeallocDebug()
     sig_str("test_sig_occurred_dealloc()")
     abort()
 
@@ -1155,9 +1166,8 @@ def sig_on_bench():
         >>> sig_on_bench()
 
     """
-    cdef int i
     with nogil:
-        for i in range(1000000):
+        for _ in range(1000000):
             sig_on()
             sig_off()
 
@@ -1171,9 +1181,8 @@ def sig_check_bench():
         >>> sig_check_bench()
 
     """
-    cdef int i
     with nogil:
-        for i in range(1000000):
+        for _ in range(1000000):
             sig_check()
 
 
@@ -1277,7 +1286,7 @@ def test_thread_sig_block(long delay=DEFAULT_DELAY):
         >>> test_thread_sig_block()
 
     """
-    cdef pthread_t t1, t2
+    cdef pthread_t t1 = 0, t2 = 0
     with nogil:
         sig_on()
         if pthread_create(&t1, NULL, func_thread_sig_block, NULL):
@@ -1293,8 +1302,7 @@ def test_thread_sig_block(long delay=DEFAULT_DELAY):
 
 cdef void* func_thread_sig_block(void* ignored) noexcept with gil:
     # This is executed by the two threads spawned by test_thread_sig_block()
-    cdef int n
-    for n in range(1000000):
+    for _ in range(1000000):
         sig_block()
         if not (1 <= cysigs.block_sigint <= 2):
             PyErr_SetString(RuntimeError, "sig_block() is not thread-safe")

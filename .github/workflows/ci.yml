@@ -68,17 +68,14 @@ jobs:
           submodules: recursive
           fetch-depth: 0
     - name: Set up Cygwin
-      uses: egor-tensin/setup-cygwin@v4
+      uses: dimpase/setup-cygwin@v5
       with:
-        packages: gcc-core gcc-g++ python3${{ matrix.python-version }}-devel ninja pkgconf
-    - name: Install dependencies
+        packages: gcc-core gcc-g++ python3${{ matrix.python-version }}-devel ninja pkgconf meson
+    - name: Install dependencies, build and check
       shell: C:\tools\cygwin\bin\bash.exe --norc -eo pipefail -o igncr '{0}'
       run: |
         python3.${{ matrix.python-version }} -m pip install --upgrade pip
-        python3.${{ matrix.python-version }} -m pip install --upgrade -r ./requirements.txt
-    - name: Build and check
-      shell: C:\tools\cygwin\bin\bash.exe --norc -eo pipefail -o igncr '{0}'
-      run: |
+        pip install --upgrade -r ./requirements.txt
         pip install --no-build-isolation --config-settings=builddir=builddir .
         meson test --print-errorlogs -C builddir
 

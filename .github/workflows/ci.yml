@@ -68,7 +68,7 @@ jobs:
           submodules: recursive
           fetch-depth: 0
     - name: Set up Cygwin
-      uses: egor-tensin/setup-cygwin@v4
+      uses: dimpase/setup-cygwin@v5
       with:
         packages: gcc-core gcc-g++ python3${{ matrix.python-version }}-devel ninja pkgconf meson
     - name: Install dependencies, build and check

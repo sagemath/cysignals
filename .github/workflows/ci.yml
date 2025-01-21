@@ -1,41 +1,5 @@
 name: CI
 
-## This GitHub Actions workflow provides:
-##
-##  - portability testing, by building and testing this project on many platforms
-##    (Linux variants and Cygwin), each with two configurations (installed packages),
-##
-##  - continuous integration, by building and testing other software
-##    that depends on this project.
-##
-## It runs on every pull request and push of a tag to the GitHub repository.
-##
-## The testing can be monitored in the "Actions" tab of the GitHub repository.
-##
-## After all jobs have finished (or are canceled) and a short delay,
-## tar files of all logs are made available as "build artifacts".
-##
-## This GitHub Actions workflow uses the portability testing framework
-## of SageMath (https://www.sagemath.org/).  For more information, see
-## https://doc.sagemath.org/html/en/developer/portability_testing.html
-
-## The workflow consists of two jobs:
-##
-##  - First, it builds a source distribution of the project
-##    and generates a script "update-pkgs.sh".  It uploads them
-##    as a build artifact named upstream.
-##
-##  - Second, it checks out a copy of the SageMath source tree.
-##    It downloads the upstream artifact and replaces the project's
-##    package in the SageMath distribution by the newly packaged one
-##    from the upstream artifact, by running the script "update-pkgs.sh".
-##    Then it builds a small portion of the Sage distribution.
-##
-## Many copies of the second step are run in parallel for each of the tested
-## systems/configurations.
-
-#on: [push, pull_request]
-
 on:
   pull_request:
     types: [opened, synchronize]

@@ -1,4 +1,4 @@
-name: CI
+name: Build & Test
 
 on:
   pull_request:
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   ci:
-    name: CI (${{ matrix.os }} with Python ${{ matrix.python-version }})
+    name: ${{ matrix.os }} with python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false

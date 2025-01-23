@@ -198,9 +198,9 @@ cdef int sig_raise_exception "sig_raise_exception"(int sig, const char* msg) exc
         PyErr_Format(SystemError, "unknown signal number %i", sig)
 
     # Save exception in cysigs.exc_value
-    cdef PyObject* typ
-    cdef PyObject* val
-    cdef PyObject* tb
+    cdef PyObject* typ = NULL
+    cdef PyObject* val = NULL
+    cdef PyObject* tb = NULL
     PyErr_Fetch(&typ, &val, &tb)
     PyErr_NormalizeException(&typ, &val, &tb)
     Py_XINCREF(val)
@@ -246,10 +246,10 @@ def sig_print_exception(sig, msg=None):
 
     try:
         sig_raise_exception(sig, m)
-    except BaseException as e:
+    except BaseException:
         # Print exception to stdout without traceback
         import sys, traceback
-        typ, val, tb = sys.exc_info()
+        typ, val, _ = sys.exc_info()
         traceback.print_exception(typ, val, None, file=sys.stdout, chain=False)
 
 

@@ -80,7 +80,7 @@ def cancel_alarm():
     setitimer_real(0)
 
 
-cdef inline void setitimer_real(double x):
+cdef inline void setitimer_real(double x) noexcept:
     cdef itimerval itv
     itv.it_interval.tv_sec = 0
     itv.it_interval.tv_usec = 0

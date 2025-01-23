@@ -441,7 +441,6 @@ cdef class containsignals:
     cdef sigset_t unblock
 
     def __init__(self, signals=None):
-        cdef int s
         if signals is None:
             self.signals = [s for s in range(1, 32) if s != SIGKILL and s != SIGSTOP]
         else:

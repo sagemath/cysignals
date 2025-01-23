@@ -112,7 +112,7 @@ extern "C" {
 /*
  * Set message, return 0 if we need to cysetjmp(), return 1 otherwise.
  */
-static inline int _sig_on_prejmp(const char* message, const char* file, int line)
+static inline int _sig_on_prejmp(const char* message, CYTHON_UNUSED const char* file, CYTHON_UNUSED int line)
 {
     cysigs.s = message;
 #if ENABLE_DEBUG_CYSIGNALS

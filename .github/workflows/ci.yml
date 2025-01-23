@@ -39,6 +39,6 @@ jobs:
           pip install --upgrade -r requirements.txt
           pip install --upgrade ninja
     - name: Build
-      run: pip install --no-build-isolation --config-settings=builddir=builddir .
+      run: pip install -v --no-build-isolation --config-settings=builddir=builddir .
     - name: Test
       run: meson test --print-errorlogs -C builddir

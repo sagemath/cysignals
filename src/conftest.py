@@ -4,6 +4,9 @@ import platform
 from _pytest.nodes import Collector
 from _pytest.doctest import DoctestModule
 
+from _pytest.pathlib import resolve_pkg_root_and_module_name
+import importlib
+
 # cysignals-CSI only works from  gdb, i.e. invoke ./testgdb.py directly
 collect_ignore = ["cysignals/cysignals-CSI-helper.py"]
 
@@ -24,30 +27,10 @@ def pytest_collect_file(
     config = parent.config
     if file_path.suffix == ".pyx":
         if config.option.doctestmodules:
+            # import the module so it's available to pytest
+            _, module_name = resolve_pkg_root_and_module_name(file_path)
+            module = importlib.import_module(module_name)
+            # delete __test__ injected by cython, to avoid duplicate tests
+            del module.__test__
             return DoctestModule.from_parent(parent, path=file_path)
     return None
-
-
-# Need to import cysignals to initialize it
-import cysignals  # noqa: E402
-
-try:
-    import cysignals.alarm
-except ImportError:
-    pass
-try:
-    import cysignals.signals
-except ImportError:
-    pass
-try:
-    import cysignals.pselect
-except ImportError:
-    pass
-try:
-    import cysignals.pysignals
-except ImportError:
-    pass
-try:
-    import cysignals.tests  # noqa: F401
-except ImportError:
-    pass

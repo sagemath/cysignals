@@ -58,8 +58,12 @@ cdef extern from "<pthread.h>" nogil:
 
 
 cdef extern from *:
-    # disable warning (variable might be clobbered by longjmp)
-    '#pragma GCC diagnostic ignored "-Wclobbered"'
+    """
+    #if defined(__GNUC__) && !defined(__clang__)
+    // disable warning (variable might be clobbered by longjmp)
+    #pragma GCC diagnostic ignored "-Wclobbered"
+    #endif
+    """
     ctypedef int volatile_int "volatile int"
 
 

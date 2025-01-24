@@ -40,5 +40,11 @@ jobs:
           pip install --upgrade ninja
     - name: Build
       run: pip install -v --no-build-isolation --config-settings=builddir=builddir .
+    - name: Install cypari2
+      run: |
+        sudo apt-get update
+        sudo apt-get install pari-gp libpari-dev
+        pip install --upgrade cypari2
+      if: matrix.os == 'ubuntu-latest'
     - name: Test
       run: meson test --print-errorlogs -C builddir

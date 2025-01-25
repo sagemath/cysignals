@@ -4,7 +4,7 @@ build-backend = "mesonpy"
 
 [project]
 name = "cysignals"
-version = "1.12.2"
+version = "1.12.3"
 description = "Interrupt and signal handling for Cython"
 license = { file = "LICENSE" }
 readme = { file = "README.rst", content-type = "text/x-rst" }

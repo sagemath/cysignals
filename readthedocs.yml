@@ -1,5 +1,7 @@
+version: 2
 conda:
     file: readthedocs-conda.yml
 python:
-    version: 2.7
+    version: "3.11"
     pip_install: true
+

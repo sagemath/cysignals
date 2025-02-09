@@ -19,9 +19,6 @@ is_mingw = cc.get_id()=='gcc' and host_machine.system()=='windows'
 # Set preprocessor macros
 # Disable .c line numbers in exception tracebacks
 add_project_arguments('-DCYTHON_CLINE_IN_TRACEBACK=0', language: 'c')
-# Disable sanity checking in GNU libc
-# This is required because of false positives in the longjmp() check
-add_project_arguments('-U_FORTIFY_SOURCE', language: 'c')
 
 # Platform-specific settings
 if is_cygwin

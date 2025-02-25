@@ -29,10 +29,12 @@ from cpython.ref cimport Py_XINCREF, Py_CLEAR
 from cpython.exc cimport (PyErr_Occurred, PyErr_NormalizeException,
         PyErr_Fetch, PyErr_Restore)
 from cpython.version cimport PY_MAJOR_VERSION
+import time
 
 cimport cython
 import sys
 from gc import collect
+
 
 # On Windows, some signals are not pre-defined.
 # We define them here with values that will never occur in practice
@@ -355,6 +357,7 @@ def python_check_interrupt(sig, frame):
     sig_check()
 
 
+
 cdef void verify_exc_value() noexcept:
     """
     Check that ``cysigs.exc_value`` is still the exception being raised.
@@ -396,14 +399,19 @@ cdef void verify_exc_value() noexcept:
             Py_CLEAR(cysigs.exc_value)
             return
 
-    # To be safe, we run the garbage collector because it may clear
-    # references to our exception.
-    try:
-        collect()
-    except Exception:
-        # This can happen when Python is shutting down and the gc module
-        # is not functional anymore.
-        pass
+    cdef double cur_time = time.perf_counter(), finish_time
+    if cysigs.gc_pause_until == 0 or cysigs.gc_pause_until < cur_time:
+        # To be safe, we run the garbage collector because it may clear
+        # references to our exception.
+        try:
+            collect()
+        except Exception:
+            # This can happen when Python is shutting down and the gc module
+            # is not functional anymore.
+            pass
+
+        finish_time = time.perf_counter()
+        cysigs.gc_pause_until = finish_time + (finish_time - cur_time) * 5
 
     # Make sure we still have cysigs.exc_value at all; if this function was
     # called again during garbage collection it might have already been set

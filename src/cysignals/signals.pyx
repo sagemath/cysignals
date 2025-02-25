@@ -29,33 +29,11 @@ from cpython.ref cimport Py_XINCREF, Py_CLEAR
 from cpython.exc cimport (PyErr_Occurred, PyErr_NormalizeException,
         PyErr_Fetch, PyErr_Restore)
 from cpython.version cimport PY_MAJOR_VERSION
-from posix.time cimport clock_gettime, CLOCK_MONOTONIC
+import time
 
 cimport cython
 import sys
 from gc import collect
-
-
-cdef inline bint timespec_is_zero(timespec t):
-    return t.tv_sec == 0 and t.tv_nsec == 0
-
-
-cdef inline bint timespec_less(timespec a, timespec b):
-    return a.tv_sec < b.tv_sec or (a.tv_sec == b.tv_sec and a.tv_nsec < b.tv_nsec)
-
-
-cdef inline timespec timespec_add(timespec a, long long b):
-    cdef long long d = cython.cdiv(a.tv_nsec + b, 1000000000)
-    a.tv_sec += d
-    a.tv_nsec += b - d * 1000000000
-    if a.tv_nsec < 0:
-        a.tv_nsec += 1000000000
-        a.tv_sec -= 1
-    return a
-
-
-cdef inline long long timespec_diff(timespec a, timespec b):
-    return (a.tv_sec - b.tv_sec) * <long long>1000000000 + a.tv_nsec - b.tv_nsec
 
 
 # On Windows, some signals are not pre-defined.
@@ -421,9 +399,8 @@ cdef void verify_exc_value() noexcept:
             Py_CLEAR(cysigs.exc_value)
             return
 
-    cdef timespec cur_time, finish_time
-    clock_gettime(CLOCK_MONOTONIC, &cur_time)
-    if timespec_is_zero(cysigs.gc_pause_until) or timespec_less(cysigs.gc_pause_until, cur_time):
+    cdef double cur_time = time.perf_counter(), finish_time
+    if cysigs.gc_pause_until == 0 or cysigs.gc_pause_until < cur_time:
         # To be safe, we run the garbage collector because it may clear
         # references to our exception.
         try:
@@ -433,8 +410,8 @@ cdef void verify_exc_value() noexcept:
             # is not functional anymore.
             pass
 
-        clock_gettime(CLOCK_MONOTONIC, &finish_time)
-        cysigs.gc_pause_until = timespec_add(finish_time, timespec_diff(finish_time, cur_time) * 5)
+        finish_time = time.perf_counter()
+        cysigs.gc_pause_until = finish_time + (finish_time - cur_time) * 5
 
     # Make sure we still have cysigs.exc_value at all; if this function was
     # called again during garbage collection it might have already been set

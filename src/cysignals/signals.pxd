@@ -16,7 +16,6 @@
 #*****************************************************************************
 
 from cpython.object cimport PyObject
-from posix.time cimport timespec
 
 cdef extern from *:
     int unlikely(int) nogil  # Defined by Cython
@@ -30,7 +29,7 @@ cdef extern from "struct_signals.h":
         cy_atomic_int block_sigint
         const char* s
         PyObject* exc_value
-        timespec gc_pause_until
+        double gc_pause_until
 
 
 cdef extern from "macros.h" nogil:

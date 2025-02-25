@@ -35,7 +35,6 @@ cimport cython
 import sys
 from gc import collect
 
-
 # On Windows, some signals are not pre-defined.
 # We define them here with values that will never occur in practice
 # (to avoid compilation errors and conditional compilation).
@@ -355,7 +354,6 @@ def python_check_interrupt(sig, frame):
     ``implementation.c``.
     """
     sig_check()
-
 
 
 cdef void verify_exc_value() noexcept:

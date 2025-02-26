@@ -933,6 +933,8 @@ def test_sig_occurred_finally():
     """
     TESTS::
 
+        >>> from time import sleep
+        >>> sleep(0.5)  # see PR 227
         >>> from cysignals.tests import *
         >>> test_sig_occurred_finally()
         No current exception
@@ -1022,6 +1024,8 @@ def test_sig_occurred_dealloc_in_gc():
         >>> l = [DeallocDebug(), e]
         >>> l.append(l)
         >>> gc.disable()
+        >>> from time import sleep
+        >>> sleep(0.5)  # see PR 227
         >>> try:
         ...     del l, e
         ...     print_sig_occurred()

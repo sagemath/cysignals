@@ -353,6 +353,12 @@ def python_check_interrupt(sig, frame):
     ``implementation.c``.
     """
     sig_check()
+    # If this line is reached, a possibility is that something called
+    # signal(SIGINT, getsignal(SIGINT)), which cause cysigs_interrupt_handler
+    # to not be called. We reinstall the C-level signal handler.
+    init_cysignals()
+    cysigs.interrupt_received = sig
+    sig_check()
 
 
 cdef void verify_exc_value() noexcept:

@@ -681,7 +681,14 @@ static void setup_cysignals_handlers(void)
     sigprocmask(SIG_SETMASK, &default_sigmask, &sigmask_with_sigint);
 #endif
 
-    /* Install signal handlers */
+    /* Install signal handlers. We need a separate C-level interrupt handler
+     * apart from the Python-level interrupt handler because Python-level
+     * interrupt handler will not be called inside Cython code.
+     * See init_cysignals and python_check_interrupt for an explanation.
+     * A downside is the C-level interrupt handler will be overwritten
+     * when signal(SIGINT, getsignal(SIGINT)) is executed, in that case
+     * init_cysignals() need to be called again.
+     */
     /* Handlers for interrupt-like signals */
     sa.sa_handler = cysigs_interrupt_handler;
     sa.sa_flags = 0;

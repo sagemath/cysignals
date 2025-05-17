@@ -54,9 +54,9 @@ copyright = '2016, Martin Albrecht, Jeroen Demeyer'
 # built documents.
 #
 # The short X.Y version.
-import tomli
+import tomllib
 with open("../../pyproject.toml", "rb") as f:
-    toml_dict = tomli.load(f)
+    toml_dict = tomllib.load(f)
 version = toml_dict['project']['version']
 # The full version, including alpha/beta/rc tags.
 release = version

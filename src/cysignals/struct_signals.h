@@ -41,14 +41,23 @@
 
 
 /* Define a cy_atomic_int type for atomic operations */
-#if CYSIGNALS_C_ATOMIC || CYSIGNALS_CXX_ATOMIC
-typedef volatile _Atomic int cy_atomic_int;
-#elif CYSIGNALS_STD_ATOMIC
+#if __cplusplus
+#if CYSIGNALS_STD_ATOMIC
 #include <atomic>
 typedef volatile std::atomic<int> cy_atomic_int;
+#elif CYSIGNALS_CXX_ATOMIC
+typedef volatile _Atomic int cy_atomic_int;
 #else
 /* The type sig_atomic_t is not really atomic, but it's the best we have */
 typedef volatile sig_atomic_t cy_atomic_int;
+#endif
+#else
+#if CYSIGNALS_C_ATOMIC
+typedef volatile _Atomic int cy_atomic_int;
+#else
+/* The type sig_atomic_t is not really atomic, but it's the best we have */
+typedef volatile sig_atomic_t cy_atomic_int;
+#endif
 #endif
 
 

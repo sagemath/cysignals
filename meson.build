@@ -82,17 +82,17 @@ config.set('CYSIGNALS_USE_SIGSETJMP', (setjmp_saves_mask or gnulibc) ? 1 : 0)
 
 # Check for atomic operations
 # for _Atomic in C code
-config.set('CYSIGNALS_C_ATOMIC', cc.links('static _Atomic int x;') ? 1 : 0)
+config.set('CYSIGNALS_C_ATOMIC', cc.links('int main(void) { static _Atomic int x; return 0; }') ? 1 : 0)
 # for _Atomic with OpenMP in C code
-config.set('CYSIGNALS_C_ATOMIC_WITH_OPENMP', cc.links('static _Atomic int x;', args: ['-fopenmp']) ? 1 : 0)
+config.set('CYSIGNALS_C_ATOMIC_WITH_OPENMP', cc.links('int main(void) { static _Atomic int x; return 0; }', args: ['-fopenmp']) ? 1 : 0)
 # for _Atomic in C++ code
-config.set('CYSIGNALS_CXX_ATOMIC', cxx.links('static _Atomic int x;') ? 1 : 0)
+config.set('CYSIGNALS_CXX_ATOMIC', cxx.links('int main() { static _Atomic int x; return 0; }') ? 1 : 0)
 # for _Atomic with OpenMP in C++ code
-config.set('CYSIGNALS_CXX_ATOMIC_WITH_OPENMP', cxx.links('static _Atomic int x;', args: ['-fopenmp']) ? 1 : 0)
+config.set('CYSIGNALS_CXX_ATOMIC_WITH_OPENMP', cxx.links('int main() { static _Atomic int x; return 0; }', args: ['-fopenmp']) ? 1 : 0)
 # for std::atomic in C++ code
-config.set('CYSIGNALS_STD_ATOMIC', cxx.links('#include <atomic>\nstatic std::atomic<int> x;') ? 1 : 0)
+config.set('CYSIGNALS_STD_ATOMIC', cxx.links('#include <atomic>\nint main() { static std::atomic<int> x; return 0; }') ? 1 : 0)
 # for std::atomic with OpenMP in C++ code
-config.set('CYSIGNALS_STD_ATOMIC_WITH_OPENMP', cxx.links('#include <atomic>\nstatic std::atomic<int> x;', args: ['-fopenmp']) ? 1 : 0)
+config.set('CYSIGNALS_STD_ATOMIC_WITH_OPENMP', cxx.links('#include <atomic>\nint main() { static std::atomic<int> x; return 0; }', args: ['-fopenmp']) ? 1 : 0)
 
 if is_windows
   threads_dep = []

@@ -1,11 +1,8 @@
 cysignals: interrupt and signal handling for Cython
 ===================================================
 
-.. image:: https://travis-ci.org/sagemath/cysignals.svg?branch=master
-    :target: https://travis-ci.org/sagemath/cysignals
-
 .. image:: https://readthedocs.org/projects/cysignals/badge/?version=latest
-    :target: http://cysignals.readthedocs.org
+    :target: https://cysignals.readthedocs.org
 
 Cython and interrupts
 ---------------------

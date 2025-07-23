@@ -4,5 +4,5 @@ wheel
 Cython
 Sphinx
 flake8
-tomli
+tomli; python_version < '3.11'
 pytest>=8.0.0

@@ -57,7 +57,7 @@ copyright = '2016, Martin Albrecht, Jeroen Demeyer'
 try:
     import tomllib
 except ImportError:
-    import tomlli as tomllib
+    import tomli as tomllib
 with open("../../pyproject.toml", "rb") as f:
     toml_dict = tomllib.load(f)
 version = toml_dict['project']['version']

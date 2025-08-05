@@ -35,6 +35,7 @@ from libc.errno cimport errno
 from posix.signal cimport sigaltstack, stack_t, SS_ONSTACK
 
 from cpython cimport PyErr_SetString
+from cpython.exc cimport PyErr_CheckSignals
 
 from .signals cimport *
 from .memory cimport *
@@ -805,6 +806,13 @@ def test_interrupt_bomb(long n=100, long p=10):
     i = 0
     while True:
         try:
+            # For some reason, without the line below, the exception
+            # will be detected too late (outside the try/except block)
+            # and the KeyboardInterrupt will be leaked outside,
+            # making the test fail.
+            # We can't really call PyErr_CheckSignals() from inside
+            # sig_on() because it does not hold the GIL.
+            PyErr_CheckSignals()
             with nogil:
                 sig_on()
                 ms_sleep(1000)
@@ -1124,7 +1132,7 @@ def test_sig_block_outside_sig_on(long delay=DEFAULT_DELAY):
         sig_unblock()
 
     try:
-        sig_on()  # Interrupt caught here
+        PyErr_CheckSignals()  # Interrupt caught here
     except KeyboardInterrupt:
         return "Success"
     abort()   # This should not be reached

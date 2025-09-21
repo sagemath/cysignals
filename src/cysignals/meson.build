@@ -2,6 +2,7 @@ configure_file(output: 'cysignals_config.h', configuration: config, install_dir:
 
 py.install_sources(
     '__init__.py',
+    'cysignals.pc',
     'cysignals-CSI-helper.py',
     'memory.pxd',
     'pysignals.pxd',

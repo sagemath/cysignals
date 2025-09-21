@@ -2,18 +2,7 @@ project('cysignals_example', 'cython', 'cpp')
 
 py = import('python').find_installation()
 
-inc_cysignals = run_command(
-  py,
-  [
-    '-c',
-    '''
-import cysignals
-print(cysignals.__file__.replace('__init__.py', ''))
-    '''.strip(),
-  ],
-  check: true,
-).stdout().strip()
-cysignals = declare_dependency(include_directories: inc_cysignals)
+cysignals = dependency('cysignals')
 
 py.extension_module('cysignals_example',
   sources: ['cysignals_example.pyx'],

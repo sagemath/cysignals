@@ -46,4 +46,4 @@ jobs:
         pip install --upgrade cypari2
       if: matrix.os == 'ubuntu-latest'
     - name: Test
-      run: uv run meson test --print-errorlogs -C builddir
+      run: uv run --no-editable meson test --print-errorlogs -C builddir

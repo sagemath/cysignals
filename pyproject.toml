@@ -32,6 +32,9 @@ classifiers = [
 urls = { Homepage = "https://github.com/sagemath/cysignals" }
 requires-python = ">=3.9,<3.14"
 
+[project.entry-points.pkg_config]
+cysignals = 'cysignals'
+
 [tool.pytest.ini_options]
 addopts = "--doctest-modules --import-mode importlib"
 testpaths = "src tests"
@@ -44,6 +47,7 @@ dev = [
     "meson>=1.9.0",
     "meson-python>=0.18.0",
     "ninja>=1.13.0",
+    "pkgconf>=2.4.3.post2",
     "pytest>=8.4.2",
 ]
 

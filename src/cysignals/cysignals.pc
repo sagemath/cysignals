@@ -1,0 +1,6 @@
+includedir=${pcfiledir}
+
+Name: cysignals
+Description: cysignals library
+Version: 1.0.0
+Cflags: -I${includedir}

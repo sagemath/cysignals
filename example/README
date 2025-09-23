@@ -1,3 +1,12 @@
 This is a minimal working example package using cysignals.
 
 Building this package is also part of the cysignals testsuite.
+
+On a clear repo, and no cysignals installed anywhere, the following
+works:
+
+uv venv
+source .venv/bin/activate
+uv sync --frozen --inexact -v --no-install-project
+uv sync --frozen --inexact -v --no-build-isolation --no-editable --config-settings=builddir=builddir
+uv run --no-editable meson test --print-errorlogs -C builddir

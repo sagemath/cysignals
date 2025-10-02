@@ -30,7 +30,7 @@ classifiers = [
     "Topic :: Software Development :: Debuggers",
 ]
 urls = { Homepage = "https://github.com/sagemath/cysignals" }
-requires-python = ">=3.9,<3.14"
+requires-python = ">=3.9,<3.15"
 
 [project.entry-points.pkg_config]
 cysignals = 'cysignals'

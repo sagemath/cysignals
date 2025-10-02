@@ -91,6 +91,7 @@ cdef nogil:
     cysigs_t cysigs "cysigs"
     void _sig_on_interrupt_received "_sig_on_interrupt_received"() noexcept
     void _sig_on_recover "_sig_on_recover"() noexcept
+    void _sig_raise_deferred "_sig_raise_deferred"() noexcept
     void _sig_off_warning "_sig_off_warning"(const char*, int) noexcept
     void print_backtrace "print_backtrace"() noexcept
 
@@ -99,5 +100,6 @@ cdef inline void __generate_declarations() noexcept:
     cysigs
     _sig_on_interrupt_received
     _sig_on_recover
+    _sig_raise_deferred
     _sig_off_warning
     print_backtrace

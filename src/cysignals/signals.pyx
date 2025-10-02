@@ -56,6 +56,7 @@ cdef extern from "implementation.c":
     void print_backtrace() nogil
     void _sig_on_interrupt_received() nogil
     void _sig_on_recover() nogil
+    void _sig_raise_deferred() nogil
     void _sig_off_warning(const char*, int) nogil
 
     # Python library functions for raising exceptions without "except"

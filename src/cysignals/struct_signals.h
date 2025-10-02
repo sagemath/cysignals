@@ -91,6 +91,12 @@ typedef struct
      * been received. This is set by sig_on(). */
     cyjmp_buf env;
 
+    /* Signal number to be raised as exception after longjmp.
+     * Set by signal handler, checked and cleared by _sig_on_postjmp.
+     * This allows us to defer calling Python code until we're back
+     * in a safe context (not inside signal handler). */
+    cy_atomic_int signal_to_raise;
+
     /* An optional string (in UTF-8 encoding) to be used as text for
      * the exception raised by sig_raise_exception(). If this is NULL,
      * use some default string depending on the type of signal. This can

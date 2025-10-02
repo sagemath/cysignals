@@ -148,7 +148,10 @@ static inline int _sig_on_postjmp(int jmpret)
 {
     if (unlikely(jmpret > 0))
     {
-        /* An exception occurred */
+        /* A signal occurred and we jumped back via longjmp.
+         * Now we're back in a safe context (not in signal handler),
+         * so it's safe to call Python code to raise the exception. */
+        _sig_raise_deferred();
         _sig_on_recover();
         return 0;
     }

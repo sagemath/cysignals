@@ -25,7 +25,7 @@ See ``tests.pyx`` for extensive tests.
 
 from libc.signal cimport *
 from libc.stdio cimport freopen, stdin
-from cpython.ref cimport Py_XINCREF, Py_CLEAR
+from cpython.ref cimport Py_XINCREF, Py_CLEAR, _Py_REFCNT
 from cpython.exc cimport (PyErr_Occurred, PyErr_NormalizeException,
         PyErr_Fetch, PyErr_Restore)
 from cpython.version cimport PY_MAJOR_VERSION
@@ -361,7 +361,7 @@ cdef void verify_exc_value() noexcept:
     Check that ``cysigs.exc_value`` is still the exception being raised.
     Clear ``cysigs.exc_value`` if not.
     """
-    if cysigs.exc_value.ob_refcnt == 1:
+    if cysigs.exc_value != NULL and _Py_REFCNT(cysigs.exc_value) == 1:
         # No other references => exception is certainly gone
         Py_CLEAR(cysigs.exc_value)
         return
@@ -409,5 +409,5 @@ cdef void verify_exc_value() noexcept:
     # Make sure we still have cysigs.exc_value at all; if this function was
     # called again during garbage collection it might have already been set
     # to NULL; see https://github.com/sagemath/cysignals/issues/126
-    if cysigs.exc_value != NULL and cysigs.exc_value.ob_refcnt == 1:
+    if cysigs.exc_value != NULL and _Py_REFCNT(cysigs.exc_value) == 1:
         Py_CLEAR(cysigs.exc_value)

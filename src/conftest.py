@@ -19,16 +19,6 @@ if platform.system() == "Windows":
         "cysignals/tests.pyx",
     ]
 
-# Python 3.14+ changed the default multiprocessing start method to 'forkserver'
-# on Linux, which breaks SIGCHLD-based tests. Set it back to 'fork' for compatibility.
-if sys.version_info >= (3, 14) and platform.system() != "Windows":
-    import multiprocessing
-    try:
-        multiprocessing.set_start_method('fork', force=True)
-    except RuntimeError:
-        # Method may already be set
-        pass
-
 
 def pytest_collect_file(
     file_path: pathlib.Path,

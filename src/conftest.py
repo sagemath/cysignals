@@ -1,6 +1,5 @@
 import pathlib
 import platform
-import sys
 
 from _pytest.nodes import Collector
 from _pytest.doctest import DoctestModule

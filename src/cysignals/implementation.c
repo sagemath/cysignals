@@ -392,11 +392,10 @@ static void cysigs_interrupt_handler(int sig)
     {
         if (!cysigs.block_sigint && !custom_signal_is_blocked())
         {
-            /* Raise an exception so Python can see it */
-            do_raise_exception(sig);
-
+            /* Jump back to sig_on() (the first one if there is a stack).
+             * The signal number is encoded in the return value of sigsetjmp.
+             * Do NOT call Python code from signal handler! */
 #if !_WIN32
-            /* Jump back to sig_on() (the first one if there is a stack) */
             siglongjmp(trampoline, sig);
 #endif
         }
@@ -449,10 +448,10 @@ static void cysigs_signal_handler(int sig)
         }
 #endif
 
-        /* Raise an exception so Python can see it */
-        do_raise_exception(sig);
+        /* Jump back to sig_on() (the first one if there is a stack).
+         * The signal number is encoded in the return value of sigsetjmp.
+         * Do NOT call Python code from signal handler! */
     #if !_WIN32
-        /* Jump back to sig_on() (the first one if there is a stack) */
         siglongjmp(trampoline, sig);
     #endif
     }

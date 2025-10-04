@@ -33,13 +33,31 @@ We wait for a child created using the ``subprocess`` module::
     >>> p.poll()  # p should be finished
     0
 
-Now using the ``multiprocessing`` module::
+Now using the ``multiprocessing`` module with ANY start method::
 
     >>> from cysignals.pselect import PSelecter
-    >>> from multiprocessing import *
-    >>> import time
+    >>> from multiprocessing import get_context
+    >>> import time, sys
+    >>> # Works with any start method - uses process sentinel
+    >>> ctx = get_context()  # Uses default (forkserver on 3.14+, fork on older)
+    >>> with PSelecter() as sel:
+    ...     p = ctx.Process(target=time.sleep, args=(0.5,))
+    ...     p.start()
+    ...     # Monitor process.sentinel instead of SIGCHLD
+    ...     r, w, x, t = sel.pselect(rlist=[p.sentinel], timeout=2)
+    ...     p.is_alive()  # p should be finished
+    False
+
+For SIGCHLD-based monitoring (requires 'fork' on Python 3.14+)::
+
+    >>> import signal
+    >>> def dummy_handler(sig, frame):
+    ...     pass
+    >>> _ = signal.signal(signal.SIGCHLD, dummy_handler)
+    >>> # Use 'fork' method for SIGCHLD to work properly
+    >>> ctx = get_context('fork') if sys.version_info >= (3, 14) else get_context()
     >>> with PSelecter([signal.SIGCHLD]) as sel:
-    ...     p = Process(target=time.sleep, args=(1,))
+    ...     p = ctx.Process(target=time.sleep, args=(0.5,))
     ...     p.start()
     ...     _ = sel.sleep()
     ...     p.is_alive()  # p should be finished
@@ -289,12 +307,14 @@ cdef class PSelecter:
 
         Start a process which will cause a ``SIGCHLD`` signal::
 
-            >>> import time
-            >>> from multiprocessing import *
+            >>> import time, sys
+            >>> from multiprocessing import get_context
             >>> from cysignals.pselect import PSelecter, interruptible_sleep
+            >>> # For SIGCHLD, must use 'fork' on Python 3.14+
+            >>> ctx = get_context('fork') if sys.version_info >= (3, 14) else get_context()
             >>> w = PSelecter([signal.SIGCHLD])
             >>> with w:
-            ...     p = Process(target=time.sleep, args=(0.25,))
+            ...     p = ctx.Process(target=time.sleep, args=(0.25,))
             ...     t0 = time.time()
             ...     p.start()
 
@@ -501,3 +521,66 @@ cdef class PSelecter:
 
         """
         return self.pselect(timeout=timeout)[3]
+
+    def wait_for_process(self, process, timeout=None):
+        """
+        Wait until a multiprocessing.Process exits or timeout occurs.
+
+        This works with ANY multiprocessing start method (fork, spawn, forkserver)
+        by monitoring the process sentinel file descriptor instead of SIGCHLD.
+
+        NOTE: This is POSIX-only. On Windows, use ``multiprocessing.connection.wait()``
+        instead.
+
+        INPUT:
+
+        - ``process`` -- a ``multiprocessing.Process`` object
+
+        - ``timeout`` -- (default: ``None``) a timeout in seconds,
+          where ``None`` stands for no timeout.
+
+        OUTPUT: A boolean which is ``True`` if the call timed out,
+        False if the process exited.
+
+        EXAMPLES:
+
+        Works with any multiprocessing start method::
+
+            >>> from cysignals.pselect import PSelecter
+            >>> from multiprocessing import get_context
+            >>> import time
+            >>> # Use default start method (forkserver on 3.14+)
+            >>> ctx = get_context()
+            >>> sel = PSelecter()
+            >>> p = ctx.Process(target=time.sleep, args=(0.1,))
+            >>> p.start()
+            >>> timed_out = sel.wait_for_process(p, timeout=1)
+            >>> timed_out  # Should be False (process exited)
+            False
+            >>> p.is_alive()
+            False
+
+        Can also be used in a with block::
+
+            >>> with PSelecter() as sel:
+            ...     p = ctx.Process(target=time.sleep, args=(0.1,))
+            ...     p.start()
+            ...     timed_out = sel.wait_for_process(p, timeout=1)
+            >>> timed_out
+            False
+
+        TESTS:
+
+        Timeout case::
+
+            >>> p = ctx.Process(target=time.sleep, args=(10,))
+            >>> p.start()
+            >>> timed_out = sel.wait_for_process(p, timeout=0.1)
+            >>> timed_out  # Should be True (timeout)
+            True
+            >>> p.terminate()
+            >>> p.join()
+
+        """
+        _, _, _, timed_out = self.pselect(rlist=[process.sentinel], timeout=timeout)
+        return timed_out

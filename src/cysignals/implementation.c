@@ -392,12 +392,10 @@ static void cysigs_interrupt_handler(int sig)
     {
         if (!cysigs.block_sigint && !custom_signal_is_blocked())
         {
-            /* Store signal number to raise exception after longjmp.
+            /* Jump back to sig_on() (the first one if there is a stack).
+             * The signal number is encoded in the return value of sigsetjmp.
              * Do NOT call Python code from signal handler! */
-            cysigs.signal_to_raise = sig;
-
 #if !_WIN32
-            /* Jump back to sig_on() (the first one if there is a stack) */
             siglongjmp(trampoline, sig);
 #endif
         }
@@ -450,11 +448,10 @@ static void cysigs_signal_handler(int sig)
         }
 #endif
 
-        /* Store signal number to raise exception after longjmp.
+        /* Jump back to sig_on() (the first one if there is a stack).
+         * The signal number is encoded in the return value of sigsetjmp.
          * Do NOT call Python code from signal handler! */
-        cysigs.signal_to_raise = sig;
     #if !_WIN32
-        /* Jump back to sig_on() (the first one if there is a stack) */
         siglongjmp(trampoline, sig);
     #endif
     }
@@ -616,20 +613,6 @@ static void _sig_on_recover(void)
 #endif
 
     cysigs.inside_signal_handler = 0;
-}
-
-/* Raise exception for signal that was deferred from signal handler.
- * This MUST be called from a safe context (after longjmp), NOT from
- * inside the signal handler itself. */
-static void _sig_raise_deferred(void)
-{
-    int sig = cysigs.signal_to_raise;
-    if (sig != 0)
-    {
-        cysigs.signal_to_raise = 0;
-        /* Now safe to call Python code - we're back in normal context */
-        do_raise_exception(sig);
-    }
 }
 
 /* Give a warning that sig_off() was called without sig_on() */

@@ -158,7 +158,7 @@ static inline int _sig_on_postjmp(int jmpret)
          * jmpret contains the signal number that was passed to siglongjmp.
          * Now we're back in a safe context (not in signal handler),
          * so it's safe to call Python code to raise the exception. */
-        do_raise_exception(jmpret);
+        _do_raise_exception(jmpret);
         _sig_on_recover();
         return 0;
     }

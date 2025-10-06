@@ -1,3 +1,4 @@
+# cython: freethreading_compatible = True
 """
 Interface to the ``pselect()`` and ``sigprocmask()`` system calls
 =================================================================

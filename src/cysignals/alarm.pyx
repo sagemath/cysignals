@@ -1,3 +1,4 @@
+# cython: freethreading_compatible = True
 """
 Fine-grained alarm function
 """

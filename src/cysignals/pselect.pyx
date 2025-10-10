@@ -42,7 +42,7 @@ Now using the ``multiprocessing`` module with ANY start method::
     >>> # Works with any start method - uses process sentinel
     >>> ctx = get_context()  # Uses default (forkserver on 3.14+, fork on older)
     >>> with PSelecter() as sel:
-    ...     p = ctx.Process(target=time.sleep, args=(0.5,))
+    ...     p = ctx.Process(target=time.sleep, args=(1,))
     ...     p.start()
     ...     # Monitor process.sentinel instead of SIGCHLD
     ...     r, w, x, t = sel.pselect(rlist=[p.sentinel], timeout=2)
@@ -58,7 +58,7 @@ For SIGCHLD-based monitoring (requires 'fork' on Python 3.14+)::
     >>> # Use 'fork' method for SIGCHLD to work properly
     >>> ctx = get_context('fork') if sys.version_info >= (3, 14) else get_context()
     >>> with PSelecter([signal.SIGCHLD]) as sel:
-    ...     p = ctx.Process(target=time.sleep, args=(0.5,))
+    ...     p = ctx.Process(target=time.sleep, args=(1,))
     ...     p.start()
     ...     _ = sel.sleep()
     ...     p.is_alive()  # p should be finished

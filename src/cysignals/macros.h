@@ -143,12 +143,22 @@ static inline int _sig_on_prejmp(const char* message, CYTHON_UNUSED const char* 
 /*
  * Process the return value of cysetjmp().
  * Return 0 if there was an exception, 1 otherwise.
+ *
+ * This function propagates the signal number naturally via jmpret
+ * (the return value from sigsetjmp/cylongjmp), which is always nonzero
+ * when a signal occurs. This avoids using global state and eliminates
+ * potential desynchronization between the jump return value and any
+ * stored signal number.
  */
 static inline int _sig_on_postjmp(int jmpret)
 {
     if (unlikely(jmpret > 0))
     {
-        /* An exception occurred */
+        /* A signal occurred and we jumped back via longjmp.
+         * jmpret contains the signal number that was passed to siglongjmp.
+         * Now we're back in a safe context (not in signal handler),
+         * so it's safe to call Python code to raise the exception. */
+        _do_raise_exception(jmpret);
         _sig_on_recover();
         return 0;
     }

@@ -31,6 +31,7 @@ def pytest_collect_file(
             _, module_name = resolve_pkg_root_and_module_name(file_path)
             module = importlib.import_module(module_name)
             # delete __test__ injected by cython, to avoid duplicate tests
-            del module.__test__
+            if hasattr(module, '__test__'):
+                del module.__test__
             return DoctestModule.from_parent(parent, path=file_path)
     return None

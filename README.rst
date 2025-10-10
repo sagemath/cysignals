@@ -23,7 +23,7 @@ Requirements
 ------------
 
 - Python >= 3.12
-- Cython >= 0.28
+- Cython >= 3.1
 - Sphinx >= 1.6 (for building the documentation)
 
 Links

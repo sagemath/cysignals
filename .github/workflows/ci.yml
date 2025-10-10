@@ -21,8 +21,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ['macos-13', 'macos-latest', 'ubuntu-latest', 'windows-latest']
-        python-version: ['3.12', '3.13', '3.14.0-rc.3']
+        os: ['macos-14', 'macos-latest', 'ubuntu-latest', 'windows-latest']
+        python-version: ['3.11', '3.12', '3.13', '3.14']
     steps:
     - name: Set up the repository
       uses: actions/checkout@v4

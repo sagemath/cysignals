@@ -1,3 +1,4 @@
+# cython: freethreading_compatible = True
 """
 Interface to the ``pselect()`` and ``sigprocmask()`` system calls
 =================================================================
@@ -33,13 +34,31 @@ We wait for a child created using the ``subprocess`` module::
     >>> p.poll()  # p should be finished
     0
 
-Now using the ``multiprocessing`` module::
+Now using the ``multiprocessing`` module with ANY start method::
 
     >>> from cysignals.pselect import PSelecter
-    >>> from multiprocessing import *
-    >>> import time
+    >>> from multiprocessing import get_context
+    >>> import time, sys
+    >>> # Works with any start method - uses process sentinel
+    >>> ctx = get_context()  # Uses default (forkserver on 3.14+, fork on older)
+    >>> with PSelecter() as sel:
+    ...     p = ctx.Process(target=time.sleep, args=(1,))
+    ...     p.start()
+    ...     # Monitor process.sentinel instead of SIGCHLD
+    ...     r, w, x, t = sel.pselect(rlist=[p.sentinel], timeout=2)
+    ...     p.is_alive()  # p should be finished
+    False
+
+For SIGCHLD-based monitoring (requires 'fork' on Python 3.14+)::
+
+    >>> import signal
+    >>> def dummy_handler(sig, frame):
+    ...     pass
+    >>> _ = signal.signal(signal.SIGCHLD, dummy_handler)
+    >>> # Use 'fork' method for SIGCHLD to work properly
+    >>> ctx = get_context('fork') if sys.version_info >= (3, 14) else get_context()
     >>> with PSelecter([signal.SIGCHLD]) as sel:
-    ...     p = Process(target=time.sleep, args=(1,))
+    ...     p = ctx.Process(target=time.sleep, args=(1,))
     ...     p.start()
     ...     _ = sel.sleep()
     ...     p.is_alive()  # p should be finished
@@ -289,12 +308,14 @@ cdef class PSelecter:
 
         Start a process which will cause a ``SIGCHLD`` signal::
 
-            >>> import time
-            >>> from multiprocessing import *
+            >>> import time, sys
+            >>> from multiprocessing import get_context
             >>> from cysignals.pselect import PSelecter, interruptible_sleep
+            >>> # For SIGCHLD, must use 'fork' on Python 3.14+
+            >>> ctx = get_context('fork') if sys.version_info >= (3, 14) else get_context()
             >>> w = PSelecter([signal.SIGCHLD])
             >>> with w:
-            ...     p = Process(target=time.sleep, args=(0.25,))
+            ...     p = ctx.Process(target=time.sleep, args=(0.25,))
             ...     t0 = time.time()
             ...     p.start()
 

@@ -120,7 +120,7 @@ static void setup_cysignals_handlers(void);
 static void cysigs_interrupt_handler(int sig);
 static void cysigs_signal_handler(int sig);
 
-static void do_raise_exception(int sig);
+static void _do_raise_exception(int sig);
 static void sigdie(int sig, const char* s);
 
 #define BACKTRACELEN 1024
@@ -392,11 +392,10 @@ static void cysigs_interrupt_handler(int sig)
     {
         if (!cysigs.block_sigint && !custom_signal_is_blocked())
         {
-            /* Raise an exception so Python can see it */
-            do_raise_exception(sig);
-
+            /* Jump back to sig_on() (the first one if there is a stack).
+             * The signal number is encoded in the return value of sigsetjmp.
+             * Do NOT call Python code from signal handler! */
 #if !_WIN32
-            /* Jump back to sig_on() (the first one if there is a stack) */
             siglongjmp(trampoline, sig);
 #endif
         }
@@ -449,10 +448,10 @@ static void cysigs_signal_handler(int sig)
         }
 #endif
 
-        /* Raise an exception so Python can see it */
-        do_raise_exception(sig);
+        /* Jump back to sig_on() (the first one if there is a stack).
+         * The signal number is encoded in the return value of sigsetjmp.
+         * Do NOT call Python code from signal handler! */
     #if !_WIN32
-        /* Jump back to sig_on() (the first one if there is a stack) */
         siglongjmp(trampoline, sig);
     #endif
     }
@@ -554,7 +553,7 @@ static void setup_trampoline(void)
 
 
 /* This calls sig_raise_exception() to actually raise the exception. */
-static void do_raise_exception(int sig)
+static void _do_raise_exception(int sig)
 {
 #if ENABLE_DEBUG_CYSIGNALS
     struct timespec raisetime;
@@ -562,7 +561,7 @@ static void do_raise_exception(int sig)
         get_monotonic_time(&raisetime);
         long delta_ms = (raisetime.tv_sec - sigtime.tv_sec)*1000L + (raisetime.tv_nsec - sigtime.tv_nsec)/1000000L;
         PyGILState_STATE gilstate = PyGILState_Ensure();
-        print_stderr("do_raise_exception(sig=");
+        print_stderr("_do_raise_exception(sig=");
         print_stderr_long(sig);
         print_stderr(")\nPyErr_Occurred() = ");
         print_stderr_ptr(PyErr_Occurred());
@@ -588,7 +587,7 @@ static void _sig_on_interrupt_received(void)
     sigprocmask(SIG_BLOCK, &sigmask_with_sigint, &oldset);
 #endif
 
-    do_raise_exception(cysigs.interrupt_received);
+    _do_raise_exception(cysigs.interrupt_received);
     cysigs.sig_on_count = 0;
     cysigs.interrupt_received = 0;
     custom_set_pending_signal(0);

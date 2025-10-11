@@ -29,6 +29,7 @@ cdef extern from "struct_signals.h":
         cy_atomic_int block_sigint
         const char* s
         PyObject* exc_value
+        double gc_pause_until
 
 
 cdef extern from "macros.h" nogil:

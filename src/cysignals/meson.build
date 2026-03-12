@@ -1,3 +1,6 @@
+pkgconf = configuration_data()
+pkgconf.set('VERSION', meson.project_version())
+
 configure_file(output: 'cysignals_config.h', configuration: config, install_dir: py.get_install_dir(pure: false) / 'cysignals', install: true)
 
 pc_config = configuration_data()

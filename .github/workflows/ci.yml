@@ -21,8 +21,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ['macos-15', 'macos-latest', 'darwin-27', 'ubuntu-latest', 'windows-latest']
-        python-version: ['3.13', '3.14', '3.15']
+        os: ['macos-15-intel', 'macos-latest', 'darwin-27', 'ubuntu-latest', 'windows-latest', 'ubuntu-24.04-arm']
+        python-version: ['3.13', '3.14', '3.14t', '3.15']
         include:
           - os: darwin-27
             runs_on:
@@ -30,17 +30,17 @@ jobs:
               labels: darwin-27
     steps:
     - name: Set up the repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
           submodules: recursive
           fetch-depth: 0
     - name: Setup Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
         allow-prereleases: true
     - name: Setup uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v7
     - name: Build
       run: |
         uv sync --frozen --inexact -v --no-install-project

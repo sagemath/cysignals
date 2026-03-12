@@ -36,6 +36,11 @@ Links
 Changelog
 ---------
 
+1.12.6 (2025-10-29)
+^^^^^^^^^^^^^^^^^^^
+
+support Python 3.14, drop old versions support, fix PyPI deployment
+
 1.12.0 (release candidate)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 

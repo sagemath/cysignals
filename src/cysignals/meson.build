@@ -1,7 +1,12 @@
 pkgconf = configuration_data()
 pkgconf.set('VERSION', meson.project_version())
 
-configure_file(output: 'cysignals_config.h', configuration: config, install_dir: py.get_install_dir(pure: false) / 'cysignals', install: true)
+configure_file(
+    output: 'cysignals_config.h',
+    configuration: config,
+    install_dir: py.get_install_dir(pure: false) / 'cysignals',
+    install: true,
+)
 
 pc_config = configuration_data()
 pc_config.set('VERSION', meson.project_version())
@@ -15,7 +20,7 @@ py.install_sources(
     'signals.pxd',
     'struct_signals.h',
     'macros.h',
-    subdir: 'cysignals'
+    subdir: 'cysignals',
 )
 
 extensions = {
@@ -32,7 +37,8 @@ foreach name, pyx : extensions
         continue
     endif
 
-    py.extension_module(name,
+    py.extension_module(
+        name,
         pyx,
         include_directories: [include_directories('.'), src],
         cython_args: ['-Wextra'],

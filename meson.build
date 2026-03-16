@@ -1,6 +1,10 @@
-project('cysignals', 'c', 'cpp', 'cython',
-  version: '1.12.6',
-  default_options: ['warning_level=2', 'cpp_std=c++17']
+project(
+    'cysignals',
+    'c',
+    'cpp',
+    'cython',
+    version: '1.12.6',
+    default_options: ['warning_level=2', 'cpp_std=c++17'],
 )
 
 # Python
@@ -15,7 +19,7 @@ cxx = meson.get_compiler('cpp')
 is_windows = host_machine.system() == 'windows'
 is_cygwin = host_machine.system() == 'cygwin'
 is_msvc = cc.get_id() == 'msvc'
-is_mingw = cc.get_id()=='gcc' and host_machine.system()=='windows'
+is_mingw = cc.get_id() == 'gcc' and host_machine.system() == 'windows'
 
 # Set preprocessor macros
 # Disable .c line numbers in exception tracebacks
@@ -23,9 +27,9 @@ add_project_arguments('-DCYTHON_CLINE_IN_TRACEBACK=0', language: 'c')
 
 # Platform-specific settings
 if is_cygwin
-  # On Cygwin FD_SETSIZE defaults to a rather low 64; we set it higher for use with PSelecter
-  # See https://github.com/sagemath/cysignals/pull/57
-  add_project_arguments('-DFD_SETSIZE=512', language: 'c')
+    # On Cygwin FD_SETSIZE defaults to a rather low 64; we set it higher for use with PSelecter
+    # See https://github.com/sagemath/cysignals/pull/57
+    add_project_arguments('-DFD_SETSIZE=512', language: 'c')
 endif
 
 config = configuration_data()
@@ -47,10 +51,14 @@ config.set('HAVE_BACKTRACE', cc.has_function('backtrace') ? 1 : 0)
 
 # We add the "leal" instruction to reduce false positives in case some
 # non-x86 architecture also has an "emms" instruction.
-config.set('HAVE_EMMS', cc.links('int main() { asm("leal (%eax), %eax; emms"); return 0; }') ? 1 : 0)
+config.set(
+    'HAVE_EMMS',
+    cc.links('int main() { asm("leal (%eax), %eax; emms"); return 0; }') ? 1 : 0,
+)
 
 # Whether setjmp() saves the signal mask
-setjmp_saves_mask = cc.links('''
+setjmp_saves_mask = cc.links(
+    '''
 #include <stdlib.h>
 #include <setjmp.h>
 #include <signal.h>
@@ -67,49 +75,94 @@ int main() {
     if (sigprocmask(SIG_SETMASK, NULL, &set)) return 4;
     return sigismember(&set, SIGFPE);
 }
-''')
-gnulibc = cc.links('''
+''',
+)
+gnulibc = cc.links(
+    '''
   #include <features.h>
   #ifndef __GLIBC__
   syntax error!
   #endif
   int main() { return 0; }
-''')
+''',
+)
 # Define to 1 to use sigsetjmp() in sig_on(), as opposed to setjmp().
 config.set('CYSIGNALS_USE_SIGSETJMP', (setjmp_saves_mask or gnulibc) ? 1 : 0)
 
 # Check for atomic operations
 # for _Atomic in C code
-config.set('CYSIGNALS_C_ATOMIC', cc.links('int main(void) { static _Atomic int x; return 0; }') ? 1 : 0)
+config.set(
+    'CYSIGNALS_C_ATOMIC',
+    cc.links('int main(void) { static _Atomic int x; return 0; }') ? 1 : 0,
+)
 # for _Atomic with OpenMP in C code
-config.set('CYSIGNALS_C_ATOMIC_WITH_OPENMP', cc.links('int main(void) { static _Atomic int x; return 0; }', args: ['-fopenmp']) ? 1 : 0)
+config.set(
+    'CYSIGNALS_C_ATOMIC_WITH_OPENMP',
+    cc.links(
+        'int main(void) { static _Atomic int x; return 0; }',
+        args: ['-fopenmp'],
+    ) ? 1 : 0,
+)
 # for _Atomic in C++ code
-config.set('CYSIGNALS_CXX_ATOMIC', cxx.links('int main() { static _Atomic int x; return 0; }') ? 1 : 0)
+config.set(
+    'CYSIGNALS_CXX_ATOMIC',
+    cxx.links('int main() { static _Atomic int x; return 0; }') ? 1 : 0,
+)
 # for _Atomic with OpenMP in C++ code
-config.set('CYSIGNALS_CXX_ATOMIC_WITH_OPENMP', cxx.links('int main() { static _Atomic int x; return 0; }', args: ['-fopenmp']) ? 1 : 0)
+config.set(
+    'CYSIGNALS_CXX_ATOMIC_WITH_OPENMP',
+    cxx.links(
+        'int main() { static _Atomic int x; return 0; }',
+        args: ['-fopenmp'],
+    ) ? 1 : 0,
+)
 # for std::atomic in C++ code
-config.set('CYSIGNALS_STD_ATOMIC', cxx.links('#include <atomic>\nint main() { static std::atomic<int> x; return 0; }') ? 1 : 0)
+config.set(
+    'CYSIGNALS_STD_ATOMIC',
+    cxx.links(
+        '#include <atomic>\nint main() { static std::atomic<int> x; return 0; }',
+    ) ? 1 : 0,
+)
 # for std::atomic with OpenMP in C++ code
-config.set('CYSIGNALS_STD_ATOMIC_WITH_OPENMP', cxx.links('#include <atomic>\nint main() { static std::atomic<int> x; return 0; }', args: ['-fopenmp']) ? 1 : 0)
+config.set(
+    'CYSIGNALS_STD_ATOMIC_WITH_OPENMP',
+    cxx.links(
+        '#include <atomic>\nint main() { static std::atomic<int> x; return 0; }',
+        args: ['-fopenmp'],
+    ) ? 1 : 0,
+)
 
 if is_windows
-  threads_dep = []
+    threads_dep = []
 else
-  threads_dep = dependency('threads')
+    threads_dep = dependency('threads')
 endif
 
 subdir('src')
 
 pytest = py_module.find_installation(modules: ['pytest'], required: false)
 if pytest.found()
-  test('pytest', pytest, args: ['-m', 'pytest'], workdir: meson.current_source_dir(), timeout: 300, verbose: true, is_parallel: false)
+    test(
+        'pytest',
+        pytest,
+        args: ['-m', 'pytest'],
+        workdir: meson.current_source_dir(),
+        timeout: 300,
+        verbose: true,
+        is_parallel: false,
+    )
 else
-  message('pytest not found, skipping tests')
+    message('pytest not found, skipping tests')
 endif
 
 build = py_module.find_installation(modules: ['build'], required: false)
 if build.found()
-  test('example', py, args: ['-m', 'build', '--no-isolation', 'example'], workdir: meson.current_source_dir())
+    test(
+        'example',
+        py,
+        args: ['-m', 'build', '--no-isolation', 'example'],
+        workdir: meson.current_source_dir(),
+    )
 else
-  message('build not found, skipping example')
+    message('build not found, skipping example')
 endif

@@ -1,5 +1,5 @@
 # cython: freethreading_compatible = True
-# cython: preliminary_late_includes_cy28=True, show_performance_hints=False
+# cython: show_performance_hints=False
 """
 Test interrupt and signal handling
 

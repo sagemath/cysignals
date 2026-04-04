@@ -1,4 +1,3 @@
-# cython: preliminary_late_includes_cy28=True
 #*****************************************************************************
 #  cysignals is free software: you can redistribute it and/or modify it
 #  under the terms of the GNU Lesser General Public License as published
@@ -29,6 +28,56 @@ cdef extern from "struct_signals.h":
         cy_atomic_int block_sigint
         const char* s
         PyObject* exc_value
+
+
+cdef extern from *:
+        """
+        #if defined(__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95)))
+            #ifndef likely
+                #define likely(x)   __builtin_expect(!!(x), 1)
+            #endif
+            #ifndef unlikely
+                #define unlikely(x) __builtin_expect(!!(x), 0)
+            #endif
+        #else
+            #ifndef likely
+                #define likely(x)   (x)
+            #endif
+            #ifndef unlikely
+                #define unlikely(x) (x)
+            #endif
+        #endif
+
+        #ifdef __PYX_HAVE__cysignals__signals
+            static cysigs_t cysigs;
+            static void _sig_on_interrupt_received(void);
+            static void _sig_on_recover(void);
+            static void _do_raise_exception(int);
+            static void _sig_off_warning(char const *, int);
+            static void print_backtrace(void);
+        #else
+            static cysigs_t *__pyx_vp_9cysignals_7signals_cysigs;
+            #define cysigs (*__pyx_vp_9cysignals_7signals_cysigs)
+            static void (*_sig_on_interrupt_received)(void);
+            static void (*_sig_on_recover)(void);
+            static void (*_do_raise_exception)(int);
+            static void (*_sig_off_warning)(char const *, int);
+            static void (*print_backtrace)(void);
+        #endif
+        """
+        pass
+
+
+# Variables and functions which are implemented in implementation.c
+# and used by macros.h. We use the Cython cimport mechanism to make
+# these available to every Cython module cimporting this file.
+cdef nogil:
+    cysigs_t cysigs "cysigs"
+    void _sig_on_interrupt_received "_sig_on_interrupt_received"() noexcept
+    void _sig_on_recover "_sig_on_recover"() noexcept
+    void _do_raise_exception "_do_raise_exception"(int sig) noexcept
+    void _sig_off_warning "_sig_off_warning"(const char*, int) noexcept
+    void print_backtrace "print_backtrace"() noexcept
 
 
 cdef extern from "macros.h" nogil:
@@ -82,18 +131,6 @@ cdef inline PyObject* sig_occurred() noexcept:
     if unlikely(cysigs.exc_value is not NULL):
         verify_exc_value()
     return cysigs.exc_value
-
-
-# Variables and functions which are implemented in implementation.c
-# and used by macros.h. We use the Cython cimport mechanism to make
-# these available to every Cython module cimporting this file.
-cdef nogil:
-    cysigs_t cysigs "cysigs"
-    void _sig_on_interrupt_received "_sig_on_interrupt_received"() noexcept
-    void _sig_on_recover "_sig_on_recover"() noexcept
-    void _do_raise_exception "_do_raise_exception"(int sig) noexcept
-    void _sig_off_warning "_sig_off_warning"(const char*, int) noexcept
-    void print_backtrace "print_backtrace"() noexcept
 
 
 cdef inline void __generate_declarations() noexcept:

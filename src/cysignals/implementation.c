@@ -28,7 +28,7 @@ Interrupt and signal handling for Cython
 #endif
 
 
-#include "config.h"
+#include <Python.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -52,7 +52,6 @@ Interrupt and signal handling for Cython
 #if HAVE_SYS_PRCTL_H
 #include <sys/prctl.h>
 #endif
-#include <Python.h>
 
 // Custom signal handling of other packages.
 #define MAX_N_CUSTOM_HANDLERS 16

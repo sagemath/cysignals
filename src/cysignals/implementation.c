@@ -28,6 +28,7 @@ Interrupt and signal handling for Cython
 #endif
 
 
+#include "config.h"
 #include <Python.h>
 #include <stdio.h>
 #include <string.h>

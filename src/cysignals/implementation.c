@@ -29,7 +29,6 @@ Interrupt and signal handling for Cython
 
 
 #include "config.h"
-#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <stdio.h>
 #include <string.h>

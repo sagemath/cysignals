@@ -1,8 +1,11 @@
 configure_file(output: 'cysignals_config.h', configuration: config, install_dir: py.get_install_dir(pure: false) / 'cysignals', install: true)
 
+pc_config = configuration_data()
+pc_config.set('VERSION', meson.project_version())
+configure_file(input: 'cysignals.pc.in', output: 'cysignals.pc', configuration: pc_config, install_dir: py.get_install_dir(pure: false) / 'cysignals', install: true)
+
 py.install_sources(
     '__init__.py',
-    'cysignals.pc',
     'cysignals-CSI-helper.py',
     'memory.pxd',
     'pysignals.pxd',

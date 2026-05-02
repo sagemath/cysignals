@@ -26,6 +26,7 @@
 #include <setjmp.h>
 #include <signal.h>
 #include <Python.h>
+#include <sys/time.h>
 
 
 /* Choose sigjmp/longjmp variant */
@@ -100,6 +101,10 @@ typedef struct
     /* Reference to the exception object that we raised (NULL if none).
      * This is used by the sig_occurred function. */
     PyObject* exc_value;
+
+    /* Time until calling garbage collector is allowed. Using Python time.perf_counter.
+     * See https://github.com/sagemath/cysignals/issues/215. */
+    double gc_pause_until;
 
 #if ENABLE_DEBUG_CYSIGNALS
     int debug_level;

@@ -26,7 +26,7 @@ jobs:
 
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.runs_on || matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -35,6 +35,12 @@ jobs:
           - windows-latest
           - windows-11-arm
           - macos-latest
+          - darwin-27
+        include:
+          - os: darwin-27
+            runs_on:
+              group: sage-darwin27
+              labels: darwin-27
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6

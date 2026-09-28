@@ -44,7 +44,7 @@ jobs:
     - name: Build
       run: |
         uv sync --frozen --inexact -v --no-install-project
-        uv sync --frozen --inexact -v --no-build-isolation --no-editable --config-settings=builddir=builddir
+        uv sync --frozen --inexact -v --no-build-isolation --no-editable --reinstall-package cysignals --config-settings=builddir=builddir
     - name: Install cypari2
       run: |
         sudo apt-get update

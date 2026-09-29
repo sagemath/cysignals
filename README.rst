@@ -36,6 +36,11 @@ Links
 Changelog
 ---------
 
+1.13.0 (2026-09-28)
+^^^^^^^^^^^^^^^^^^^
+
+support Python 3.14t and Python 3.15, support arm64 Linux and Windows, improve CI
+
 1.12.6 (2025-10-29)
 ^^^^^^^^^^^^^^^^^^^
 

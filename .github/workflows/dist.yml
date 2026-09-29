@@ -11,8 +11,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  validate_metadata:
+    name: Validate package metadata
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v7.4.0
+      - name: Validate pyproject.toml and PyPI classifiers
+        run: uvx --from 'validate-pyproject[all]==0.26' validate-pyproject pyproject.toml
+
   make_sdist:
     name: Build sdist
+    needs: validate_metadata
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -26,6 +36,7 @@ jobs:
 
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
+    needs: validate_metadata
     runs-on: ${{ matrix.runs_on || matrix.os }}
     strategy:
       fail-fast: false

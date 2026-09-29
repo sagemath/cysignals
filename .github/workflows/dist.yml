@@ -4,11 +4,6 @@ on:
   push:
   pull_request:
   workflow_dispatch:
-    inputs:
-      publish:
-        description: Publish built distributions to PyPI (skip files already uploaded)
-        type: boolean
-        default: false
 
 concurrency:
   # Cancel previous runs of this workflow for the same branch
@@ -92,7 +87,7 @@ jobs:
 
       - name: Generate artifact attestations
         uses: actions/attest-build-provenance@v4.1.0
-        if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags')) || (github.event_name == 'workflow_dispatch' && inputs.publish)
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
         with:
           subject-path: "dist/*"
 
@@ -100,5 +95,4 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           verbose: true
-          skip-existing: ${{ github.event_name == 'workflow_dispatch' }}
-        if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags')) || (github.event_name == 'workflow_dispatch' && inputs.publish)
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')

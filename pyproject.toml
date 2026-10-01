@@ -52,7 +52,7 @@ dev = [
 ]
 
 [tool.cibuildwheel]
-skip = ["*-win32", "cp313t-*"]
+skip = ["*-win32"]
 test-groups = ["dev"]
 test-sources = ["tests", "pyproject.toml"]
 test-command = "python -m pytest"

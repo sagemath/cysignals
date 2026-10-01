@@ -52,7 +52,6 @@ dev = [
 ]
 
 [tool.cibuildwheel]
-enable = ["cpython-freethreading"]
 skip = ["*-win32", "cp313t-*"]
 test-groups = ["dev"]
 test-sources = ["tests", "pyproject.toml"]

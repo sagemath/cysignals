@@ -1,6 +1,3 @@
-pkgconf = configuration_data()
-pkgconf.set('VERSION', meson.project_version())
-
 configure_file(
     output: 'cysignals_config.h',
     configuration: config,

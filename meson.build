@@ -3,7 +3,7 @@ project(
     'c',
     'cpp',
     'cython',
-    version: '1.13.0',
+    version: '1.13.1',
     default_options: ['warning_level=2', 'cpp_std=c++17'],
 )
 

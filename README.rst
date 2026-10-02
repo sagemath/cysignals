@@ -36,6 +36,12 @@ Links
 Changelog
 ---------
 
+1.13.1 (2026-10-02)
+^^^^^^^^^^^^^^^^^^^
+
+Build setup and config fixes, no code changes.
+
+
 1.13.0 (2026-09-28)
 ^^^^^^^^^^^^^^^^^^^
 

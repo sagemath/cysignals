@@ -26,6 +26,7 @@ cdef extern from "struct_signals.h":
 
     ctypedef struct cysigs_t:
         cy_atomic_int sig_on_count
+        cy_atomic_int interrupt_received
         cy_atomic_int block_sigint
         const char* s
         PyObject* exc_value

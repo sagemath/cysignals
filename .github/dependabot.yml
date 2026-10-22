@@ -1,0 +1,7 @@
+version: 2
+updates:
+  # Notify of updates for GitHub Actions dependencies
+  - package-ecosystem: "github-actions" # See documentation for possible values
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "weekly"

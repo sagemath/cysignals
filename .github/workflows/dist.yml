@@ -76,7 +76,7 @@ jobs:
       attestations: write
       contents: read
     steps:
-      - uses: actions/download-artifact@v8.0.1
+      - uses: actions/download-artifact@v8.0.2
         with:
           pattern: release-*
           path: dist

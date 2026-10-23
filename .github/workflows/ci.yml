@@ -30,7 +30,7 @@ jobs:
               labels: darwin-27
     steps:
     - name: Set up the repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
           submodules: recursive
           fetch-depth: 0

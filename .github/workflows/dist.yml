@@ -15,7 +15,7 @@ jobs:
     name: Validate package metadata
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v7.4.0
       - name: Validate pyproject.toml and PyPI classifiers
         run: uvx --from 'validate-pyproject[all]==0.26' validate-pyproject pyproject.toml
@@ -25,7 +25,7 @@ jobs:
     needs: validate_metadata
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v7.4.0
       - name: Build sdist
         run: uv build --sdist
@@ -55,7 +55,7 @@ jobs:
               group: sage-darwin27
               labels: darwin-27
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v7.4.0
       - name: Build wheels
         uses: pypa/cibuildwheel@v4.3.1
